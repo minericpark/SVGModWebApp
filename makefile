@@ -13,12 +13,6 @@ endif
 
 all: SVGParser
 	
-StructListDemo: StructListDemo.o liblist.so
-	$(CC) $(CFLAGS) $(LDFLAGS) -o StructListDemo StructListDemo.o  -llist
-	
-StructListDemo.o: StructListDemo.c
-	$(CC) $(CFLAGS) -c StructListDemo.c 
-	
 liblist.so: LinkedListAPI.o
 	$(CC) -shared -o liblist.so LinkedListAPI.o
 

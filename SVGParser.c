@@ -1,3 +1,4 @@
+#include "SVGParser.h"
 
 /** Function to create an SVG object based on the contents of an SVG file.
  *@pre File name cannot be an empty string or NULL.
@@ -10,7 +11,7 @@
  *@param fileName - a string containing the name of the SVG file
 **/
 SVGimage* createSVGimage(char* fileName) {
-
+    return;
 }
 
 /** Function to create a string representation of an SVG object.
@@ -20,7 +21,7 @@ SVGimage* createSVGimage(char* fileName) {
  *@param obj - a pointer to an SVG struct
 **/
 char* SVGimageToString(SVGimage* img) {
-
+    return;
 }
 
 /** Function to delete image content and free all the memory.
@@ -49,19 +50,19 @@ void deleteSVGimage(SVGimage* img) {
 
 // Function that returns a list of all rectangles in the image.
 List* getRects(SVGimage* img) {
-
+    return;
 }
 // Function that returns a list of all circles in the image.
 List* getCircles(SVGimage* img) {
-
+    return;
 }
 // Function that returns a list of all groups in the image.
 List* getGroups(SVGimage* img) {
-
+    return;
 }
 // Function that returns a list of all paths in the image.
 List* getPaths(SVGimage* img) {
-
+    return;
 }
 
 
@@ -81,19 +82,19 @@ List* getPaths(SVGimage* img) {
 
 // Function that returns the number of all rectangles with the specified area
 int numRectsWithArea(SVGimage* img, float area) {
-
+    return;
 }
 // Function that returns the number of all circles with the specified area
 int numCirclesWithArea(SVGimage* img, float area) {
-
+    return;
 }
 // Function that returns the number of all paths with the specified data - i.e. Path.data field
 int numPathsWithdata(SVGimage* img, char* data) {
-
+    return;
 }
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
 int numGroupsWithLen(SVGimage* img, int len) {
-
+    return;
 }
 
 /*  Function that returns the total number of Attribute structs in the SVGimage - i.e. the number of Attributes
@@ -104,7 +105,7 @@ int numGroupsWithLen(SVGimage* img, int len) {
     *@param obj - a pointer to an SVG struct
 */
 int numAttr(SVGimage* img) {
-
+    return;
 }
 
 
@@ -114,49 +115,55 @@ void deleteAttribute( void* data) {
 
 }
 char* attributeToString( void* data) {
-
+    return;
 }
 int compareAttributes(const void *first, const void *second) {
-
+    return;
 }
 
 void deleteGroup(void* data) {
 
 }
 char* groupToString( void* data) {
-
+    return;
 }
 int compareGroups(const void *first, const void *second) {
-
+    return;
 }
 
 void deleteRectangle(void* data) {
 
 }
 char* rectangleToString(void* data) {
-
+    return;
 }
 int compareRectangles(const void *first, const void *second) {
-
+    return;
 }
 
 void deleteCircle(void* data) {
 
 }
 char* circleToString(void* data) {
-
+    return;
 }
 int compareCircles(const void *first, const void *second) {
-
+    return;
 }
 
 void deletePath(void* data) {
 
 }
 char* pathToString(void* data) {
-
+    return;
 }
 int comparePaths(const void *first, const void *second) {
-    
+    return;
 }
 
+/**
+ * Simple main for testing of library
+ */
+int main(int argc, char **argv) {
+    return 0;
+}

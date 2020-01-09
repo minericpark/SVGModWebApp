@@ -13,11 +13,11 @@ endif
 
 all: SVGParser
 	
-SVGParser: SVGParser.o liblist.so
-	$(CC) $(CFLAGS) $(LDFLAGS) -o SVGParser SVGParser.o  -llist
+StructListDemo: StructListDemo.o liblist.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -o StructListDemo StructListDemo.o  -llist
 	
-SVGParser.o: SVGParser.c
-	$(CC) $(CFLAGS) -c SVGParser.c 
+StructListDemo.o: StructListDemo.c
+	$(CC) $(CFLAGS) -c StructListDemo.c 
 	
 liblist.so: LinkedListAPI.o
 	$(CC) -shared -o liblist.so LinkedListAPI.o
@@ -25,8 +25,8 @@ liblist.so: LinkedListAPI.o
 LinkedListAPI.o: LinkedListAPI.c LinkedListAPI.h
 	$(CC) $(CFLAGS) -c -fpic LinkedListAPI.c
 
-xmlExample: libXmlExample.c
-	$(CC) $(CFLAGS) -I$(INC_PATH) libXmlExample.c -lxml2 -o xmlExample
+SVGParser: SVGParser.c
+	$(CC) $(CFLAGS) -I$(INC_PATH) SVGParser.c -lxml2 -o SVGParser
 
 clean:
-	rm -rf SVGParser xmlExample *.o *.so
+	rm -rf SVGParser *.o *.so

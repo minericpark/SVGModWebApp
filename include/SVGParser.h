@@ -1,3 +1,5 @@
+/*DO NOT SUBMIT THIS*/
+
 #ifndef SVGPARSER_H
 #define SVGPARSER_H
 

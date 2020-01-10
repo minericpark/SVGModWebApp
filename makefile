@@ -14,13 +14,13 @@ endif
 all: SVGParser
 	
 liblist.so: LinkedListAPI.o
-	$(CC) -shared -o liblist.so LinkedListAPI.o
+	$(CC) -shared -o bin/liblist.so bin/LinkedListAPI.o
 
-LinkedListAPI.o: LinkedListAPI.c LinkedListAPI.h
-	$(CC) $(CFLAGS) -c -fpic LinkedListAPI.c
+LinkedListAPI.o: src/LinkedListAPI.c include/LinkedListAPI.h
+	$(CC) $(CFLAGS) -c -fpic src/LinkedListAPI.c
 
-SVGParser: SVGParser.c
-	$(CC) $(CFLAGS) -I$(INC_PATH) SVGParser.c -lxml2 -o SVGParser
+SVGParser: src/SVGParser.c include/SVGParser.h
+	$(CC) $(CFLAGS) -I$(INC_PATH) src/SVGParser.c -lxml2 -o bin/SVGParser
 
 clean:
-	rm -rf SVGParser *.o *.so
+	rm -rf bin/*.o bin/*.so

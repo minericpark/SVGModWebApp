@@ -1,6 +1,6 @@
 UNAME := $(shell uname)
 CC = gcc
-CFLAGS = -Wall -std=c11 -g
+CFLAGS = -Wall -std=c11 -g -Iinclude
 LDFLAGS= -L.
 
 ifeq ($(UNAME), Linux)

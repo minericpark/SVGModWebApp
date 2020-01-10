@@ -17,7 +17,7 @@ liblist.so: LinkedListAPI.o
 	$(CC) -shared -o bin/liblist.so bin/LinkedListAPI.o
 
 LinkedListAPI.o: src/LinkedListAPI.c include/LinkedListAPI.h
-	$(CC) $(CFLAGS) -c -fpic src/LinkedListAPI.c
+	$(CC) $(CFLAGS) -c -fpic src/LinkedListAPI.c -o bin/LinkedListAPI.o
 
 SVGParser: src/SVGParser.c include/SVGParser.h
 	$(CC) $(CFLAGS) -I$(INC_PATH) src/SVGParser.c -lxml2 -o bin/SVGParser

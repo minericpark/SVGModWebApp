@@ -144,9 +144,10 @@ char* attributeToString( void* data) {
     /* Length of the string is: length of name + value */
 	
 	len = strlen(tmpAttribute->name) + strlen(tmpAttribute->value);
-	tmpStr = (char*)malloc(sizeof(char)*len);
+	tmpStr = (char*)malloc(sizeof(char)*len + 15);
 	
 	sprintf(tmpStr, "Name: %s Value: %s", tmpAttribute->name, tmpAttribute->value);
+    printf ("%s %s\n", tmpAttribute->name, tmpAttribute->value);
 	
 	return tmpStr;
 }

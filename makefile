@@ -17,7 +17,7 @@ test: test.o liblist.so libsvgparser.so
 	$(CC) $(CFLAGS) $(LDFLAGS) -o bin/test bin/test.o -llist -lxml2 -lsvgparser
 	
 test.o: src/main.c
-	$(CC) $(CFLAGS) -I$(INC_PATH) -c src/main.c
+	$(CC) $(CFLAGS) -I$(INC_PATH) -c src/main.c -o bin/test.o
 
 liblist.so: LinkedListAPI.o
 	$(CC) -shared -o bin/liblist.so bin/LinkedListAPI.o

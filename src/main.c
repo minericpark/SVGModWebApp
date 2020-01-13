@@ -21,7 +21,23 @@ int main(int argc, char **argv) {
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
 
-    print_element_names(root_element);
+    /*Function*/
+    
+
+    Attribute* tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+    tmpAttribute->name = (char*)malloc(sizeof(char)*strlen("Min") + 1);
+    tmpAttribute->value = (char*)malloc(sizeof(char)*strlen("No") + 1);
+    strcpy(tmpAttribute->name, "Min");
+    strcpy(tmpAttribute->value, "No");
+
+    char* testString;
+
+    testString = attributeToString (tmpAttribute);
+    printf ("%s\n", testString);
+
+
+    deleteAttribute(tmpAttribute);
+    free(testString);
 
     /*free the document */
     xmlFreeDoc(doc);

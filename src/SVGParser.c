@@ -32,6 +32,16 @@ char* SVGimageToString(SVGimage* img) {
 **/
 void deleteSVGimage(SVGimage* img) {
 
+    SVGimage* tmpImage;
+
+    tmpImage = (Image*)img;
+
+    freeList(tmpImage->otherAttributes);
+    freeList(tmpImage->groups);
+    freeList(tmpImage->circles);
+    freeList(tmpImage->paths);
+    freeList(tmpImage->rectangles);
+    free(tmpImage);
 }
 
 /* For the four "get..." functions below, make sure you return a list of opinters to the existing structs
@@ -111,9 +121,7 @@ int numAttr(SVGimage* img) {
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */
 
-/* Free's attribute appropriately by freeing the name, value, then the attribute.
-* 
-*/
+/* Free's attribute appropriately by freeing the name, value, then the attribute */
 void deleteAttribute( void* data) {
     
     Attribute* tmpAttribute;
@@ -128,7 +136,7 @@ void deleteAttribute( void* data) {
 	free(tmpAttribute->value);
 	free(tmpAttribute);
 }
-
+/* Turns attribute into string form */
 char* attributeToString( void* data) {
 
     char* tmpStr;
@@ -151,7 +159,7 @@ char* attributeToString( void* data) {
 	
 	return tmpStr;
 }
-
+/* Compares attributes between first and second (using their value) */
 int compareAttributes(const void *first, const void *second) {
 
     Attribute* tmpAttribute1;
@@ -167,11 +175,25 @@ int compareAttributes(const void *first, const void *second) {
 	return strcmp((char*)tmpAttribute1->name, (char*)tmpAttribute2->name);
 }
 
-
+/* Free's group appropriately by calling freeList for each list within group, then the group */
 void deleteGroup(void* data) {
 
-}
+    Group* tmpGroup;
 
+    if (data == NULL) {
+        return;
+    }
+
+    tmpGroup = (Group*)data;
+
+    freeList(tmpGroup->rectangles);
+    freeList(tmpGroup->circles);
+    freeList(tmpGroup->paths);
+    freeList(tmpGroup->groups);
+    freeList(tmpGroup->otherAttributes);
+	free(tmpGroup);
+}
+/* Turns group into string form */
 char* groupToString( void* data) {
     return;
 }
@@ -183,6 +205,16 @@ int compareGroups(const void *first, const void *second) {
 
 void deleteRectangle(void* data) {
 
+    Rectangle* tmpRectangle;
+
+    if (data == NULL) {
+        return;
+    }
+
+    tmpRectangle = (Rectangle*)data;
+
+    freeList(tmpRectangle->otherAttributes);
+	free(tmpRectangle);
 }
 
 char* rectangleToString(void* data) {
@@ -196,6 +228,16 @@ int compareRectangles(const void *first, const void *second) {
 
 void deleteCircle(void* data) {
 
+    Circle* tmpCircle;
+
+    if (data == NULL) {
+        return;
+    }
+
+    tmpCircle = (Circle*)data;
+
+    freeList(tmpCircle->otherAttributes);
+    free(tmpCircle);
 }
 
 char* circleToString(void* data) {
@@ -209,6 +251,17 @@ int compareCircles(const void *first, const void *second) {
 
 void deletePath(void* data) {
 
+    Path* tmpPath;
+
+    if (data == NULL) {
+        return;
+    }
+
+    tmpPath = (Path*)data;
+
+    freeList(tmpPath->otherAttributes);
+    free(tmpPath->data);
+    free(tmpPath);
 }
 
 char* pathToString(void* data) {

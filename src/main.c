@@ -1,12 +1,9 @@
-#include <stdio.h>
-#include <string.h>
 #include "LinkedListAPI.h"
 #include "SVGParser.h"
 /**
  * Simple main for testing of library
  */
 int main(int argc, char **argv) {
-
     xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
 
@@ -18,19 +15,13 @@ int main(int argc, char **argv) {
 
     if (doc == NULL) {
         printf("error: could not parse file %s\n", argv[1]);
+        return(1);
     }
 
+    /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
 
-    Attribute* testAttribute;
-    testAttribute->name = "Hello";
-    testAttribute->value = "Test value";
-    char testString;
-
-    testString = attributeToString(testAttribute);
-
-
-    /*Run function*/
+    print_element_names(root_element);
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -41,6 +32,5 @@ int main(int argc, char **argv) {
      */
     xmlCleanupParser();
 
-    printf ("%s\n", argv[1]);
     return 0;
 }

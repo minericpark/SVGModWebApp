@@ -13,17 +13,23 @@ endif
 
 all: test
 	
-test: include/SVGParser.h src/main.c
-	$(CC) $(CFLAGS) -I$(INC_PATH) src/main.c -lxml2 -o bin/test
+test: test.o liblist.so libsvgparser.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -o test test.o  -llist
+	
+test.o: src/main.c
+	$(CC) $(CFLAGS) -I$(INC_PATH) -c src/main.c -lxml2
 
-liblist.so: LinkedListAPI.o SVGParser.o
+liblist.so: LinkedListAPI.o
 	$(CC) -shared -o bin/liblist.so bin/LinkedListAPI.o
 
 LinkedListAPI.o: include/LinkedListAPI.h src/LinkedListAPI.c
-	$(CC) $(CFLAGS) -c -fpic src/LinkedListAPI.c -o bin/LinkedListAPI.o
+	$(CC) $(CFLAGS) -c -fpic src/LinkedListAPI.c
+
+libsvgparser.so: SVGParser.o
+	$(CC) -shared -o bin/libsvgparser.so bin/SVGParser.o
 
 SVGParser.o: include/SVGParser.h src/SVGParser.c
-	$(CC) $(CFLAGS) -c -fpic src/SVGParser.c -o bin/SVGParser.o
+	$(CC) $(CFLAGS) -c -fpic src/SVGParser.c
 
 clean:
 	rm -rf bin/*.o bin/*.so

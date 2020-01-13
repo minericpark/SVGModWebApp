@@ -111,52 +111,109 @@ int numAttr(SVGimage* img) {
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */
 
+/* Free's attribute appropriately by freeing the name, value, then the attribute.
+* 
+*/
 void deleteAttribute( void* data) {
+    
+    Attribute* tmpAttribute;
+	
+	if (data == NULL){
+		return;
+	}
+	
+	tmpAttribute = (Attribute*)data;
+	
+	free(tmpAttribute->name);
+	free(tmpAttribute->value);
+	free(tmpAttribute);
+}
 
-}
 char* attributeToString( void* data) {
-    return;
+
+    char* tmpStr;
+	Attribute* tmpAttribute;
+	int len;
+	
+	if (data == NULL){
+		return NULL;
+	}
+	
+	tmpAttribute = (Attribute*)data;
+
+    /* Length of the string is: length of name + value */
+	
+	len = strlen(tmpAttribute->name) + strlen(tmpAttribute->value);
+	tmpStr = (char*)malloc(sizeof(char)*len);
+	
+	sprintf(tmpStr, "Name: %s Value: %s", tmpAttribute->name, tmpAttribute->value);
+	
+	return tmpStr;
 }
+
 int compareAttributes(const void *first, const void *second) {
-    return;
+
+    Attribute* tmpAttribute1;
+	Attribute* tmpAttribute2;
+	
+	if (first == NULL || second == NULL){
+		return 0;
+	}
+	
+	tmpAttribute1 = (Attribute*)first;
+	tmpAttribute2 = (Attribute*)second;
+	
+	return strcmp((char*)tmpAttribute1->name, (char*)tmpAttribute2->name);
 }
+
 
 void deleteGroup(void* data) {
 
 }
+
 char* groupToString( void* data) {
     return;
 }
+
 int compareGroups(const void *first, const void *second) {
     return;
 }
 
+
 void deleteRectangle(void* data) {
 
 }
+
 char* rectangleToString(void* data) {
     return;
 }
+
 int compareRectangles(const void *first, const void *second) {
     return;
 }
 
+
 void deleteCircle(void* data) {
 
 }
+
 char* circleToString(void* data) {
     return;
 }
+
 int compareCircles(const void *first, const void *second) {
     return;
 }
 
+
 void deletePath(void* data) {
 
 }
+
 char* pathToString(void* data) {
     return;
 }
+
 int comparePaths(const void *first, const void *second) {
     return;
 }

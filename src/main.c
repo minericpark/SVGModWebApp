@@ -1,4 +1,6 @@
-
+#include <stdio.h>
+#include <string.h>
+#include "LinkedListAPI.h"
 #include "SVGParser.h"
 /**
  * Simple main for testing of library
@@ -19,6 +21,14 @@ int main(int argc, char **argv) {
     }
 
     root_element = xmlDocGetRootElement(doc);
+
+    Attribute* testAttribute;
+    testAttribute->name = "Hello";
+    testAttribute->value = "Test value";
+    char testString;
+
+    testString = attributeToString(testAttribute);
+
 
     /*Run function*/
 

@@ -34,7 +34,7 @@ void deleteSVGimage(SVGimage* img) {
 
     SVGimage* tmpImage;
 
-    tmpImage = (Image*)img;
+    tmpImage = img;
 
     freeList(tmpImage->otherAttributes);
     freeList(tmpImage->groups);
@@ -60,19 +60,39 @@ void deleteSVGimage(SVGimage* img) {
 
 // Function that returns a list of all rectangles in the image.
 List* getRects(SVGimage* img) {
-    return;
+
+    if (getLength(img->rectangles) == 0) {
+        return NULL;
+    }
+
+    return img->rectangles;
 }
 // Function that returns a list of all circles in the image.
 List* getCircles(SVGimage* img) {
-    return;
+    
+    if (getLength(img->circles) == 0) {
+        return NULL;
+    }
+
+    return img->circles;
 }
 // Function that returns a list of all groups in the image.
 List* getGroups(SVGimage* img) {
-    return;
+
+    if (getLength(img->groups) == 0) {
+        return NULL;
+    }
+
+    return img->groups;
 }
 // Function that returns a list of all paths in the image.
 List* getPaths(SVGimage* img) {
-    return;
+
+    if (getLength(img->paths) == 0) {
+        return NULL;
+    }
+
+    return img->paths;
 }
 
 

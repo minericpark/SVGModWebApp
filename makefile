@@ -11,16 +11,19 @@ ifeq ($(UNAME), Darwin)
 endif
 
 
-all: SVGParser
+all: test
 	
-liblist.so: LinkedListAPI.o
+test: include/SVGParser.h src/main.c
+	$(CC) $(CFLAGS) -I$(INC_PATH) src/main.c -lxml2 -o bin/test
+
+liblist.so: LinkedListAPI.o SVGParser.o
 	$(CC) -shared -o bin/liblist.so bin/LinkedListAPI.o
 
 LinkedListAPI.o: include/LinkedListAPI.h src/LinkedListAPI.c
 	$(CC) $(CFLAGS) -c -fpic src/LinkedListAPI.c -o bin/LinkedListAPI.o
 
-SVGParser: include/SVGParser.h src/SVGParser.c
-	$(CC) $(CFLAGS) -I$(INC_PATH) src/SVGParser.c -lxml2 -o bin/SVGParser
+SVGParser.o: include/SVGParser.h src/SVGParser.c
+	$(CC) $(CFLAGS) -c -fpic src/SVGParser.c -o bin/SVGParser.o
 
 clean:
 	rm -rf bin/*.o bin/*.so

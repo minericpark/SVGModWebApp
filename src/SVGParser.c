@@ -237,7 +237,7 @@ char* groupToString( void* data) {
     attriLen = strlen(toString(tmpGroup->otherAttributes));
     groupLen = strlen(toString(tmpGroup->groups));
 
-	tmpStr = (char*)malloc(sizeof(char)*(circLen + recLen + pathLen + attriLen + groupLen) + 69);
+	tmpStr = (char*)malloc(sizeof(char)*(circLen + recLen + pathLen + attriLen + groupLen) + 74);
 	
     sprintf(tmpStr, "Circle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", toString(tmpGroup->circles), toString(tmpGroup->rectangles), toString(tmpGroup->paths), toString(tmpGroup->otherAttributes), toString(tmpGroup->groups));	
 	return tmpStr;
@@ -265,6 +265,7 @@ void deleteRectangle(void* data) {
 char* rectangleToString(void* data) {
            
     char* tmpStr;
+    char* listStr;
 	Rectangle* tmpRectangle;
 	int xLen;
     int yLen;
@@ -284,12 +285,14 @@ char* rectangleToString(void* data) {
     widthLen = 4;
     heightLen = 4;
     unitLen = 50;
-    attriLen = strlen((tmpRectangle->otherAttributes)->printData);
+    listStr = toString(tmpRectangle->otherAttributes);
+    attriLen = strlen(listStr);
 
     tmpStr = (char*)malloc(sizeof(char)*(xLen + yLen + widthLen + heightLen + unitLen + attriLen) + 44);
 	
-    sprintf(tmpStr, "x: %f\ny: %f\nwidth: %f\nheight: %f\nunit: %s\nattribute list: %s\n", tmpRectangle->x, tmpRectangle->y, tmpRectangle->width, tmpRectangle->height, tmpRectangle->units, (tmpRectangle->otherAttributes)->printData);	
-	return tmpStr;
+    sprintf(tmpStr, "x: %f\ny: %f\nwidth: %f\nheight: %f\nunit: %s\nattribute list: %s\n", tmpRectangle->x, tmpRectangle->y, tmpRectangle->width, tmpRectangle->height, tmpRectangle->units, listStr);	
+	free(listStr);
+    return tmpStr;
 }
 /*Stub - Only required for API use*/
 int compareRectangles(const void *first, const void *second) {
@@ -312,7 +315,34 @@ void deleteCircle(void* data) {
 }
 
 char* circleToString(void* data) {
-    return;
+               
+    char* tmpStr;
+    char* listStr;
+	Circle* tmpCircle;
+	int cxLen;
+    int cyLen;
+    int rLen;
+    int unitLen;
+    int attriLen;
+	
+	if (data == NULL){
+		return NULL;
+	}
+	
+	tmpCircle = (Circle*)data;
+    
+    cxLen = 4;
+    cyLen = 4;
+    rLen = 4;
+    unitLen = 50;
+    listStr = toString(tmpCircle->otherAttributes);
+    attriLen = strlen(listStr);
+
+    tmpStr = (char*)malloc(sizeof(char)*(cxLen + cyLen + rLen + unitLen + attriLen) + 34);
+	
+    sprintf(tmpStr, "cx: %f\ncy: %f\nr: %f\nunit: %s\nattribute list: %s\n", tmpCircle->cx, tmpCircle->cy, tmpCircle->r, tmpCircle->units, listStr);	
+	free(listStr);
+    return tmpStr;
 }
 /*Stub - Only required for API use*/
 int compareCircles(const void *first, const void *second) {
@@ -336,7 +366,29 @@ void deletePath(void* data) {
 }
 
 char* pathToString(void* data) {
-    return;
+        
+    char* tmpStr;
+	Path* tmpPath;
+	int dataLen;
+    char* listStr;
+    int attriLen;
+	
+	if (data == NULL){
+		return NULL;
+	}
+	
+	tmpPath = (Path*)data;
+
+    /* Length of the string is: length of name + value */
+	listStr = toString(tmpPath->otherAttributes);
+    attriLen = strlen(listStr);
+	dataLen = strlen(tmpPath->data);
+	tmpStr = (char*)malloc(sizeof(char)*(dataLen + attriLen) + 25);
+	
+	sprintf(tmpStr, "name: %s\nattribute list: %s\n", tmpPath->data, listStr);
+	free(listStr);
+
+	return tmpStr;
 }
 /*Stub - Only required for API use*/
 int comparePaths(const void *first, const void *second) {

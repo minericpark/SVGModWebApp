@@ -24,6 +24,9 @@ int main(int argc, char **argv) {
     /*Function*/
     attributeTest();
     rectTest();
+    circTest();
+    pathTest();
+    groupTest();
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -130,9 +133,12 @@ void rectTest() {
 
     char* testString = rectangleToString(testRect);
     char* testString2 = rectangleToString(testRect2);
+    int compLen;
 
     printf ("\n%s", testString);
     printf ("\n%s\n", testString2);
+    compLen = compareRectangles(testRect, testRect2);
+    printf ("Compare value: %d\n", compLen);
 
     free(testString);
     free(testString2);
@@ -142,49 +148,404 @@ void rectTest() {
 }
 
 void circTest() {
+    
+    printf ("----------Circle Test----------");
+    Circle* testCirc = (Circle*)malloc(sizeof(Circle));
+    Circle* testCirc2 = (Circle*)malloc(sizeof(Circle));
+    char tmpStr[100];
+	int memLen;
 
+    testCirc->cx = 5;
+    testCirc->cy = 5;
+    testCirc->r = 10;
+    strcpy(testCirc->units, "testCirc");
+
+    testCirc2->cx = 3;
+    testCirc2->cy = 3;
+    testCirc2->r = 9;
+    strcpy(testCirc2->units, "testCirc2");
+
+    List* attriList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    List* attriList2 = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    Attribute* tmpAttribute;
+
+    for (int i = 0; i < 4; i++){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList, (void*)tmpAttribute);
+	}
+    for (int i = 3; i >= 0; i--){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList2, (void*)tmpAttribute);
+	}
+
+    testCirc->otherAttributes = attriList;
+    testCirc2->otherAttributes = attriList2;
+
+    char* testString = circleToString(testCirc);
+    char* testString2 = circleToString(testCirc2);
+    int compLen;
+
+    printf ("\n%s", testString);
+    printf ("\n%s\n", testString2);
+    compLen = compareCircles(testCirc, testCirc2);
+    printf ("Compare value: %d\n", compLen);
+
+    free(testString);
+    free(testString2);
+
+    deleteCircle(testCirc);
+    deleteCircle(testCirc2);
 }
 
 void pathTest() {
 
+    printf ("----------Path Test----------");
+    Path* testPath = (Path*)malloc(sizeof(Path));
+    Path* testPath2 = (Path*)malloc(sizeof(Path));
+    char tmpStr[100];
+	int memLen;
+
+    testPath->data = (char*)malloc(sizeof(char)*strlen("Pathdata") + 1);
+    testPath2->data = (char*)malloc(sizeof(char)*strlen("Pathdata2") + 1);
+    strcpy(testPath->data, "Pathdata");
+    strcpy(testPath2->data, "Pathdata2");
+
+    List* attriList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    List* attriList2 = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    Attribute* tmpAttribute;
+
+    for (int i = 0; i < 4; i++){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList, (void*)tmpAttribute);
+	}
+    for (int i = 3; i >= 0; i--){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList2, (void*)tmpAttribute);
+	}
+
+    testPath->otherAttributes = attriList;
+    testPath2->otherAttributes = attriList2;
+
+    char* testString = pathToString(testPath);
+    char* testString2 = pathToString(testPath2);
+    int compLen;
+
+    printf ("\n%s", testString);
+    printf ("\n%s\n", testString2);
+    compLen = comparePaths(testPath, testPath2);
+    printf ("Compare value: %d\n", compLen);
+
+    free(testString);
+    free(testString2);
+
+    deletePath(testPath);
+    deletePath(testPath2);
 }
 
 void groupTest() {
     Group* testGroup = (Group*)malloc(sizeof(Group));
     Group* testGroup2 = (Group*)malloc(sizeof(Group));
 
-    List* rectList = (List*)malloc(sizeof(List));
-    List* rectList2 = (List*)malloc(sizeof(List));
+    List* rectList = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+    List* rectList2 = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
 
-    List* circList = (List*)malloc(sizeof(List));
-    List* circList2 = (List*)malloc(sizeof(List));
+    List* circList = initializeList(&circleToString, &deleteCircle, &compareCircles);
+    List* circList2 = initializeList(&circleToString, &deleteCircle, &compareCircles);
 
-    List* pathList = (List*)malloc(sizeof(List));
-    List* pathList2 = (List*)malloc(sizeof(List));
+    List* pathList = initializeList(&pathToString, &deletePath, &comparePaths);
+    List* pathList2 = initializeList(&pathToString, &deletePath, &comparePaths);
 
-    List* groupList = (List*)malloc(sizeof(List));
-    List* groupList2 = (List*)malloc(sizeof(List));
+    List* groupList = initializeList(&groupToString, &deleteGroup, &compareGroups);
+    List* groupList2 = initializeList(&groupToString, &deleteGroup, &compareGroups);
 
-    List* attriList = (List*)malloc(sizeof(List));
-    List* attriList2 = (List*)malloc(sizeof(List));
+    List* attriList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    List* attriList2 = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    List* tmpList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
-    for (int i = 0; i < 4; i++){/*
-		tmpName = (Name*)malloc(sizeof(Name));
-		tmpName->age = (i+1)*10;
+    Attribute* tmpAttribute;
+    Rectangle* tmpRectangle;
+    Circle* tmpCircle;
+    Path* tmpPath;
+    Group* tmpGroup;
+    char tmpStr[100];
+	int memLen;
+
+    for (int i = 0; i < 4; i++){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
 		
 		sprintf(tmpStr, "Name%d", i);
 		memLen = strlen(tmpStr)+2;
-		tmpName->firstName = (char*)malloc(sizeof(char)*memLen);
-		strcpy(tmpName->firstName, tmpStr);
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
 		
-		sprintf(tmpStr, "Lastname%d", i);
+		sprintf(tmpStr, "Value%d", i);
 		memLen = strlen(tmpStr)+2;
-		tmpName->lastName = (char*)malloc(sizeof(char)*memLen);
-		strcpy(tmpName->lastName, tmpStr);
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
 	
-		insertBack(list, (void*)tmpName);*/
+		insertBack(attriList, (void*)tmpAttribute);
 	}
+    for (int i = 3; i >= 0; i--){
 
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList2, (void*)tmpAttribute);
+	}
+    testGroup->otherAttributes = attriList;
+    testGroup2->otherAttributes = attriList2;
+
+    /*Rectangle*/
+    for (int i = 0; i < 4; i++){
+
+        tmpRectangle = (Rectangle*)malloc(sizeof(Rectangle));
+		
+        tmpRectangle->x = i;
+        tmpRectangle->y = i;
+        tmpRectangle->width = i;
+        tmpRectangle->height = i;
+		sprintf(tmpStr, "unit%d", i);
+		strcpy(tmpRectangle->units, tmpStr);
+        for (int i = 0; i < 4; i++){
+
+            tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		    sprintf(tmpStr, "Name%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->name, tmpStr);
+		
+		    sprintf(tmpStr, "Value%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->value, tmpStr);
+	
+		    insertBack(tmpList, (void*)tmpAttribute);
+	    }
+        tmpRectangle->otherAttributes = tmpList;
+		
+		insertBack(rectList, (void*)tmpRectangle);
+	}
+    for (int i = 3; i >= 0; i--){
+        
+        tmpRectangle = (Rectangle*)malloc(sizeof(Rectangle));
+		
+        tmpRectangle->x = i;
+        tmpRectangle->y = i;
+        tmpRectangle->width = i;
+        tmpRectangle->height = i;
+		sprintf(tmpStr, "unit%d", i);
+		strcpy(tmpRectangle->units, tmpStr);
+        for (int i = 3; i <= 1; i--){
+
+            tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		    sprintf(tmpStr, "Name%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->name, tmpStr);
+		
+		    sprintf(tmpStr, "Value%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->value, tmpStr);
+	
+		    insertBack(tmpList, (void*)tmpAttribute);
+	    }
+        tmpRectangle->otherAttributes = tmpList;
+		
+		insertBack(rectList2, (void*)tmpRectangle);
+	}
+    testGroup->rectangles = rectList;
+    testGroup2->rectangles = rectList2;
+
+    /*Circle*/
+    for (int i = 0; i < 4; i++){
+
+        tmpCircle = (Circle*)malloc(sizeof(Circle));
+		
+        tmpCircle->cx = i;
+        tmpCircle->cy = i;
+        tmpCircle->r = i;
+		sprintf(tmpStr, "unit%d", i);
+		strcpy(tmpCircle->units, tmpStr);
+        for (int i = 0; i < 4; i++){
+
+            tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		    sprintf(tmpStr, "Name%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->name, tmpStr);
+		
+		    sprintf(tmpStr, "Value%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->value, tmpStr);
+	
+		    insertBack(tmpList, (void*)tmpAttribute);
+	    }
+        tmpCircle->otherAttributes = tmpList;
+		
+		insertBack(circList, (void*)tmpCircle);
+	}
+    for (int i = 3; i >= 0; i--){
+        
+        tmpCircle = (Circle*)malloc(sizeof(Circle));
+		
+        tmpCircle->cx = i;
+        tmpCircle->cy = i;
+        tmpCircle->r = i;
+		sprintf(tmpStr, "unit%d", i);
+		strcpy(tmpCircle->units, tmpStr);
+        for (int i = 3; i <= 1; i--){
+
+            tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		    sprintf(tmpStr, "Name%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->name, tmpStr);
+		
+		    sprintf(tmpStr, "Value%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->value, tmpStr);
+	
+		    insertBack(tmpList, (void*)tmpAttribute);
+	    }
+        tmpCircle->otherAttributes = tmpList;
+		
+		insertBack(circList2, (void*)tmpCircle);
+	}
+    testGroup->circles = circList;
+    testGroup2->circles = circList2;
+
+    /*Path*/
+    for (int i = 0; i < 4; i++){
+
+        tmpPath = (Path*)malloc(sizeof(Path));
+		
+		sprintf(tmpStr, "Data%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpPath->data = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpPath->data, tmpStr);
+        
+        for (int i = 0; i < 4; i++){
+
+            tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		    sprintf(tmpStr, "Name%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->name, tmpStr);
+		
+		    sprintf(tmpStr, "Value%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->value, tmpStr);
+	
+		    insertBack(tmpList, (void*)tmpAttribute);
+	    }
+        tmpPath->otherAttributes = tmpList;
+	
+		insertBack(pathList, (void*)tmpPath);
+	}
+    for (int i = 3; i >= 0; i--){
+
+        tmpPath = (Path*)malloc(sizeof(Path));
+		
+		sprintf(tmpStr, "Data%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpPath->data = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpPath->data, tmpStr);
+
+        for (int i = 3; i <= 1; i--){
+
+            tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		    sprintf(tmpStr, "Name%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->name, tmpStr);
+		
+		    sprintf(tmpStr, "Value%d", i);
+		    memLen = strlen(tmpStr)+2;
+		    tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		    strcpy(tmpAttribute->value, tmpStr);
+	
+		    insertBack(tmpList, (void*)tmpAttribute);
+	    }
+        tmpPath->otherAttributes = tmpList;
+	
+		insertBack(pathList2, (void*)tmpPath);
+	}
+    testGroup->paths = pathList;
+    testGroup2->paths = pathList2;
+
+    List* groupList = initializeList(&groupToString, &deleteGroup, &compareGroups);
+    List* groupList2 = initializeList(&groupToString, &deleteGroup, &compareGroups);
+
+    deleteGroup(testGroup);
+    deleteGroup(testGroup2);
 }
 
 void SVGtest() {

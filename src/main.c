@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
 
     /*Function*/
     attributeTest();
+    rectTest();
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -38,6 +39,7 @@ int main(int argc, char **argv) {
 
 void attributeTest () {
 
+    printf ("----------Attribute Test----------\n");
     Attribute* tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
     Attribute* tmpAttribute2 = (Attribute*)malloc(sizeof(Attribute));
     tmpAttribute->name = (char*)malloc(sizeof(char)*strlen("Min") + 1);
@@ -68,8 +70,75 @@ void attributeTest () {
 
 void rectTest() {
     
-    List* attriList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    printf ("----------Rectangle Test----------");
+    Rectangle* testRect = (Rectangle*)malloc(sizeof(Rectangle));
+    Rectangle* testRect2 = (Rectangle*)malloc(sizeof(Rectangle));
+    char tmpStr[100];
+	int memLen;
 
+    testRect->x = 5;
+    testRect->y = 5;
+    testRect->width = 10;
+    testRect->height = 10;
+    strcpy(testRect->units, "testRect");
+
+    testRect2->x = 3;
+    testRect2->y = 3;
+    testRect2->width = 9;
+    testRect2->height = 9;
+    strcpy(testRect2->units, "testRect2");
+
+    List* attriList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    List* attriList2 = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    Attribute* tmpAttribute;
+
+    for (int i = 0; i < 4; i++){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList, (void*)tmpAttribute);
+	}
+    for (int i = 3; i >= 0; i--){
+
+        tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->name, tmpStr);
+		
+		sprintf(tmpStr, "Value%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpAttribute->value, tmpStr);
+	
+		insertBack(attriList2, (void*)tmpAttribute);
+	}
+
+    testRect->otherAttributes = attriList;
+    testRect2->otherAttributes = attriList2;
+
+    char* testString = rectangleToString(testRect);
+    char* testString2 = rectangleToString(testRect2);
+
+    printf ("\n%s", testString);
+    printf ("\n%s\n", testString2);
+
+    free(testString);
+    free(testString2);
+
+    deleteRectangle(testRect);
+    deleteRectangle(testRect2);
 }
 
 void circTest() {

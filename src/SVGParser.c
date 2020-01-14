@@ -175,11 +175,10 @@ char* attributeToString( void* data) {
 	tmpStr = (char*)malloc(sizeof(char)*len + 15);
 	
 	sprintf(tmpStr, "Name: %s Value: %s", tmpAttribute->name, tmpAttribute->value);
-    printf ("%s %s\n", tmpAttribute->name, tmpAttribute->value);
 	
 	return tmpStr;
 }
-/* Compares attributes between first and second (using their value) */
+/* (Stub for API) Compares attributes between first and second (using their value) */
 int compareAttributes(const void *first, const void *second) {
 
     Attribute* tmpAttribute1;
@@ -243,9 +242,9 @@ char* groupToString( void* data) {
     sprintf(tmpStr, "Circle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", toString(tmpGroup->circles), toString(tmpGroup->rectangles), toString(tmpGroup->paths), toString(tmpGroup->otherAttributes), toString(tmpGroup->groups));	
 	return tmpStr;
 }
-
+/*Stub - Only required for API use*/
 int compareGroups(const void *first, const void *second) {
-    return;
+    return 0;
 }
 
 
@@ -264,11 +263,37 @@ void deleteRectangle(void* data) {
 }
 
 char* rectangleToString(void* data) {
-    return;
-}
+           
+    char* tmpStr;
+	Rectangle* tmpRectangle;
+	int xLen;
+    int yLen;
+    int widthLen;
+    int heightLen;
+    int unitLen;
+    int attriLen;
+	
+	if (data == NULL){
+		return NULL;
+	}
+	
+	tmpRectangle = (Rectangle*)data;
+    
+    xLen = 4;
+    yLen = 4;
+    widthLen = 4;
+    heightLen = 4;
+    unitLen = 50;
+    attriLen = strlen((tmpRectangle->otherAttributes)->printData);
 
+    tmpStr = (char*)malloc(sizeof(char)*(xLen + yLen + widthLen + heightLen + unitLen + attriLen) + 44);
+	
+    sprintf(tmpStr, "x: %f\ny: %f\nwidth: %f\nheight: %f\nunit: %s\nattribute list: %s\n", tmpRectangle->x, tmpRectangle->y, tmpRectangle->width, tmpRectangle->height, tmpRectangle->units, (tmpRectangle->otherAttributes)->printData);	
+	return tmpStr;
+}
+/*Stub - Only required for API use*/
 int compareRectangles(const void *first, const void *second) {
-    return;
+    return 0;
 }
 
 
@@ -289,9 +314,9 @@ void deleteCircle(void* data) {
 char* circleToString(void* data) {
     return;
 }
-
+/*Stub - Only required for API use*/
 int compareCircles(const void *first, const void *second) {
-    return;
+    return 0;
 }
 
 
@@ -313,7 +338,7 @@ void deletePath(void* data) {
 char* pathToString(void* data) {
     return;
 }
-
+/*Stub - Only required for API use*/
 int comparePaths(const void *first, const void *second) {
-    return;
+    return 0;
 }

@@ -192,7 +192,7 @@ int compareAttributes(const void *first, const void *second) {
 	tmpAttribute1 = (Attribute*)first;
 	tmpAttribute2 = (Attribute*)second;
 	
-	return strcmp((char*)tmpAttribute1->name, (char*)tmpAttribute2->name);
+	return strcmp((char*)tmpAttribute1->value, (char*)tmpAttribute2->value);
 }
 
 /* Free's group appropriately by calling freeList for each list within group, then the group */
@@ -215,7 +215,33 @@ void deleteGroup(void* data) {
 }
 /* Turns group into string form */
 char* groupToString( void* data) {
-    return;
+       
+    char* tmpStr;
+	Group* tmpGroup;
+	int circLen;
+    int recLen;
+    int pathLen;
+    int attriLen;
+    int groupLen;
+	
+	if (data == NULL){
+		return NULL;
+	}
+	
+	tmpGroup = (Group*)data;
+
+    /* Length of the string is: length of name + value */
+	
+    circLen = strlen(toString(tmpGroup->circles));
+    recLen = strlen(toString(tmpGroup->rectangles));
+    pathLen = strlen(toString(tmpGroup->paths));
+    attriLen = strlen(toString(tmpGroup->otherAttributes));
+    groupLen = strlen(toString(tmpGroup->groups));
+
+	tmpStr = (char*)malloc(sizeof(char)*(circLen + recLen + pathLen + attriLen + groupLen) + 69);
+	
+    sprintf(tmpStr, "Circle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", toString(tmpGroup->circles), toString(tmpGroup->rectangles), toString(tmpGroup->paths), toString(tmpGroup->otherAttributes), toString(tmpGroup->groups));	
+	return tmpStr;
 }
 
 int compareGroups(const void *first, const void *second) {

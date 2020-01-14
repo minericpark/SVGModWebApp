@@ -22,7 +22,21 @@ int main(int argc, char **argv) {
     root_element = xmlDocGetRootElement(doc);
 
     /*Function*/
-    
+    attributeTest();
+
+    /*free the document */
+    xmlFreeDoc(doc);
+
+    /*
+     *Free the global variables that may
+     *have been allocated by the parser.
+     */
+    xmlCleanupParser();
+
+    return 0;
+}
+
+void attributeTest () {
 
     Attribute* tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
     Attribute* tmpAttribute2 = (Attribute*)malloc(sizeof(Attribute));
@@ -37,26 +51,73 @@ int main(int argc, char **argv) {
 
     char* testString;
     char* testString2;
+    int compLen;
 
     testString = attributeToString (tmpAttribute);
     printf ("%s\n", testString);
     testString2 = attributeToString (tmpAttribute2);
     printf ("%s\n", testString2);
-
+    compLen = compareAttributes(tmpAttribute, tmpAttribute2);
+    printf ("%d\n", compLen);
 
     deleteAttribute(tmpAttribute);
     deleteAttribute(tmpAttribute2);
     free(testString);
     free(testString2);
+}
 
-    /*free the document */
-    xmlFreeDoc(doc);
+void rectTest() {
+    
+    List* attriList = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
-    /*
-     *Free the global variables that may
-     *have been allocated by the parser.
-     */
-    xmlCleanupParser();
+}
 
-    return 0;
+void circTest() {
+
+}
+
+void pathTest() {
+
+}
+
+void groupTest() {
+    Group* testGroup = (Group*)malloc(sizeof(Group));
+    Group* testGroup2 = (Group*)malloc(sizeof(Group));
+
+    List* rectList = (List*)malloc(sizeof(List));
+    List* rectList2 = (List*)malloc(sizeof(List));
+
+    List* circList = (List*)malloc(sizeof(List));
+    List* circList2 = (List*)malloc(sizeof(List));
+
+    List* pathList = (List*)malloc(sizeof(List));
+    List* pathList2 = (List*)malloc(sizeof(List));
+
+    List* groupList = (List*)malloc(sizeof(List));
+    List* groupList2 = (List*)malloc(sizeof(List));
+
+    List* attriList = (List*)malloc(sizeof(List));
+    List* attriList2 = (List*)malloc(sizeof(List));
+
+    for (int i = 0; i < 4; i++){/*
+		tmpName = (Name*)malloc(sizeof(Name));
+		tmpName->age = (i+1)*10;
+		
+		sprintf(tmpStr, "Name%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpName->firstName = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpName->firstName, tmpStr);
+		
+		sprintf(tmpStr, "Lastname%d", i);
+		memLen = strlen(tmpStr)+2;
+		tmpName->lastName = (char*)malloc(sizeof(char)*memLen);
+		strcpy(tmpName->lastName, tmpStr);
+	
+		insertBack(list, (void*)tmpName);*/
+	}
+
+}
+
+void SVGtest() {
+
 }

@@ -4,38 +4,18 @@
  * Simple main for testing of library
  */
 int main(int argc, char **argv) {
-    xmlDoc *doc = NULL;
-    xmlNode *root_element = NULL;
+
+    SVGimage* testImg;
 
     if (argc != 2)
         return(1);
-
-    /*parse the file and get the DOM */
-    doc = xmlReadFile(argv[1], NULL, 0);
-
-    if (doc == NULL) {
-        printf("error: could not parse file %s\n", argv[1]);
-        return(1);
-    }
-
-    /*Get the root element node */
-    root_element = xmlDocGetRootElement(doc);
 
     /*Function*/
     attributeTest();
     rectTest();
     circTest();
     pathTest();
-    groupTest();
-
-    /*free the document */
-    xmlFreeDoc(doc);
-
-    /*
-     *Free the global variables that may
-     *have been allocated by the parser.
-     */
-    xmlCleanupParser();
+    //groupTest();
 
     return 0;
 }
@@ -289,7 +269,7 @@ void pathTest() {
     deletePath(testPath);
     deletePath(testPath2);
 }
-
+/*
 void groupTest() {
     Group* testGroup = (Group*)malloc(sizeof(Group));
     Group* testGroup2 = (Group*)malloc(sizeof(Group));
@@ -353,7 +333,7 @@ void groupTest() {
     testGroup->otherAttributes = attriList;
     testGroup2->otherAttributes = attriList2;
 
-    /*Rectangle*/
+    //Rectangle
     for (int i = 0; i < 4; i++){
 
         tmpRectangle = (Rectangle*)malloc(sizeof(Rectangle));
@@ -417,7 +397,7 @@ void groupTest() {
     testGroup->rectangles = rectList;
     testGroup2->rectangles = rectList2;
 
-    /*Circle*/
+    //Circle
     for (int i = 0; i < 4; i++){
 
         tmpCircle = (Circle*)malloc(sizeof(Circle));
@@ -479,7 +459,7 @@ void groupTest() {
     testGroup->circles = circList;
     testGroup2->circles = circList2;
 
-    /*Path*/
+    //Path
     for (int i = 0; i < 4; i++){
 
         tmpPath = (Path*)malloc(sizeof(Path));
@@ -547,7 +527,7 @@ void groupTest() {
     deleteGroup(testGroup);
     deleteGroup(testGroup2);
 }
-
+*/
 void SVGtest() {
 
 }

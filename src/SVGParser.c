@@ -11,6 +11,33 @@
  *@param fileName - a string containing the name of the SVG file
 **/
 SVGimage* createSVGimage(char* fileName) {
+    if (fileName == NULL) {
+        return;
+    }
+
+    xmlDoc *doc = NULL;
+    xmlNode *root_element = NULL;
+
+    /*parse the file and get the DOM */
+    doc = xmlReadFile(argv[1], NULL, 0);
+
+    if (doc == NULL) {
+        printf("error: could not parse file %s\n", argv[1]);
+        return(1);
+    }
+
+    /*Get the root element node */
+    root_element = xmlDocGetRootElement(doc);
+
+    /*free the document */
+    xmlFreeDoc(doc);
+
+    /*
+     *Free the global variables that may
+     *have been allocated by the parser.
+     */
+    xmlCleanupParser();
+
     return;
 }
 
@@ -21,7 +48,34 @@ SVGimage* createSVGimage(char* fileName) {
  *@param obj - a pointer to an SVG struct
 **/
 char* SVGimageToString(SVGimage* img) {
-    return;
+    
+    char* tmpStr;
+    char* circStr;
+    char* recStr;
+    char* pathStr;
+    char* groupStr;
+    SVGimage* tmpImg;
+    int len;
+    int statLen;
+
+    tmpImg = img;
+
+    circStr = toString(tmpImg->circles);
+    recStr = toString(tmpImg->rectangles);
+    pathStr = toString(tmpImg->paths);
+    groupStr = toString(tmpImg->groups);
+
+    statLen = 256 * 3;
+    len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + statLen;
+	tmpStr = (char*)malloc(sizeof(char)*len + 15);
+	
+	sprintf(tmpStr, "Name: %s\nTitle: %s\nDescription: %s\nList of rects: %s\nList of circs: %s\nList of paths: %s\nList of groups: %s\n", tmpImg->namespace, tmpImg->title, tmpImg->description, recStr, circStr, pathStr, groupStr);
+
+    free(circStr);
+    free(recStr);
+    free(pathStr);
+    free(groupStr);
+    return tmpStr;
 }
 
 /** Function to delete image content and free all the memory.
@@ -135,6 +189,8 @@ int numGroupsWithLen(SVGimage* img, int len) {
     *@param obj - a pointer to an SVG struct
 */
 int numAttr(SVGimage* img) {
+    
+    
     return;
 }
 
@@ -216,6 +272,11 @@ void deleteGroup(void* data) {
 char* groupToString( void* data) {
        
     char* tmpStr;
+    char* circStr;
+    char* recStr;
+    char* pathStr;
+    char* attriStr;
+    char* groupStr;
 	Group* tmpGroup;
 	int circLen;
     int recLen;
@@ -231,16 +292,27 @@ char* groupToString( void* data) {
 
     /* Length of the string is: length of name + value */
 	
-    circLen = strlen(toString(tmpGroup->circles));
-    recLen = strlen(toString(tmpGroup->rectangles));
-    pathLen = strlen(toString(tmpGroup->paths));
-    attriLen = strlen(toString(tmpGroup->otherAttributes));
-    groupLen = strlen(toString(tmpGroup->groups));
+    circStr = toString(tmpGroup->circles);
+    recStr = toString(tmpGroup->rectangles);
+    pathStr = toString(tmpGroup->paths);
+    attriStr = toString(tmpGroup->otherAttributes);
+    groupStr = toString(tmpGroup->groups);
+
+    circLen = strlen(circStr);
+    recLen = strlen(recStr);
+    pathLen = strlen(pathStr);
+    attriLen = strlen(attriStr);
+    groupLen = strlen(groupStr);
 
 	tmpStr = (char*)malloc(sizeof(char)*(circLen + recLen + pathLen + attriLen + groupLen) + 74);
 	
-    sprintf(tmpStr, "Circle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", toString(tmpGroup->circles), toString(tmpGroup->rectangles), toString(tmpGroup->paths), toString(tmpGroup->otherAttributes), toString(tmpGroup->groups));	
-	return tmpStr;
+    sprintf(tmpStr, "Circle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", circStr, recStr, pathStr, attriStr, groupStr);	
+	free(circStr);
+    free(recStr);
+    free(pathStr);
+    free(attriStr);
+    free(groupStr);
+    return tmpStr;
 }
 /*Stub - Only required for API use*/
 int compareGroups(const void *first, const void *second) {

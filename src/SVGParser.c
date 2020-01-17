@@ -11,23 +11,63 @@
  *@param fileName - a string containing the name of the SVG file
 **/
 SVGimage* createSVGimage(char* fileName) {
+
+    SVGimage* newImg = NULL;
+
     if (fileName == NULL) {
         return;
     }
 
+    //printf("%s\n", fileName);
+
     xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
+    xmlNode *cur_node = NULL;
 
     /*parse the file and get the DOM */
-    doc = xmlReadFile(argv[1], NULL, 0);
+    doc = xmlReadFile(fileName, NULL, 0);
 
     if (doc == NULL) {
-        printf("error: could not parse file %s\n", argv[1]);
-        return(1);
+        printf("error: could not parse file %s\n", fileName);
+        return;
     }
 
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
+
+    if (root_element == NULL) {
+        printf ("empty document\n");
+        return;
+    }
+
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            printf("node type: Element, name: %s\n", cur_node->name);
+            if (strcmp(cur_node->name, title) == 0) {
+                //found title
+            } else if (strcmp(cur_node->name, desc) == 0) {
+                //found description   
+            }
+        }
+
+        // Uncomment the code below if you want to see the content of every node.
+
+        if (cur_node->content != NULL ){
+            printf("  content: %s\n", cur_node->content);
+        }
+
+        // Iterate through every attribute of the current node
+        xmlAttr *attr;
+        for (attr = cur_node->properties; attr != NULL; attr = attr->next)
+        {
+            xmlNode *value = attr->children;
+            char *attrName = (char *)attr->name;
+            char *cont = (char *)(value->content);
+            printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+        }
+
+        print_element_names(cur_node->children);
+    }
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -38,7 +78,7 @@ SVGimage* createSVGimage(char* fileName) {
      */
     xmlCleanupParser();
 
-    return;
+    return newImg;
 }
 
 /** Function to create a string representation of an SVG object.
@@ -115,36 +155,20 @@ void deleteSVGimage(SVGimage* img) {
 // Function that returns a list of all rectangles in the image.
 List* getRects(SVGimage* img) {
 
-    if (getLength(img->rectangles) == 0) {
-        return NULL;
-    }
-
     return img->rectangles;
 }
 // Function that returns a list of all circles in the image.
 List* getCircles(SVGimage* img) {
-    
-    if (getLength(img->circles) == 0) {
-        return NULL;
-    }
 
     return img->circles;
 }
 // Function that returns a list of all groups in the image.
 List* getGroups(SVGimage* img) {
 
-    if (getLength(img->groups) == 0) {
-        return NULL;
-    }
-
     return img->groups;
 }
 // Function that returns a list of all paths in the image.
 List* getPaths(SVGimage* img) {
-
-    if (getLength(img->paths) == 0) {
-        return NULL;
-    }
 
     return img->paths;
 }

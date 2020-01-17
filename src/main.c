@@ -7,6 +7,8 @@ int main(int argc, char **argv) {
 
     SVGimage* testImg;
 
+    testImg = createSVGimage(argv[1]);
+
     if (argc != 2)
         return(1);
 
@@ -16,6 +18,7 @@ int main(int argc, char **argv) {
     circTest();
     pathTest();
     //groupTest();
+    //SVGTest(argv[1]);
 
     return 0;
 }
@@ -528,6 +531,9 @@ void groupTest() {
     deleteGroup(testGroup2);
 }
 */
-void SVGtest() {
+void SVGtest(char* fileName) {
+
+    SVGimage* testImage;
+    testImage = createSVGimage(fileName);
 
 }

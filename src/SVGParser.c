@@ -40,7 +40,17 @@ SVGimage* createSVGimage(char* fileName) {
         return;
     }
 
-    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
+    newImg = (SVGimage*)malloc(sizeof(SVGimage));
+    newImg->namespace[0] = '\0';
+    newImg->title[0] = '\0';
+    newImg->description[0] = '\0';
+    newImg->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    newImg->circles = initializeList(&circleToString, &deleteCircle, &compareCircles);
+    newImg->rectangles = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+    newImg->paths = initializeList(&pathToString, &deletePath, &comparePaths);
+    newImg->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
+
+    for (cur_node = root_element; cur_node != NULL; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
             printf("node type: Element, name: %s\n", cur_node->name);
             if (xmlStrcmp(cur_node->name, (const xmlChar*) "title") == 0) {
@@ -60,15 +70,21 @@ SVGimage* createSVGimage(char* fileName) {
 
         // Iterate through every attribute of the current node
         xmlAttr *attr;
+
         for (attr = cur_node->properties; attr != NULL; attr = attr->next)
         {
+            Attribute* tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
             xmlNode *value = attr->children;
             char *attrName = (char *)attr->name;
             char *cont = (char *)(value->content);
             printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+            tmpAttribute->name = (char*)malloc(sizeof(char)*strlen(attrName) + 1);
+            tmpAttribute->value = (char*)malloc(sizeof(char)*strlen(cont) + 1);
+            strcpy(tmpAttribute->name, attrName);
+            strcpy(tmpAttribute->value, cont);
+            insertBack(newImg->otherAttributes, tmpAttribute);
         }
-
-        print_element_names(cur_node->children);
+        cur_node = cur_node->children;
     }
 
     /*free the document */
@@ -96,6 +112,9 @@ char* SVGimageToString(SVGimage* img) {
     char* recStr;
     char* pathStr;
     char* groupStr;
+    char* nameStr = (char*)malloc(sizeof(char) * 256);
+    char* titleStr = (char*)malloc(sizeof(char) * 256);
+    char* descStr = (char*)malloc(sizeof(char) * 256);
     SVGimage* tmpImg;
     int len;
     int statLen;
@@ -106,17 +125,23 @@ char* SVGimageToString(SVGimage* img) {
     recStr = toString(tmpImg->rectangles);
     pathStr = toString(tmpImg->paths);
     groupStr = toString(tmpImg->groups);
+    strcpy(nameStr, tmpImg->namespace);
+    strcpy(titleStr, tmpImg->title);
+    strcpy(descStr, tmpImg->description);
 
     statLen = 256 * 3;
     len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + statLen;
 	tmpStr = (char*)malloc(sizeof(char)*len + 15);
 	
-	sprintf(tmpStr, "Name: %s\nTitle: %s\nDescription: %s\nList of rects: %s\nList of circs: %s\nList of paths: %s\nList of groups: %s\n", tmpImg->namespace, tmpImg->title, tmpImg->description, recStr, circStr, pathStr, groupStr);
+	sprintf(tmpStr, "Name: %s\nTitle: %s\nDescription: %s\nList of rects: %s\nList of circs: %s\nList of paths: %s\nList of groups: %s\n", nameStr, titleStr, descStr, recStr, circStr, pathStr, groupStr);
 
     free(circStr);
     free(recStr);
     free(pathStr);
     free(groupStr);
+    free(nameStr);
+    free(titleStr);
+    free(descStr);
     return tmpStr;
 }
 

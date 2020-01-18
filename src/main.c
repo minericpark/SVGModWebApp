@@ -6,6 +6,7 @@
 int main(int argc, char **argv) {
 
     SVGimage* testImg;
+    char* testString;
 
     testImg = createSVGimage(argv[1]);
 
@@ -13,12 +14,16 @@ int main(int argc, char **argv) {
         return(1);
 
     /*Function*/
-    attributeTest();
-    rectTest();
-    circTest();
-    pathTest();
+    //attributeTest();
+    //rectTest();
+    //circTest();
+    //pathTest();
     //groupTest();
-    //SVGTest(argv[1]);
+    testImg = SVGtest(argv[1]);
+    testString = SVGimageToString(testImg);
+    printf ("%s", testString);
+    free(testString);
+    deleteSVGimage(testImg);
 
     return 0;
 }

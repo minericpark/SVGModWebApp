@@ -43,10 +43,12 @@ SVGimage* createSVGimage(char* fileName) {
     for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
             printf("node type: Element, name: %s\n", cur_node->name);
-            if (strcmp(cur_node->name, title) == 0) {
+            if (xmlStrcmp(cur_node->name, (const xmlChar*) "title") == 0) {
                 //found title
-            } else if (strcmp(cur_node->name, desc) == 0) {
+                printf ("Found title");
+            } else if (strcmp(cur_node->name, (const xmlChar*) "desc") == 0) {
                 //found description   
+                printf ("Found description");
             }
         }
 

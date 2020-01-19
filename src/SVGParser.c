@@ -475,7 +475,7 @@ char* pathToString(void* data) {
 	dataLen = strlen(tmpPath->data);
 	tmpStr = (char*)malloc(sizeof(char)*(dataLen + attriLen) + 25);
 	
-	sprintf(tmpStr, "name: %s\nattribute list: %s\n", tmpPath->data, listStr);
+	sprintf(tmpStr, "data: %s\nattribute list: %s\n", tmpPath->data, listStr);
 	free(listStr);
 
 	return tmpStr;
@@ -519,29 +519,21 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "title") == 0) {
                 //found title
                 printf ("Found title\n");
-                if (cur_node->content != NULL ){
-                    printf("  content: %s\n", cur_node->content);
-                }
-                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-                    value = attr->children;
-                    attrName = (char *)attr->name;
-                    cont = (char *)(value->content);
-                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                if (cur_node->children->content != NULL ){
+                    printf("  content: %s\n", cur_node->children->content);
+                    strcpy(tmpImg->title, (cur_node->children)->content);
                 }
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "desc") == 0) {
                 //found description   
                 printf ("Found description\n");
-                if (cur_node->content != NULL ){
-                    printf("  content: %s\n", cur_node->content);
-                }
-                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-                    value = attr->children;
-                    attrName = (char *)attr->name;
-                    cont = (char *)(value->content);
-                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                if (cur_node->children->content != NULL ){
+                    printf("  content: %s\n", cur_node->children->content);
+                    strcpy(tmpImg->description, (cur_node->children)->content);
                 }
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
                 printf ("Found rectangle\n");
+                Rectangle* tmpRectangle = (Rectangle*)malloc(sizeof(Rectangle));
+                tmpRectangle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
                     printf("  content: %s\n", cur_node->content);
                 }
@@ -549,10 +541,32 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
                     value = attr->children;
                     attrName = (char *)attr->name;
                     cont = (char *)(value->content);
+                    if (xmlStrcmp(attrName, (const xmlChar*) "x") == 0) {
+                        printf ("found x\n");
+                        tmpRectangle->x = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "y") == 0) {
+                        printf ("found y\n");
+                        tmpRectangle->y = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "width") == 0) {
+                        printf ("found width\n");
+                        tmpRectangle->width = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "height") == 0) {
+                        printf ("found height\n");
+                        tmpRectangle->height = atof(cont);
+                    } else {
+                        printf ("found other attribute");
+                        Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                        newAttr->value = cont;
+                        newAttr->name = attrName;
+                        insertBack(tmpRectangle->otherAttributes, newAttr);
+                    }
                     printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
+                insertBack(tmpImg->rectangles, tmpRectangle);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "path") == 0) {
                 printf ("Found path\n");
+                Path* tmpPath = (Path*)malloc(sizeof(Path));
+                tmpPath->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
                     printf("  content: %s\n", cur_node->content);
                 }
@@ -560,8 +574,20 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
                     value = attr->children;
                     attrName = (char *)attr->name;
                     cont = (char *)(value->content);
+                    if (xmlStrcmp(attrName, (const xmlChar*) "d") == 0) {
+                        printf ("found data\n");
+                        tmpPath->data = (char*)malloc(sizeof(char) * strlen(cont));
+                        strcpy(tmpPath->data, cont);
+                    } else {
+                        printf ("found other attribute");
+                        Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                        newAttr->value = cont;
+                        newAttr->name = attrName;
+                        insertBack(tmpPath->otherAttributes, newAttr);
+                    }
                     printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
+                insertBack(tmpImg->paths, tmpPath);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "circle") == 0) {
                 printf ("found circle\n");
                 if (cur_node->content != NULL ){

@@ -506,6 +506,10 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
                 if (cur_node->content != NULL ){
                     printf("  content: %s\n", cur_node->content);
                 }
+                if (cur_node->ns != NULL) {
+                    printf ("namespace exists\n");
+                    strcpy(tmpImg->namespace, cur_node->ns->href);
+                }
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
                     Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
                     value = attr->children;
@@ -590,6 +594,8 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
                 insertBack(tmpImg->paths, tmpPath);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "circle") == 0) {
                 printf ("found circle\n");
+                Circle* tmpCircle = (Circle*)malloc(sizeof(Circle));
+                tmpCircle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
                     printf("  content: %s\n", cur_node->content);
                 }
@@ -597,8 +603,25 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
                     value = attr->children;
                     attrName = (char *)attr->name;
                     cont = (char *)(value->content);
+                    if (xmlStrcmp(attrName, (const xmlChar*) "cx") == 0) {
+                        printf ("found cx\n");
+                        tmpCircle->cx = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "cy") == 0) {
+                        printf ("found cy\n");
+                        tmpCircle->cy = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "r") == 0) {
+                        printf ("found r\n");
+                        tmpCircle->r = atof(cont);
+                    } else {
+                        printf ("found other attribute");
+                        Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                        newAttr->value = cont;
+                        newAttr->name = attrName;
+                        insertBack(tmpCircle->otherAttributes, newAttr);
+                    }
                     printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
+                insertBack(tmpImg->circles, tmpCircle);
             } else {
                 printf ("found unknown element\n");
                 if (cur_node->content != NULL ){

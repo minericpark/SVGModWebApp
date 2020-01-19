@@ -50,7 +50,7 @@ SVGimage* createSVGimage(char* fileName) {
     newImg->paths = initializeList(&pathToString, &deletePath, &comparePaths);
     newImg->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
 
-    print_element_names(root_element, newImg);
+    parse_image(root_element, newImg);
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -486,7 +486,7 @@ int comparePaths(const void *first, const void *second) {
 }
 
 /*Tree traversal helpers*/
-void print_element_names(xmlNode * a_node, SVGimage* givenImg)
+void parse_image(xmlNode * a_node, SVGimage* givenImg)
 {
     SVGimage* tmpImg;
     xmlNode *cur_node = NULL;
@@ -534,6 +534,20 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
                     printf("  content: %s\n", cur_node->children->content);
                     strcpy(tmpImg->description, (cur_node->children)->content);
                 }
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "g") == 0) {
+                printf ("Found group\n");
+                /*Parse groups*/
+                Group* tmpGroup = (Group*)malloc(sizeof(Group));
+                tmpGroup->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+                tmpGroup->circles = initializeList(&circleToString, &deleteCircle, &compareCircles);
+                tmpGroup->rectangles = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+                tmpGroup->paths = initializeList(&pathToString, &deletePath, &comparePaths);
+                tmpGroup->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                group_parse(cur_node->children, tmpGroup);
+                insertBack(tmpImg->groups, tmpGroup);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
                 printf ("Found rectangle\n");
                 Rectangle* tmpRectangle = (Rectangle*)malloc(sizeof(Rectangle));
@@ -636,6 +650,133 @@ void print_element_names(xmlNode * a_node, SVGimage* givenImg)
             }
         }
 
-        print_element_names(cur_node->children, tmpImg);
+        parse_image(cur_node->children, tmpImg);
     }
+}
+
+void group_parse (xmlNode *a_node, Group* givenGroup) {
+
+    SVGimage* tmpImg;
+    Group* tmpGroup;
+    xmlNode *cur_node = NULL;
+    xmlNode *value;
+    xmlAttr *attr;
+    char* attrName;
+    char*cont;
+
+    tmpGroup = givenGroup;
+
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            if (xmlStrcmp(cur_node->name, (const xmlChar*) "g") == 0) {
+                printf ("Found group\n");
+            }
+            else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
+                printf ("Found rectangle\n");
+                Rectangle* tmpRectangle = (Rectangle*)malloc(sizeof(Rectangle));
+                tmpRectangle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    if (xmlStrcmp(attrName, (const xmlChar*) "x") == 0) {
+                        printf ("found x\n");
+                        tmpRectangle->x = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "y") == 0) {
+                        printf ("found y\n");
+                        tmpRectangle->y = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "width") == 0) {
+                        printf ("found width\n");
+                        tmpRectangle->width = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "height") == 0) {
+                        printf ("found height\n");
+                        tmpRectangle->height = atof(cont);
+                    } else {
+                        printf ("found other attribute");
+                        Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                        newAttr->value = cont;
+                        newAttr->name = attrName;
+                        insertBack(tmpRectangle->otherAttributes, newAttr);
+                    }
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+                insertBack(tmpGroup->rectangles, tmpRectangle);
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "path") == 0) {
+                printf ("Found path\n");
+                Path* tmpPath = (Path*)malloc(sizeof(Path));
+                tmpPath->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    if (xmlStrcmp(attrName, (const xmlChar*) "d") == 0) {
+                        printf ("found data\n");
+                        tmpPath->data = (char*)malloc(sizeof(char) * strlen(cont));
+                        strcpy(tmpPath->data, cont);
+                    } else {
+                        printf ("found other attribute");
+                        Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                        newAttr->value = cont;
+                        newAttr->name = attrName;
+                        insertBack(tmpPath->otherAttributes, newAttr);
+                    }
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+                insertBack(tmpGroup->paths, tmpPath);
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "circle") == 0) {
+                printf ("found circle\n");
+                Circle* tmpCircle = (Circle*)malloc(sizeof(Circle));
+                tmpCircle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    if (xmlStrcmp(attrName, (const xmlChar*) "cx") == 0) {
+                        printf ("found cx\n");
+                        tmpCircle->cx = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "cy") == 0) {
+                        printf ("found cy\n");
+                        tmpCircle->cy = atof(cont);
+                    } else if (xmlStrcmp(attrName, (const xmlChar*) "r") == 0) {
+                        printf ("found r\n");
+                        tmpCircle->r = atof(cont);
+                    } else {
+                        printf ("found other attribute");
+                        Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                        newAttr->value = cont;
+                        newAttr->name = attrName;
+                        insertBack(tmpCircle->otherAttributes, newAttr);
+                    }
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+                insertBack(tmpGroup->circles, tmpCircle);
+            } else {
+                printf ("found unknown element\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                    newAttr->value = cont;
+                    newAttr->name = attrName;
+                    insertBack(tmpGroup->otherAttributes, newAttr);
+                }
+            }
+        }
+        group_parse(cur_node->children, tmpGroup);
+    }
+
 }

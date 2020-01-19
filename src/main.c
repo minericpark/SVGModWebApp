@@ -8,8 +8,6 @@ int main(int argc, char **argv) {
     SVGimage* testImg;
     char* testString;
 
-    testImg = createSVGimage(argv[1]);
-
     if (argc != 2)
         return(1);
 

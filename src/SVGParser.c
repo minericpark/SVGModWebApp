@@ -1,4 +1,5 @@
 #include "SVGParser.h"
+#include "SVGHelper.h"
 
 /** Function to create an SVG object based on the contents of an SVG file.
  *@pre File name cannot be an empty string or NULL.
@@ -22,7 +23,6 @@ SVGimage* createSVGimage(char* fileName) {
 
     xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
-    xmlNode *cur_node = NULL;
 
     /*parse the file and get the DOM */
     doc = xmlReadFile(fileName, NULL, 0);
@@ -50,42 +50,7 @@ SVGimage* createSVGimage(char* fileName) {
     newImg->paths = initializeList(&pathToString, &deletePath, &comparePaths);
     newImg->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
 
-    for (cur_node = root_element; cur_node != NULL; cur_node = cur_node->next) {
-        if (cur_node->type == XML_ELEMENT_NODE) {
-            printf("node type: Element, name: %s\n", cur_node->name);
-            if (xmlStrcmp(cur_node->name, (const xmlChar*) "title") == 0) {
-                //found title
-                printf ("Found title");
-            } else if (strcmp(cur_node->name, (const xmlChar*) "desc") == 0) {
-                //found description   
-                printf ("Found description");
-            }
-        }
-
-        // Uncomment the code below if you want to see the content of every node.
-
-        if (cur_node->content != NULL ){
-            printf("  content: %s\n", cur_node->content);
-        }
-
-        // Iterate through every attribute of the current node
-        xmlAttr *attr;
-
-        for (attr = cur_node->properties; attr != NULL; attr = attr->next)
-        {
-            Attribute* tmpAttribute = (Attribute*)malloc(sizeof(Attribute));
-            xmlNode *value = attr->children;
-            char *attrName = (char *)attr->name;
-            char *cont = (char *)(value->content);
-            printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
-            tmpAttribute->name = (char*)malloc(sizeof(char)*strlen(attrName) + 1);
-            tmpAttribute->value = (char*)malloc(sizeof(char)*strlen(cont) + 1);
-            strcpy(tmpAttribute->name, attrName);
-            strcpy(tmpAttribute->value, cont);
-            insertBack(newImg->otherAttributes, tmpAttribute);
-        }
-        cur_node = cur_node->children;
-    }
+    print_element_names(root_element, newImg);
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -112,6 +77,7 @@ char* SVGimageToString(SVGimage* img) {
     char* recStr;
     char* pathStr;
     char* groupStr;
+    char* attrStr;
     char* nameStr = (char*)malloc(sizeof(char) * 256);
     char* titleStr = (char*)malloc(sizeof(char) * 256);
     char* descStr = (char*)malloc(sizeof(char) * 256);
@@ -125,15 +91,16 @@ char* SVGimageToString(SVGimage* img) {
     recStr = toString(tmpImg->rectangles);
     pathStr = toString(tmpImg->paths);
     groupStr = toString(tmpImg->groups);
+    attrStr = toString(tmpImg->otherAttributes);
     strcpy(nameStr, tmpImg->namespace);
     strcpy(titleStr, tmpImg->title);
     strcpy(descStr, tmpImg->description);
 
     statLen = 256 * 3;
-    len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + statLen;
-	tmpStr = (char*)malloc(sizeof(char)*len + 15);
+    len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + statLen;
+	tmpStr = (char*)malloc(sizeof(char)*len + 97);
 	
-	sprintf(tmpStr, "Name: %s\nTitle: %s\nDescription: %s\nList of rects: %s\nList of circs: %s\nList of paths: %s\nList of groups: %s\n", nameStr, titleStr, descStr, recStr, circStr, pathStr, groupStr);
+	sprintf(tmpStr, "Name: %s\nTitle: %s\nDescription: %s\nList of rects: %s\nList of circs: %s\nList of attributes: %s\nList of paths: %s\nList of groups: %s\n", nameStr, titleStr, descStr, recStr, circStr, attrStr, pathStr, groupStr);
 
     free(circStr);
     free(recStr);
@@ -516,4 +483,110 @@ char* pathToString(void* data) {
 /*Stub - Only required for API use*/
 int comparePaths(const void *first, const void *second) {
     return 0;
+}
+
+/*Tree traversal helpers*/
+void print_element_names(xmlNode * a_node, SVGimage* givenImg)
+{
+    SVGimage* tmpImg;
+    xmlNode *cur_node = NULL;
+    xmlNode *value;
+    xmlAttr *attr;
+    char* attrName;
+    char*cont;
+
+    tmpImg = givenImg;
+
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
+        if (cur_node->type == XML_ELEMENT_NODE) {
+            printf("node type: Element, name: %s\n", cur_node->name);
+            if (xmlStrcmp(cur_node->name, (const xmlChar*) "svg") == 0) {
+                //found svg
+                printf ("Found svg\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    Attribute* newAttr = (Attribute*)malloc(sizeof(Attribute));
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                    newAttr->value = cont;
+                    newAttr->name = attrName;
+                    insertBack(tmpImg->otherAttributes, newAttr);
+                }
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "title") == 0) {
+                //found title
+                printf ("Found title\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "desc") == 0) {
+                //found description   
+                printf ("Found description\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
+                printf ("Found rectangle\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "path") == 0) {
+                printf ("Found path\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+            } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "circle") == 0) {
+                printf ("found circle\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+            } else {
+                printf ("found unknown element\n");
+                if (cur_node->content != NULL ){
+                    printf("  content: %s\n", cur_node->content);
+                }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                }
+            }
+        }
+
+        print_element_names(cur_node->children, tmpImg);
+    }
 }

@@ -35,3 +35,4 @@ clean:
 	rm -rf bin/*.o bin/*.so
 
 #Enter this line before running make -> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./bin
+#Enter this line for testing: valgrind --leak-check=full --track-origins=yes ./bin/test quad01.svg

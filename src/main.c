@@ -1,29 +1,11 @@
 #include "LinkedListAPI.h"
 #include "SVGParser.h"
-/**
- * Simple main for testing of library
- */
-int main(int argc, char **argv) {
+
+SVGimage* SVGtest(char* fileName) {
 
     SVGimage* testImg;
-    char* testString;
-
-    if (argc != 2)
-        return(1);
-
-    /*Function*/
-    //attributeTest();
-    //rectTest();
-    //circTest();
-    //pathTest();
-    //groupTest();
-    testImg = SVGtest(argv[1]);
-    testString = SVGimageToString(testImg);
-    printf ("%s", testString);
-    free(testString);
-    deleteSVGimage(testImg);
-
-    return 0;
+    testImg = createSVGimage(fileName);
+    return testImg;
 }
 
 void attributeTest () {
@@ -534,9 +516,29 @@ void groupTest() {
     deleteGroup(testGroup2);
 }
 */
-void SVGtest(char* fileName) {
 
-    SVGimage* testImage;
-    testImage = createSVGimage(fileName);
+/**
+ * Simple main for testing of library
+ */
+int main(int argc, char **argv) {
 
+    SVGimage* testImg;
+    char* testString;
+
+    if (argc != 2)
+        return(1);
+
+    /*Function*/
+    //attributeTest();
+    //rectTest();
+    //circTest();
+    //pathTest();
+    //groupTest();
+    testImg = SVGtest(argv[1]);
+    testString = SVGimageToString(testImg);
+    printf ("%s", testString);
+    free(testString);
+    deleteSVGimage(testImg);
+
+    return 0;
 }

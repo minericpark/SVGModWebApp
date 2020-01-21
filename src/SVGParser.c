@@ -50,7 +50,7 @@ SVGimage* createSVGimage(char* fileName) {
     newImg->paths = initializeList(&pathToString, &deletePath, &comparePaths);
     newImg->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
 
-    parse_image(root_element, newImg);
+    parse_image(root_element, newImg, 0);
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -150,7 +150,22 @@ void deleteSVGimage(SVGimage* img) {
 // Function that returns a list of all rectangles in the image.
 List* getRects(SVGimage* img) {
 
-    return img->rectangles;
+    List* rects = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+    List* additionalGroups;
+    ListIterator rectIterator = createIterator(img->rectangles);
+    ListIterator extraIterator;
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&rectIterator)) != NULL){
+		insertBack(rects, (Rectangle*) elem);
+	}
+    additionalGroups = img->groups;
+    extraIterator = createIterator(additionalGroups);
+    while((elem2 = nextElement(&extraIterator)) != NULL){
+        add_additional_rects((Group*)elem2, rects);
+	}
+    return rects;
 }
 // Function that returns a list of all circles in the image.
 List* getCircles(SVGimage* img) {
@@ -486,7 +501,7 @@ int comparePaths(const void *first, const void *second) {
 
 /*----------------------------------------------------------------*/
 /*Tree traversal helpers*/
-void parse_image(xmlNode * a_node, SVGimage* givenImg)
+void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
 {
     SVGimage* tmpImg;
     xmlNode *cur_node = NULL;
@@ -548,8 +563,9 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg)
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
-                group_parse(cur_node->children, tmpGroup);
+                group_parse(cur_node->children, tmpGroup, 0);
                 insertBack(tmpImg->groups, tmpGroup);
+                
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
                 //printf ("Found rectangle\n");
                 Rectangle* tmpRectangle = (Rectangle*)calloc(1, sizeof(Rectangle));
@@ -663,12 +679,13 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg)
                 }
             }
         }
-
-        parse_image(cur_node->children, tmpImg);
+        if (count < 1) {
+            parse_image(cur_node->children, tmpImg, 1);
+        }
     }
 }
 
-void group_parse (xmlNode *a_node, Group* givenGroup) {
+void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
 
     Group* tmpGroup;
     xmlNode *cur_node = NULL;
@@ -692,7 +709,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup) {
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
-                group_parse(cur_node->children, tmpGroup2);
+                group_parse(cur_node->children, tmpGroup2, 0);
                 insertBack(tmpGroup->groups, tmpGroup2);
             }
             else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
@@ -808,7 +825,25 @@ void group_parse (xmlNode *a_node, Group* givenGroup) {
                 }
             }
         }
-        group_parse(cur_node->children, tmpGroup);
+        if (count < 1) {
+            group_parse(cur_node->children, tmpGroup, 1);
+        }
     }
 
+}
+
+void add_additional_rects(Group * givenGroup, List * givenList) {
+    ListIterator extraIterator;
+    ListIterator rectIterator = createIterator(givenGroup->rectangles);
+    List* tmpList = givenList;
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&rectIterator)) != NULL){
+        insertBack(tmpList, (Rectangle*) elem);
+	}
+    extraIterator = createIterator(givenGroup->groups);
+    while ((elem2 = nextElement(&extraIterator)) != NULL) {
+        add_additional_rects((Group*) elem2, tmpList);
+    }
 }

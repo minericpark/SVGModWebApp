@@ -170,17 +170,62 @@ List* getRects(SVGimage* img) {
 // Function that returns a list of all circles in the image.
 List* getCircles(SVGimage* img) {
 
-    return img->circles;
+    List* circs = initializeList(&circleToString, &deleteCircle, &compareCircles);
+    List* additionalGroups;
+    ListIterator circIterator = createIterator(img->circles);
+    ListIterator extraIterator;
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&circIterator)) != NULL){
+		insertBack(circs, (Circle*) elem);
+	}
+    additionalGroups = img->groups;
+    extraIterator = createIterator(additionalGroups);
+    while((elem2 = nextElement(&extraIterator)) != NULL){
+        add_additional_circs((Group*)elem2, circs);
+	}
+    return circs;
 }
 // Function that returns a list of all groups in the image.
 List* getGroups(SVGimage* img) {
 
-    return img->groups;
+    List* groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
+    List* additionalGroups;
+    ListIterator groupIterator = createIterator(img->groups);
+    ListIterator extraIterator;
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&groupIterator)) != NULL){
+		insertBack(groups, (Group*) elem);
+	}
+    additionalGroups = img->groups;
+    extraIterator = createIterator(additionalGroups);
+    while((elem2 = nextElement(&extraIterator)) != NULL){
+        add_additional_groups((Group*)elem2, groups);
+	}
+    return groups;
 }
 // Function that returns a list of all paths in the image.
 List* getPaths(SVGimage* img) {
 
-    return img->paths;
+    List* paths = initializeList(&pathToString, &deletePath, &comparePaths);
+    List* additionalGroups;
+    ListIterator pathIterator = createIterator(img->paths);
+    ListIterator extraIterator;
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&pathIterator)) != NULL){
+		insertBack(paths, (Path*) elem);
+	}
+    additionalGroups = img->groups;
+    extraIterator = createIterator(additionalGroups);
+    while((elem2 = nextElement(&extraIterator)) != NULL){
+        add_additional_paths((Group*)elem2, paths);
+	}
+    return paths;
 }
 
 
@@ -835,15 +880,59 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
 void add_additional_rects(Group * givenGroup, List * givenList) {
     ListIterator extraIterator;
     ListIterator rectIterator = createIterator(givenGroup->rectangles);
-    List* tmpList = givenList;
     void* elem;
     void* elem2;
 
     while((elem = nextElement(&rectIterator)) != NULL){
-        insertBack(tmpList, (Rectangle*) elem);
+        insertBack(givenList, (Rectangle*) elem);
 	}
     extraIterator = createIterator(givenGroup->groups);
     while ((elem2 = nextElement(&extraIterator)) != NULL) {
-        add_additional_rects((Group*) elem2, tmpList);
+        add_additional_rects((Group*) elem2, givenList);
+    }
+}
+
+void add_additional_circs(Group * givenGroup, List * givenList) {
+    ListIterator extraIterator;
+    ListIterator circIterator = createIterator(givenGroup->circles);
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&circIterator)) != NULL){
+        insertBack(givenList, (Circle*) elem);
+	}
+    extraIterator = createIterator(givenGroup->groups);
+    while ((elem2 = nextElement(&extraIterator)) != NULL) {
+        add_additional_rects((Group*) elem2, givenList);
+    }
+}
+
+void add_additional_groups(Group * givenGroup, List * givenList) {
+    ListIterator extraIterator;
+    ListIterator rectIterator = createIterator(givenGroup->groups);
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&rectIterator)) != NULL){
+        insertBack(givenList, (Group*) elem);
+	}
+    extraIterator = createIterator(givenGroup->groups);
+    while ((elem2 = nextElement(&extraIterator)) != NULL) {
+        add_additional_rects((Group*) elem2, givenList);
+    }
+}
+
+void add_additional_paths(Group * givenGroup, List * givenList) {
+    ListIterator extraIterator;
+    ListIterator pathIterator = createIterator(givenGroup->paths);
+    void* elem;
+    void* elem2;
+
+    while((elem = nextElement(&pathIterator)) != NULL){
+        insertBack(givenList, (Path*) elem);
+	}
+    extraIterator = createIterator(givenGroup->groups);
+    while ((elem2 = nextElement(&extraIterator)) != NULL) {
+        add_additional_rects((Group*) elem2, givenList);
     }
 }

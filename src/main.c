@@ -544,15 +544,33 @@ int main(int argc, char **argv) {
     //groupTest();
     testImg = SVGtest(argv[1]);
     testString = SVGimageToString(testImg);
-    printf ("%s", testString);
+    printf ("%s\n", testString);
+    printf ("--------------------------\n");
     rects = getRects(testImg);
-    testString2 = rectangleToString(getFromFront(rects));
-    printf ("-----------------------------\n");
+    circs = getCircles(testImg);
+    paths = getPaths(testImg);
+    groups = getGroups(testImg);
+    testString2 = toString(rects);
+    testString3 = toString(circs);
+    testString4 = toString(paths);
+    testString5 = toString(groups);
     printf ("%s\n", testString2);
+    printf ("--------------------------\n");
+    printf ("%s\n", testString3);
+    printf ("--------------------------\n");
+    printf ("%s\n", testString4);
+    printf ("--------------------------\n");
+    printf ("%s\n", testString5);
     free(testString);
     free(testString2);
-    free(rects);
+    free(testString3);
+    free(testString4);
+    free(testString5);
     deleteSVGimage(testImg);
+    free(rects);
+    free(circs);
+    free(paths);
+    free(groups);
 
     return 0;
 }

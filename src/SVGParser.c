@@ -98,9 +98,9 @@ char* SVGimageToString(SVGimage* img) {
 
     statLen = 256 * 3;
     len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + statLen;
-	tmpStr = (char*)malloc(sizeof(char)*len + 97);
+	tmpStr = (char*)malloc(sizeof(char)*len + 217);
 	
-	sprintf(tmpStr, "Name: %s\nTitle: %s\nDescription: %s\nList of rects: %s\nList of circs: %s\nList of attributes: %s\nList of paths: %s\nList of groups: %s\n", nameStr, titleStr, descStr, recStr, circStr, attrStr, pathStr, groupStr);
+	sprintf(tmpStr, "--------------------\nName: %s\nTitle: %s\nDescription: %s\n--------------------\nList of rects: %s\n--------------------\nList of circs: %s\n--------------------\nList of attributes: %s\n--------------------\nList of paths: %s\n--------------------\nList of groups: %s\n", nameStr, titleStr, descStr, recStr, circStr, attrStr, pathStr, groupStr);
 
     free(attrStr);
     free(circStr);

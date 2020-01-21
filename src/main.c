@@ -524,6 +524,14 @@ int main(int argc, char **argv) {
 
     SVGimage* testImg;
     char* testString;
+    char* testString2;
+    char* testString3;
+    char* testString4;
+    char* testString5;
+    List* rects;
+    List* circs;
+    List* paths;
+    List* groups;
 
     if (argc != 2)
         return(1);
@@ -537,7 +545,23 @@ int main(int argc, char **argv) {
     testImg = SVGtest(argv[1]);
     testString = SVGimageToString(testImg);
     printf ("%s", testString);
+    rects = getRects(testImg);
+    circs = getCircles(testImg);
+    paths = getPaths(testImg);
+    groups = getGroups(testImg);
+    testString2 = rectangleToString(getFromFront(rects));
+    testString3 = circleToString(getFromFront(circs));
+    testString4 = pathToString(getFromFront(paths));
+    testString5 = groupToString(getFromFront(groups));
+    printf ("%s\n", testString2);
+    printf ("%s\n", testString3);
+    printf ("%s\n", testString4);
+    printf ("%s\n", testString5);
     free(testString);
+    free(testString2);
+    free(testString3);
+    free(testString4);
+    free(testString5);
     deleteSVGimage(testImg);
 
     return 0;

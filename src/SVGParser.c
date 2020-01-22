@@ -648,7 +648,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
             //printf("node type: Element, name: %s\n", cur_node->name);
             if (xmlStrcmp(cur_node->name, (const xmlChar*) "svg") == 0) {
                 //found svg
-                //printf ("Found svg\n");
+                printf ("Found svg\n");
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
@@ -670,20 +670,20 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 }
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "title") == 0) {
                 //found title
-                //printf ("Found title\n");
+                printf ("Found title\n");
                 if (cur_node->children->content != NULL ){
                     //printf("  content: %s\n", cur_node->children->content);
                     strcpy(tmpImg->title, (char *)(cur_node->children)->content);
                 }
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "desc") == 0) {
                 //found description   
-                //printf ("Found description\n");
+                printf ("Found description\n");
                 if (cur_node->children->content != NULL ){
                     //printf("  content: %s\n", cur_node->children->content);
                     strcpy(tmpImg->description, (char *)(cur_node->children)->content);
                 }
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "g") == 0) {
-                //printf ("Found group\n");
+                printf ("Found group\n");
                 /*Parse groups*/
                 Group* tmpGroup = (Group*)calloc(1, sizeof(Group));
                 tmpGroup->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
@@ -710,7 +710,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 insertBack(tmpImg->groups, tmpGroup);
                 
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
-                //printf ("Found rectangle\n");
+                printf ("Found rectangle\n");
                 Rectangle* tmpRectangle = (Rectangle*)calloc(1, sizeof(Rectangle));
                 tmpRectangle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
@@ -745,7 +745,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 }
                 insertBack(tmpImg->rectangles, tmpRectangle);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "path") == 0) {
-                //printf ("Found path\n");
+                printf ("Found path\n");
                 Path* tmpPath = (Path*)calloc(1, sizeof(Path));
                 tmpPath->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
@@ -772,7 +772,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 }
                 insertBack(tmpImg->paths, tmpPath);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "circle") == 0) {
-                //printf ("found circle\n");
+                printf ("found circle\n");
                 Circle* tmpCircle = (Circle*)calloc(1, sizeof(Circle));
                 tmpCircle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
@@ -804,7 +804,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 }
                 insertBack(tmpImg->circles, tmpCircle);
             } else {
-                //printf ("found unknown element\n");
+                printf ("found unknown element\n");
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
@@ -842,7 +842,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
     for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
             if (xmlStrcmp(cur_node->name, (const xmlChar*) "g") == 0) {
-                //printf ("Found group\n");
+                printf ("Found group\n");
                 Group* tmpGroup2 = (Group*)calloc(1, sizeof(Group));
                 tmpGroup2->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 tmpGroup2->circles = initializeList(&circleToString, &deleteCircle, &compareCircles);
@@ -864,14 +864,14 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     strcpy(newAttr->name, attrName);
                     insertBack(tmpGroup2->otherAttributes, newAttr);
                 }
-                //printf("recursion called\n");
+                printf("recursion called\n");
                 group_parse(cur_node->children, tmpGroup2, 0);
                 insertBack(tmpGroup->groups, tmpGroup2);
-                //printf ("group inserted\n");
-                return;
+                printf ("group inserted\n");
+                count = 1;
             }
             else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
-                //printf ("Found rectangle\n");
+                printf ("Found rectangle\n");
                 Rectangle* tmpRectangle = (Rectangle*)calloc(1, sizeof(Rectangle));
                 tmpRectangle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
@@ -906,7 +906,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                 }
                 insertBack(tmpGroup->rectangles, tmpRectangle);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "path") == 0) {
-                //printf ("Found path\n");
+                printf ("Found path\n");
                 Path* tmpPath = (Path*)calloc(1, sizeof(Path));
                 tmpPath->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
@@ -933,7 +933,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                 }
                 insertBack(tmpGroup->paths, tmpPath);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar*) "circle") == 0) {
-                //printf ("found circle\n");
+                printf ("found circle\n");
                 Circle* tmpCircle = (Circle*)calloc(1, sizeof(Circle));
                 tmpCircle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
@@ -965,7 +965,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                 }
                 insertBack(tmpGroup->circles, tmpCircle);
             } else {
-                //printf ("found unknown element\n");
+                printf ("found unknown element\n");
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
@@ -984,6 +984,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
             }
         }
         if (count < 1) {
+            printf ("recurses one iteration\n");
             group_parse(cur_node->children, tmpGroup, 1);
         }
     }
@@ -1022,16 +1023,17 @@ void add_additional_circs(Group * givenGroup, List * givenList) {
 
 void add_additional_groups(Group * givenGroup, List * givenList) {
     ListIterator extraIterator;
-    ListIterator rectIterator = createIterator(givenGroup->groups);
+    ListIterator groupIterator = createIterator(givenGroup->groups);
     void* elem;
     void* elem2;
 
-    while((elem = nextElement(&rectIterator)) != NULL){
-        printf ("got group\n");
+    while((elem = nextElement(&groupIterator)) != NULL){
+        //printf ("got group\n");
         insertBack(givenList, (Group*) elem);
 	}
     extraIterator = createIterator(givenGroup->groups);
     while ((elem2 = nextElement(&extraIterator)) != NULL) {
+        //printf ("recursion called\n");
         add_additional_groups((Group*) elem2, givenList);
     }
 }

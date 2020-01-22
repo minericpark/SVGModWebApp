@@ -151,7 +151,7 @@ void deleteSVGimage(SVGimage* img) {
 List* getRects(SVGimage* img) {
 
     List* rects = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
-    List* additionalGroups;
+    List* additionalGroups = NULL;
     ListIterator rectIterator = createIterator(img->rectangles);
     ListIterator extraIterator;
     void* elem;
@@ -171,7 +171,7 @@ List* getRects(SVGimage* img) {
 List* getCircles(SVGimage* img) {
 
     List* circs = initializeList(&circleToString, &deleteCircle, &compareCircles);
-    List* additionalGroups;
+    List* additionalGroups = NULL;
     ListIterator circIterator = createIterator(img->circles);
     ListIterator extraIterator;
     void* elem;
@@ -191,7 +191,7 @@ List* getCircles(SVGimage* img) {
 List* getGroups(SVGimage* img) {
 
     List* groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
-    List* additionalGroups;
+    List* additionalGroups = NULL;
     ListIterator groupIterator = createIterator(img->groups);
     ListIterator extraIterator;
     void* elem;
@@ -211,7 +211,7 @@ List* getGroups(SVGimage* img) {
 List* getPaths(SVGimage* img) {
 
     List* paths = initializeList(&pathToString, &deletePath, &comparePaths);
-    List* additionalGroups;
+    List* additionalGroups = NULL;
     ListIterator pathIterator = createIterator(img->paths);
     ListIterator extraIterator;
     void* elem;
@@ -245,6 +245,9 @@ List* getPaths(SVGimage* img) {
 
 // Function that returns the number of all rectangles with the specified area
 int numRectsWithArea(SVGimage* img, float area) {
+
+    List* rects = getRects(img);
+
     return 0;
 }
 // Function that returns the number of all circles with the specified area
@@ -253,6 +256,7 @@ int numCirclesWithArea(SVGimage* img, float area) {
 }
 // Function that returns the number of all paths with the specified data - i.e. Path.data field
 int numPathsWithdata(SVGimage* img, char* data) {
+
     return 0;
 }
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
@@ -269,7 +273,44 @@ int numGroupsWithLen(SVGimage* img, int len) {
 */
 int numAttr(SVGimage* img) {
     
-    return 0;
+    ListIterator attriIterator = createIterator(img->otherAttributes);
+    ListIterator attriIteratorC = createIterator(img->circles);
+    ListIterator attriIteratorR = createIterator(img->rectangles);
+    ListIterator attriIteratorP = createIterator(img->paths);
+    ListIterator extraIterator;
+    List* additionalGroups;
+    void* elem;
+    void* elem2;
+    int count = 0;
+
+    while((elem = nextElement(&attriIterator)) != NULL){
+		count++;
+	}
+    while((elem = nextElement(&attriIteratorC)) != NULL) {
+        extraIterator = createIterator(((Circle*)elem)->otherAttributes);
+        while ((elem2 = nextElement(&extraIterator)) != NULL) {
+            count++;
+        }
+    }
+    while((elem = nextElement(&attriIteratorR)) != NULL) {
+        extraIterator = createIterator(((Rectangle*)elem)->otherAttributes);
+        while ((elem2 = nextElement(&extraIterator)) != NULL) {
+            count++;
+        }
+    }
+    while((elem = nextElement(&attriIteratorP)) != NULL) {
+        extraIterator = createIterator(((Path*)elem)->otherAttributes);
+        while ((elem2 = nextElement(&extraIterator)) != NULL) {
+            count++;
+        }
+    }
+    additionalGroups = img->groups;
+    extraIterator = createIterator(additionalGroups);
+    while((elem2 = nextElement(&extraIterator)) != NULL){
+        count += count_additional_attributes((Group*)elem2);
+	}
+
+    return count;
 }
 
 
@@ -903,7 +944,7 @@ void add_additional_circs(Group * givenGroup, List * givenList) {
 	}
     extraIterator = createIterator(givenGroup->groups);
     while ((elem2 = nextElement(&extraIterator)) != NULL) {
-        add_additional_rects((Group*) elem2, givenList);
+        add_additional_circs((Group*) elem2, givenList);
     }
 }
 
@@ -918,7 +959,7 @@ void add_additional_groups(Group * givenGroup, List * givenList) {
 	}
     extraIterator = createIterator(givenGroup->groups);
     while ((elem2 = nextElement(&extraIterator)) != NULL) {
-        add_additional_rects((Group*) elem2, givenList);
+        add_additional_groups((Group*) elem2, givenList);
     }
 }
 
@@ -933,6 +974,53 @@ void add_additional_paths(Group * givenGroup, List * givenList) {
 	}
     extraIterator = createIterator(givenGroup->groups);
     while ((elem2 = nextElement(&extraIterator)) != NULL) {
-        add_additional_rects((Group*) elem2, givenList);
+        add_additional_paths((Group*) elem2, givenList);
     }
 }
+
+int count_additional_attributes(Group * givenGroup) {
+    ListIterator extraIterator;
+    ListIterator attriIterator = createIterator(givenGroup->otherAttributes);
+    ListIterator attriIteratorC = createIterator(givenGroup->circles);
+    ListIterator attriIteratorR = createIterator(givenGroup->rectangles);
+    ListIterator attriIteratorP = createIterator(givenGroup->paths);
+    void* elem;
+    void* elem2;
+    int count = 0;
+
+    while((elem = nextElement(&attriIterator)) != NULL){
+        count++;
+	}
+    while((elem = nextElement(&attriIterator)) != NULL){
+		count++;
+	}
+    while((elem = nextElement(&attriIteratorC)) != NULL) {
+        extraIterator = createIterator(((Circle*)elem)->otherAttributes);
+        while ((elem2 = nextElement(&extraIterator)) != NULL) {
+            count++;
+        }
+    }
+    while((elem = nextElement(&attriIteratorR)) != NULL) {
+        extraIterator = createIterator(((Rectangle*)elem)->otherAttributes);
+        while ((elem2 = nextElement(&extraIterator)) != NULL) {
+            count++;
+        }
+    }
+    while((elem = nextElement(&attriIteratorP)) != NULL) {
+        extraIterator = createIterator(((Path*)elem)->otherAttributes);
+        while ((elem2 = nextElement(&extraIterator)) != NULL) {
+            count++;
+        }
+    }
+    extraIterator = createIterator(givenGroup->groups);
+    while ((elem2 = nextElement(&extraIterator)) != NULL) {
+        count += count_additional_attributes((Group*) elem2);
+    }
+    return count;
+}
+
+
+void emptyStub() {
+
+}
+

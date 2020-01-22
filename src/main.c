@@ -552,23 +552,15 @@ int main(int argc, char **argv) {
     paths = getPaths(testImg);
     groups = getGroups(testImg);
     numAttributes = numAttr(testImg);
-    testString2 = toString(rects);
-    testString3 = toString(circs);
-    testString4 = toString(paths);
+
     testString5 = toString(groups);
-    printf ("%s\n", testString2);
-    printf ("--------------------------\n");
-    printf ("%s\n", testString3);
-    printf ("--------------------------\n");
-    printf ("%s\n", testString4);
+
     printf ("--------------------------\n");
     printf ("%s\n", testString5);
     printf ("--------------------------\n");
     printf ("%d\n", numAttributes);
     free(testString);
-    free(testString2);
-    free(testString3);
-    free(testString4);
+
     free(testString5);
     free(rects);
     free(circs);

@@ -85,6 +85,10 @@ char* SVGimageToString(SVGimage* img) {
     int len;
     int statLen;
 
+    if (img == NULL) {
+        return 0;
+    }
+
     tmpImg = img;
 
     circStr = toString(tmpImg->circles);
@@ -123,6 +127,10 @@ void deleteSVGimage(SVGimage* img) {
 
     SVGimage* tmpImage;
 
+    if (img == NULL) {
+        return;
+    }
+
     tmpImage = img;
 
     freeList(tmpImage->otherAttributes);
@@ -157,6 +165,10 @@ List* getRects(SVGimage* img) {
     void* elem;
     void* elem2;
 
+    if (img == NULL) {
+        return NULL;
+    }
+
     while((elem = nextElement(&rectIterator)) != NULL){
 		insertBack(rects, (Rectangle*) elem);
 	}
@@ -176,6 +188,10 @@ List* getCircles(SVGimage* img) {
     ListIterator extraIterator;
     void* elem;
     void* elem2;
+
+    if (img == NULL) {
+        return NULL;
+    }
 
     while((elem = nextElement(&circIterator)) != NULL){
 		insertBack(circs, (Circle*) elem);
@@ -197,7 +213,12 @@ List* getGroups(SVGimage* img) {
     void* elem;
     void* elem2;
 
+    if (img == NULL) {
+        return NULL;
+    }
+
     while((elem = nextElement(&groupIterator)) != NULL){
+        printf ("got group\n");
 		insertBack(groups, (Group*) elem);
 	}
     additionalGroups = img->groups;
@@ -216,6 +237,10 @@ List* getPaths(SVGimage* img) {
     ListIterator extraIterator;
     void* elem;
     void* elem2;
+
+    if (img == NULL) {
+        return NULL;
+    }
 
     while((elem = nextElement(&pathIterator)) != NULL){
 		insertBack(paths, (Path*) elem);
@@ -247,20 +272,36 @@ List* getPaths(SVGimage* img) {
 int numRectsWithArea(SVGimage* img, float area) {
 
     List* rects = getRects(img);
+    if (img == NULL) {
+        return 0;
+    }
 
     return 0;
 }
 // Function that returns the number of all circles with the specified area
 int numCirclesWithArea(SVGimage* img, float area) {
+
+    if (img == NULL) {
+        return 0;
+    }
+
     return 0;
 }
 // Function that returns the number of all paths with the specified data - i.e. Path.data field
 int numPathsWithdata(SVGimage* img, char* data) {
 
+    if (img == NULL) {
+        return 0;
+    }
+
     return 0;
 }
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
 int numGroupsWithLen(SVGimage* img, int len) {
+    if (img == NULL) {
+        return 0;
+    }
+
     return 0;
 }
 
@@ -282,6 +323,10 @@ int numAttr(SVGimage* img) {
     void* elem;
     void* elem2;
     int count = 0;
+
+    if (img == NULL) {
+        return 0;
+    }
 
     while((elem = nextElement(&attriIterator)) != NULL){
 		count++;
@@ -649,6 +694,18 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                    newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                    newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                    strcpy(newAttr->value, cont);
+                    strcpy(newAttr->name, attrName);
+                    insertBack(tmpGroup->otherAttributes, newAttr);
+                }
                 group_parse(cur_node->children, tmpGroup, 0);
                 insertBack(tmpImg->groups, tmpGroup);
                 
@@ -719,7 +776,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 Circle* tmpCircle = (Circle*)calloc(1, sizeof(Circle));
                 tmpCircle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
                 if (cur_node->content != NULL ){
-                    //printf("  content: %s\n", cur_node->content);
+                    printf("  content: %s\n", cur_node->content);
                 }
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
                     value = attr->children;
@@ -747,7 +804,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 }
                 insertBack(tmpImg->circles, tmpCircle);
             } else {
-                printf ("found unknown element\n");
+                //printf ("found unknown element\n");
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
@@ -795,8 +852,23 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                 if (cur_node->content != NULL ){
                     //printf("  content: %s\n", cur_node->content);
                 }
+                for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+                    Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                    value = attr->children;
+                    attrName = (char *)attr->name;
+                    cont = (char *)(value->content);
+                    //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                    newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                    newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                    strcpy(newAttr->value, cont);
+                    strcpy(newAttr->name, attrName);
+                    insertBack(tmpGroup2->otherAttributes, newAttr);
+                }
+                //printf("recursion called\n");
                 group_parse(cur_node->children, tmpGroup2, 0);
                 insertBack(tmpGroup->groups, tmpGroup2);
+                //printf ("group inserted\n");
+                return;
             }
             else if (xmlStrcmp(cur_node->name, (const xmlChar*) "rect") == 0) {
                 //printf ("Found rectangle\n");
@@ -955,6 +1027,7 @@ void add_additional_groups(Group * givenGroup, List * givenList) {
     void* elem2;
 
     while((elem = nextElement(&rectIterator)) != NULL){
+        printf ("got group\n");
         insertBack(givenList, (Group*) elem);
 	}
     extraIterator = createIterator(givenGroup->groups);

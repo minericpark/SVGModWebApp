@@ -271,36 +271,44 @@ List* getPaths(SVGimage* img) {
 // Function that returns the number of all rectangles with the specified area
 int numRectsWithArea(SVGimage* img, float area) {
 
-    List* rects = getRects(img);
+    List* rects;
     if (img == NULL) {
         return 0;
     }
+    rects = getRects(img);
 
     return 0;
 }
 // Function that returns the number of all circles with the specified area
 int numCirclesWithArea(SVGimage* img, float area) {
 
+    List* circs;
     if (img == NULL) {
         return 0;
     }
+    circs = getCircles(img);
 
     return 0;
 }
 // Function that returns the number of all paths with the specified data - i.e. Path.data field
 int numPathsWithdata(SVGimage* img, char* data) {
 
+    List* paths;
     if (img == NULL) {
         return 0;
     }
+    paths = getPaths(img);
 
     return 0;
 }
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
 int numGroupsWithLen(SVGimage* img, int len) {
+
+    List* groups;
     if (img == NULL) {
         return 0;
     }
+    groups = getGroups(img);
 
     return 0;
 }
@@ -460,16 +468,15 @@ char* groupToString( void* data) {
     pathStr = toString(tmpGroup->paths);
     attriStr = toString(tmpGroup->otherAttributes);
     groupStr = toString(tmpGroup->groups);
-
     circLen = strlen(circStr);
     recLen = strlen(recStr);
     pathLen = strlen(pathStr);
     attriLen = strlen(attriStr);
     groupLen = strlen(groupStr);
 
-	tmpStr = (char*)malloc(sizeof(char)*(circLen + recLen + pathLen + attriLen + groupLen) + 74);
+	tmpStr = (char*)malloc(sizeof(char)*(circLen + recLen + pathLen + attriLen + groupLen) + 95);
 	
-    sprintf(tmpStr, "Circle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", circStr, recStr, pathStr, attriStr, groupStr);	
+    sprintf(tmpStr, "--------------------\nCircle List: %s\nRectangle List: %s\nPath List: %s\nAttribute List: %s\nGroup List: %s\n", circStr, recStr, pathStr, attriStr, groupStr);	
 	free(circStr);
     free(recStr);
     free(pathStr);
@@ -1028,12 +1035,12 @@ void add_additional_groups(Group * givenGroup, List * givenList) {
     void* elem2;
 
     while((elem = nextElement(&groupIterator)) != NULL){
-        //printf ("got group\n");
+        printf ("got group\n");
         insertBack(givenList, (Group*) elem);
 	}
     extraIterator = createIterator(givenGroup->groups);
     while ((elem2 = nextElement(&extraIterator)) != NULL) {
-        //printf ("recursion called\n");
+        printf ("recursion called\n");
         add_additional_groups((Group*) elem2, givenList);
     }
 }

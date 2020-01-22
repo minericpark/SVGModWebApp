@@ -552,16 +552,9 @@ int main(int argc, char **argv) {
     paths = getPaths(testImg);
     groups = getGroups(testImg);
     numAttributes = numAttr(testImg);
-
-    testString5 = toString(groups);
-
-    printf ("--------------------------\n");
-    printf ("%s\n", testString5);
-    printf ("--------------------------\n");
+    printf ("==============================\n");
     printf ("%d\n", numAttributes);
     free(testString);
-
-    free(testString5);
     free(rects);
     free(circs);
     free(paths);

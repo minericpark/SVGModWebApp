@@ -158,9 +158,9 @@ void deleteSVGimage(SVGimage* img) {
 // Function that returns a list of all rectangles in the image.
 List* getRects(SVGimage* img) {
 
-    List* rects = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+    List* rects = NULL;
     List* additionalGroups = NULL;
-    ListIterator rectIterator = createIterator(img->rectangles);
+    ListIterator rectIterator;
     ListIterator extraIterator;
     void* elem;
     void* elem2;
@@ -168,6 +168,9 @@ List* getRects(SVGimage* img) {
     if (img == NULL) {
         return NULL;
     }
+
+    rects = initializeList(&rectangleToString, &emptyStub, &compareRectangles);
+    rectIterator = createIterator(img->rectangles);
 
     while((elem = nextElement(&rectIterator)) != NULL){
 		insertBack(rects, (Rectangle*) elem);
@@ -182,9 +185,9 @@ List* getRects(SVGimage* img) {
 // Function that returns a list of all circles in the image.
 List* getCircles(SVGimage* img) {
 
-    List* circs = initializeList(&circleToString, &deleteCircle, &compareCircles);
+    List* circs = NULL;
     List* additionalGroups = NULL;
-    ListIterator circIterator = createIterator(img->circles);
+    ListIterator circIterator;
     ListIterator extraIterator;
     void* elem;
     void* elem2;
@@ -192,6 +195,9 @@ List* getCircles(SVGimage* img) {
     if (img == NULL) {
         return NULL;
     }
+
+    circs = initializeList(&circleToString, &emptyStub, &compareCircles);
+    circIterator = createIterator(img->circles);
 
     while((elem = nextElement(&circIterator)) != NULL){
 		insertBack(circs, (Circle*) elem);
@@ -206,9 +212,9 @@ List* getCircles(SVGimage* img) {
 // Function that returns a list of all groups in the image.
 List* getGroups(SVGimage* img) {
 
-    List* groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
+    List* groups = NULL;
     List* additionalGroups = NULL;
-    ListIterator groupIterator = createIterator(img->groups);
+    ListIterator groupIterator;
     ListIterator extraIterator;
     void* elem;
     void* elem2;
@@ -216,6 +222,9 @@ List* getGroups(SVGimage* img) {
     if (img == NULL) {
         return NULL;
     }
+
+    groups = initializeList(&groupToString, &emptyStub, &compareGroups);
+    groupIterator = createIterator(img->groups);
 
     while((elem = nextElement(&groupIterator)) != NULL){
         printf ("got group\n");
@@ -231,9 +240,9 @@ List* getGroups(SVGimage* img) {
 // Function that returns a list of all paths in the image.
 List* getPaths(SVGimage* img) {
 
-    List* paths = initializeList(&pathToString, &deletePath, &comparePaths);
+    List* paths = NULL;
     List* additionalGroups = NULL;
-    ListIterator pathIterator = createIterator(img->paths);
+    ListIterator pathIterator;
     ListIterator extraIterator;
     void* elem;
     void* elem2;
@@ -241,6 +250,9 @@ List* getPaths(SVGimage* img) {
     if (img == NULL) {
         return NULL;
     }
+
+    paths = initializeList(&pathToString, &emptyStub, &comparePaths);
+    pathIterator = createIterator(img->paths);
 
     while((elem = nextElement(&pathIterator)) != NULL){
 		insertBack(paths, (Path*) elem);
@@ -272,45 +284,75 @@ List* getPaths(SVGimage* img) {
 int numRectsWithArea(SVGimage* img, float area) {
 
     List* rects;
-    if (img == NULL) {
+    ListIterator rectIterator;
+    void* elem;
+    int count = 0;
+    float width;
+    float height;
+
+    if (img == NULL || area < 0) {
         return 0;
     }
     rects = getRects(img);
+    rectIterator = createIterator(rects);
+    while((elem = nextElement(&rectIterator)) != NULL){
+		//compare and count
+        width = ((Rectangle*)elem)->width;
+        height = ((Rectangle*)elem)->height;
+        if (ceil(area) == ceil(width * height)) {
+            count++;
+        }
+	}
 
-    return 0;
+    return count;
 }
 // Function that returns the number of all circles with the specified area
 int numCirclesWithArea(SVGimage* img, float area) {
 
     List* circs;
-    if (img == NULL) {
+    ListIterator circIterator;
+    void* elem;
+    int count = 0;
+    float radius;
+
+    if (img == NULL || area < 0) {
         return 0;
     }
     circs = getCircles(img);
+    circIterator = createIterator(circs);
+    while((elem = nextElement(&circIterator)) != NULL){
+		//compare and count
+        radius = ((Circle*)elem)->r;
+        if (ceil(area) == ceil(pow(radius, 2) * PI)) {
+            count++;
+        }
+	}
 
-    return 0;
+    return count;
 }
 // Function that returns the number of all paths with the specified data - i.e. Path.data field
 int numPathsWithdata(SVGimage* img, char* data) {
 
     List* paths;
-    if (img == NULL) {
+    int count = 0;
+    if (img == NULL || data == NULL) {
         return 0;
     }
     paths = getPaths(img);
 
-    return 0;
+    return count;
 }
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
 int numGroupsWithLen(SVGimage* img, int len) {
 
     List* groups;
-    if (img == NULL) {
+    int count = 0;
+    if (img == NULL || len < 0) {
         return 0;
     }
     groups = getGroups(img);
 
-    return 0;
+    return count;
 }
 
 /*  Function that returns the total number of Attribute structs in the SVGimage - i.e. the number of Attributes
@@ -322,10 +364,10 @@ int numGroupsWithLen(SVGimage* img, int len) {
 */
 int numAttr(SVGimage* img) {
     
-    ListIterator attriIterator = createIterator(img->otherAttributes);
-    ListIterator attriIteratorC = createIterator(img->circles);
-    ListIterator attriIteratorR = createIterator(img->rectangles);
-    ListIterator attriIteratorP = createIterator(img->paths);
+    ListIterator attriIterator;
+    ListIterator attriIteratorC;
+    ListIterator attriIteratorR;
+    ListIterator attriIteratorP;
     ListIterator extraIterator;
     List* additionalGroups;
     void* elem;
@@ -335,6 +377,10 @@ int numAttr(SVGimage* img) {
     if (img == NULL) {
         return 0;
     }
+    attriIterator = createIterator(img->otherAttributes);
+    attriIteratorC = createIterator(img->circles);
+    attriIteratorR = createIterator(img->rectangles);
+    attriIteratorP = createIterator(img->paths);
 
     while((elem = nextElement(&attriIterator)) != NULL){
 		count++;

@@ -533,6 +533,7 @@ int main(int argc, char **argv) {
     List* paths;
     List* groups;
     int numAttributes;
+    int numRects;
 
     if (argc != 2)
         return(1);
@@ -553,12 +554,16 @@ int main(int argc, char **argv) {
     groups = getGroups(testImg);
     numAttributes = numAttr(testImg);
     printf ("==============================\n");
-    printf ("%d\n", numAttributes);
+    printf ("%d attributes\n", numAttributes);
+    printf ("%d groups\n", getLength(groups));
+    printf ("%d circs\n", getLength(circs));
+    printf ("%d rects\n", getLength(rects));
+    printf ("%d paths\n", getLength(paths));
     free(testString);
-    free(rects);
-    free(circs);
-    free(paths);
-    free(groups);
+    freeList(rects);
+    freeList(circs);
+    freeList(paths);
+    freeList(groups);
     deleteSVGimage(testImg);
 
     return 0;

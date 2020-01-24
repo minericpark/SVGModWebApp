@@ -545,26 +545,27 @@ int main(int argc, char **argv) {
     //pathTest();
     //groupTest();
     testImg = SVGtest(argv[1]);
-    testString = SVGimageToString(testImg);
-    printf ("%s\n", testString);
-    printf ("--------------------------\n");
-    rects = getRects(testImg);
-    circs = getCircles(testImg);
-    paths = getPaths(testImg);
-    groups = getGroups(testImg);
-    numAttributes = numAttr(testImg);
-    printf ("==============================\n");
-    printf ("%d attributes\n", numAttributes);
-    printf ("%d groups\n", getLength(groups));
-    printf ("%d circs\n", getLength(circs));
-    printf ("%d rects\n", getLength(rects));
-    printf ("%d paths\n", getLength(paths));
-    free(testString);
-    freeList(rects);
-    freeList(circs);
-    freeList(paths);
-    freeList(groups);
-    deleteSVGimage(testImg);
-
+    if (testImg != NULL) {
+        testString = SVGimageToString(testImg);
+        printf ("%s\n", testString);
+        printf ("--------------------------\n");
+        rects = getRects(testImg);
+        circs = getCircles(testImg);
+        paths = getPaths(testImg);
+        groups = getGroups(testImg);
+        numAttributes = numAttr(testImg);
+        printf ("==============================\n");
+        printf ("%d attributes\n", numAttributes);
+        printf ("%d groups\n", getLength(groups));
+        printf ("%d circs\n", getLength(circs));
+        printf ("%d rects\n", getLength(rects));
+        printf ("%d paths\n", getLength(paths));
+        free(testString);
+        freeList(rects);
+        freeList(circs);
+        freeList(paths);
+        freeList(groups);
+        deleteSVGimage(testImg);
+    }
     return 0;
 }

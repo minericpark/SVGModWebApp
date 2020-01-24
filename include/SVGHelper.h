@@ -1,3 +1,8 @@
+/**
+ * Name: Eric Minseo Park
+ * Student Number: 1001018
+ **/
+
 #include <math.h>
 
 #define PI 3.1415926535

@@ -736,16 +736,18 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     strcpy(tmpImg->namespace, (char*) cur_node->ns->href);
                 }
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-                    Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
                     value = attr->children;
                     attrName = (char *)attr->name;
                     cont = (char *)(value->content);
-                    //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
-                    newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                    newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                    strcpy(newAttr->value, cont);
-                    strcpy(newAttr->name, attrName);
-                    insertBack(tmpImg->otherAttributes, newAttr);
+                    if (cont != NULL && attrName != NULL) {
+                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                        //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                        strcpy(newAttr->value, cont);
+                        strcpy(newAttr->name, attrName);
+                        insertBack(tmpImg->otherAttributes, newAttr);
+                    }
                 }
             } else if (xmlStrcasecmp(cur_node->name, (const xmlChar*) "title") == 0) {
                 //found title
@@ -774,16 +776,18 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     //printf("  content: %s\n", cur_node->content);
                 }
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-                    Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
                     value = attr->children;
                     attrName = (char *)attr->name;
                     cont = (char *)(value->content);
-                    //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
-                    newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                    newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                    strcpy(newAttr->value, cont);
-                    strcpy(newAttr->name, attrName);
-                    insertBack(tmpGroup->otherAttributes, newAttr);
+                    if (cont != NULL && attrName != NULL) {
+                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                        //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                        strcpy(newAttr->value, cont);
+                        strcpy(newAttr->name, attrName);
+                        insertBack(tmpGroup->otherAttributes, newAttr);
+                    }
                 }
                 group_parse(cur_node->children, tmpGroup, 0);
                 insertBack(tmpImg->groups, tmpGroup);
@@ -817,12 +821,14 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                         }
                     } else {
                         //printf ("found other attribute");
-                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
-                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                        strcpy(newAttr->value, cont);
-                        strcpy(newAttr->name, attrName);
-                        insertBack(tmpRectangle->otherAttributes, newAttr);
+                        if (cont != NULL && attrName != NULL) {
+                            Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                            newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                            newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                            strcpy(newAttr->value, cont);
+                            strcpy(newAttr->name, attrName);
+                            insertBack(tmpRectangle->otherAttributes, newAttr);
+                        }
                     }
                     //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
@@ -849,12 +855,14 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                         }
                     } else {
                         //printf ("found other attribute");
-                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
-                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                        strcpy(newAttr->value, cont);
-                        strcpy(newAttr->name, attrName);
-                        insertBack(tmpPath->otherAttributes, newAttr);
+                        if (cont != NULL && attrName != NULL) {
+                            Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                            newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                            newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                            strcpy(newAttr->value, cont);
+                            strcpy(newAttr->name, attrName);
+                            insertBack(tmpPath->otherAttributes, newAttr);
+                        }
                     }
                     //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
@@ -885,12 +893,14 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                         }
                     } else {
                         //printf ("found other attribute");
-                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
-                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                        strcpy(newAttr->value, cont);
-                        strcpy(newAttr->name, attrName);
-                        insertBack(tmpCircle->otherAttributes, newAttr);
+                        if (cont != NULL && attrName != NULL) {
+                            Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                            newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                            newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                            strcpy(newAttr->value, cont);
+                            strcpy(newAttr->name, attrName);
+                            insertBack(tmpCircle->otherAttributes, newAttr);
+                        }
                     }
                     //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
@@ -928,16 +938,18 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     //printf("  content: %s\n", cur_node->content);
                 }
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-                    Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
                     value = attr->children;
                     attrName = (char *)attr->name;
                     cont = (char *)(value->content);
-                    //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
-                    newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                    newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                    strcpy(newAttr->value, cont);
-                    strcpy(newAttr->name, attrName);
-                    insertBack(tmpGroup2->otherAttributes, newAttr);
+                    if (cont != NULL && attrName != NULL) {
+                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                         //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
+                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                        strcpy(newAttr->value, cont);
+                        strcpy(newAttr->name, attrName);
+                        insertBack(tmpGroup2->otherAttributes, newAttr);
+                    }
                 }
                 //printf("recursion called\n");
                 group_parse(cur_node->children, tmpGroup2, 0);
@@ -974,12 +986,14 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                         }
                     } else {
                         //printf ("found other attribute");
-                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
-                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                        strcpy(newAttr->value, cont);
-                        strcpy(newAttr->name, attrName);
-                        insertBack(tmpRectangle->otherAttributes, newAttr);
+                        if (cont != NULL && attrName != NULL) {
+                            Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                            newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                            newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                            strcpy(newAttr->value, cont);
+                            strcpy(newAttr->name, attrName);
+                            insertBack(tmpRectangle->otherAttributes, newAttr);
+                        }
                     }
                     //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
@@ -1006,12 +1020,14 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                         }
                     } else {
                         //printf ("found other attribute");
-                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
-                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                        strcpy(newAttr->value, cont);
-                        strcpy(newAttr->name, attrName);
-                        insertBack(tmpPath->otherAttributes, newAttr);
+                        if (cont != NULL && attrName != NULL) {
+                            Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                            newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                            newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                            strcpy(newAttr->value, cont);
+                            strcpy(newAttr->name, attrName);
+                            insertBack(tmpPath->otherAttributes, newAttr);
+                        }
                     }
                     //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }
@@ -1040,12 +1056,14 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                         }
                     } else {
                         //printf ("found other attribute");
-                        Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
-                        newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
-                        newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
-                        strcpy(newAttr->value, cont);
-                        strcpy(newAttr->name, attrName);
-                        insertBack(tmpCircle->otherAttributes, newAttr);
+                        if (cont != NULL && attrName != NULL) {
+                            Attribute* newAttr = (Attribute*)calloc(1, sizeof(Attribute));
+                            newAttr->value = (char*)malloc(sizeof(char) * strlen(cont) + 1);
+                            newAttr->name = (char*)malloc(sizeof(char) * strlen(attrName) + 1);
+                            strcpy(newAttr->value, cont);
+                            strcpy(newAttr->name, attrName);
+                            insertBack(tmpCircle->otherAttributes, newAttr);
+                        }
                     }
                     //printf("\tattribute name: %s, attribute value = %s\n", attrName, cont);
                 }

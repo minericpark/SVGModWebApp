@@ -371,11 +371,24 @@ int numPathsWithdata(SVGimage* img, char* data) {
 int numGroupsWithLen(SVGimage* img, int len) {
 
     List* groups;
+    ListIterator groupIterator;
+    void* elem;
     int count = 0;
+    int size = 0;
+
     if (img == NULL || len < 0) {
         return 0;
     }
     groups = getGroups(img);
+    groupIterator = createIterator(groups);
+    while((elem = nextElement(&groupIterator)) != NULL){
+        //check size of group vs length
+        size = getLength(((Group*)elem)->circles) + getLength(((Group*)elem)->groups) + getLength(((Group*)elem)->rectangles) + getLength(((Group*)elem)->paths);
+        if (size == len) {
+            count++;
+        }
+    }
+    freeList(groups);
 
     return count;
 }
@@ -713,9 +726,9 @@ int comparePaths(const void *first, const void *second) {
 void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
 {
     SVGimage* tmpImg;
-    xmlNode *cur_node = NULL;
-    xmlNode *value;
-    xmlAttr *attr;
+    xmlNode* cur_node = NULL;
+    xmlNode* value;
+    xmlAttr* attr;
     char* attrName;
     char* cont;
     char* unit;
@@ -805,19 +818,23 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     cont = (char *)(value->content);
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "x") == 0) {
                         //printf ("found x\n");
-                        tmpRectangle->x = atof(cont);
+                        tmpRectangle->x = strtof(cont, &unit);
+                        strcpy(tmpRectangle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "y") == 0) {
                         //printf ("found y\n");
-                        tmpRectangle->y = atof(cont);
+                        tmpRectangle->y = strtof(cont, &unit);
+                        strcpy(tmpRectangle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "width") == 0) {
                         //printf ("found width\n");
                         if ((float*)cont >= 0) {
-                            tmpRectangle->width = atof(cont);
+                            tmpRectangle->width = strtof(cont, &unit);
+                            strcpy(tmpRectangle->units, unit);
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "height") == 0) {
                         //printf ("found height\n");
                         if ((float*)cont >= 0) {
-                            tmpRectangle->height = atof(cont);
+                            tmpRectangle->height = strtof(cont, &unit);
+                            strcpy(tmpRectangle->units, unit);
                         }
                     } else {
                         //printf ("found other attribute");
@@ -882,14 +899,17 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     cont = (char *)(value->content);
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cx") == 0) {
                         //printf ("found cx\n");
-                        tmpCircle->cx = atof(cont);
+                        tmpCircle->cx = strtof(cont, &unit);
+                        strcpy(tmpCircle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cy") == 0) {
                         //printf ("found cy\n");
-                        tmpCircle->cy = atof(cont);
+                        tmpCircle->cy = strtof(cont, &unit);
+                        strcpy(tmpCircle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "r") == 0) {
                         //printf ("found r\n");
                         if (atof(cont) >= 0) {
                             tmpCircle->r = atof(cont);
+                            strcpy(tmpCircle->units, unit);
                         }
                     } else {
                         //printf ("found other attribute");
@@ -916,11 +936,12 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
 void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
 
     Group* tmpGroup;
-    xmlNode *cur_node = NULL;
-    xmlNode *value;
-    xmlAttr *attr;
+    xmlNode* cur_node = NULL;
+    xmlNode* value;
+    xmlAttr* attr;
     char* attrName;
-    char*cont;
+    char* cont;
+    char* unit;
 
     tmpGroup = givenGroup;
 
@@ -970,19 +991,23 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     cont = (char *)(value->content);
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "x") == 0) {
                         //printf ("found x\n");
-                        tmpRectangle->x = atof(cont);
+                        tmpRectangle->x = strtof(cont, &unit);
+                        strcpy(tmpRectangle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "y") == 0) {
                         //printf ("found y\n");
-                        tmpRectangle->y = atof(cont);
+                        tmpRectangle->y = strtof(cont, &unit);
+                        strcpy(tmpRectangle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "width") == 0) {
                         //printf ("found width\n");
                         if (atof(cont) >= 0) {
-                            tmpRectangle->width = atof(cont);
+                            tmpRectangle->width = strtof(cont, &unit);
+                            strcpy(tmpRectangle->units, unit);
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "height") == 0) {
                         //printf ("found height\n");
                         if (atof(cont) >= 0) {
-                            tmpRectangle->height = atof(cont);
+                            tmpRectangle->height = strtof(cont, &unit);
+                            strcpy(tmpRectangle->units, unit);
                         }
                     } else {
                         //printf ("found other attribute");
@@ -1045,14 +1070,17 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     cont = (char *)(value->content);
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cx") == 0) {
                         //printf ("found cx\n");
-                        tmpCircle->cx = atof(cont);
+                        tmpCircle->cx = strtof(cont, &unit);
+                        strcpy(tmpCircle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cy") == 0) {
                         //printf ("found cy\n");
-                        tmpCircle->cy = atof(cont);
+                        tmpCircle->cy = strtof(cont, &unit);
+                        strcpy(tmpCircle->units, unit);
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "r") == 0) {
                         //printf ("found r\n");
                         if (atof(cont) >= 0) {
-                            tmpCircle->r = atof(cont);
+                            tmpCircle->r = strtof(cont, &unit);
+                            strcpy(tmpCircle->units, unit);
                         }
                     } else {
                         //printf ("found other attribute");

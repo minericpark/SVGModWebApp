@@ -109,9 +109,9 @@ char* SVGimageToString(SVGimage* img) {
     pathStr = toString(tmpImg->paths);
     groupStr = toString(tmpImg->groups);
     attrStr = toString(tmpImg->otherAttributes);
-    strcpy(nameStr, tmpImg->namespace);
-    strcpy(titleStr, tmpImg->title);
-    strcpy(descStr, tmpImg->description);
+    strncpy(nameStr, tmpImg->namespace, 256);
+    strncpy(titleStr, tmpImg->title, 256);
+    strncpy(descStr, tmpImg->description, 256);
 
     statLen = 256 * 3;
     len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + statLen;
@@ -782,7 +782,11 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 /*Parse namespace*/
                 if (cur_node->ns != NULL) {
                     //printf ("namespace exists\n");
-                    strcpy(tmpImg->namespace, (char*) cur_node->ns->href);
+                    strncpy(tmpImg->namespace, (char*) cur_node->ns->href, 256);
+                    printf ("%s\n", tmpImg->namespace);
+                    if (strlen((char*)(cur_node->ns)->href) >= 256) {
+                        (tmpImg->namespace)[255] = '\0';
+                    }
                 }
                 /*Parse attributes*/
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
@@ -804,14 +808,20 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 //printf ("Found title\n");
                 if (cur_node->children->content != NULL ){
                     //printf("  content: %s\n", cur_node->children->content);
-                    strcpy(tmpImg->title, (char *)(cur_node->children)->content);
+                    strncpy(tmpImg->title, (char *)(cur_node->children)->content, 256);
+                    if (strlen((char*)(cur_node->children)->content) >= 256) {
+                        (tmpImg->title)[255] = '\0';
+                    }
                 }
             } else if (xmlStrcasecmp(cur_node->name, (const xmlChar*) "desc") == 0) {
                 //found description   
                 //printf ("Found description\n");
                 if (cur_node->children->content != NULL ){
                     //printf("  content: %s\n", cur_node->children->content);
-                    strcpy(tmpImg->description, (char *)(cur_node->children)->content);
+                    strncpy(tmpImg->description, (char *)(cur_node->children)->content, 256);
+                    if (strlen((char*)(cur_node->children)->content) >= 256) {
+                        (tmpImg->description)[255] = '\0';
+                    }
                 }
             } else if (xmlStrcasecmp(cur_node->name, (const xmlChar*) "g") == 0) {
                 //printf ("Found group\n");
@@ -859,22 +869,46 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "x") == 0) {
                         //printf ("found x\n");
                         tmpRectangle->x = strtof(cont, &unit);
-                        strcpy(tmpRectangle->units, unit);
+                        if (strlen(unit) > 0) { 
+                            strncpy(tmpRectangle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpRectangle->units)[49] = '\0';
+                            }
+                            unit = '\0';
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "y") == 0) {
                         //printf ("found y\n");
                         tmpRectangle->y = strtof(cont, &unit);
-                        strcpy(tmpRectangle->units, unit);
+                        if (strlen(unit) > 0) { 
+                            strncpy(tmpRectangle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpRectangle->units)[49] = '\0';
+                            }
+                            unit = '\0';
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "width") == 0) {
                         //printf ("found width\n");
                         if ((float*)cont >= 0) {
                             tmpRectangle->width = strtof(cont, &unit);
-                            strcpy(tmpRectangle->units, unit);
+                            if (strlen(unit) > 0) { 
+                                strncpy(tmpRectangle->units, unit, 50);
+                                if (strlen(unit) >= 50) {
+                                    (tmpRectangle->units)[49] = '\0';
+                                }
+                                unit = '\0';
+                            }
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "height") == 0) {
                         //printf ("found height\n");
                         if ((float*)cont >= 0) {
                             tmpRectangle->height = strtof(cont, &unit);
-                            strcpy(tmpRectangle->units, unit);
+                            if (strlen(unit) > 0) { 
+                                strncpy(tmpRectangle->units, unit, 50);
+                                if (strlen(unit) >= 50) {
+                                    (tmpRectangle->units)[49] = '\0';
+                                }
+                                unit = '\0';
+                            }
                         }
                     } else {
                         //printf ("found other attribute");
@@ -942,16 +976,34 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cx") == 0) {
                         //printf ("found cx\n");
                         tmpCircle->cx = strtof(cont, &unit);
-                        strcpy(tmpCircle->units, unit);
+                        if (strlen(unit) > 0) {
+                            strncpy(tmpCircle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpCircle->units)[49] = '\0';
+                            }   
+                            unit = '\0';
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cy") == 0) {
                         //printf ("found cy\n");
                         tmpCircle->cy = strtof(cont, &unit);
-                        strcpy(tmpCircle->units, unit);
+                        if (strlen(unit) > 0) {
+                            strncpy(tmpCircle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpCircle->units)[49] = '\0';
+                            }   
+                            unit = '\0';
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "r") == 0) {
                         //printf ("found r\n");
                         if (atof(cont) >= 0) {
-                            tmpCircle->r = atof(cont);
-                            strcpy(tmpCircle->units, unit);
+                            tmpCircle->r = strtof(cont, &unit);
+                            if (strlen(unit) > 0) {
+                                strncpy(tmpCircle->units, unit, 50);
+                                if (strlen(unit) >= 50) {
+                                    (tmpCircle->units)[49] = '\0';
+                                }   
+                                unit = '\0';
+                            }
                         }
                     } else {
                         //printf ("found other attribute");
@@ -1035,22 +1087,46 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "x") == 0) {
                         //printf ("found x\n");
                         tmpRectangle->x = strtof(cont, &unit);
-                        strcpy(tmpRectangle->units, unit);
+                        if (strlen(unit) > 0) {
+                            strncpy(tmpRectangle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpRectangle->units)[49] = '\0';
+                            }  
+                            unit = '\0';           
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "y") == 0) {
                         //printf ("found y\n");
                         tmpRectangle->y = strtof(cont, &unit);
-                        strcpy(tmpRectangle->units, unit);
+                        if (strlen(unit) > 0) {
+                            strncpy(tmpRectangle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpRectangle->units)[49] = '\0';
+                            }    
+                            unit = '\0';         
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "width") == 0) {
                         //printf ("found width\n");
                         if (atof(cont) >= 0) {
                             tmpRectangle->width = strtof(cont, &unit);
-                            strcpy(tmpRectangle->units, unit);
+                            if (strlen(unit) > 0) {
+                                strncpy(tmpRectangle->units, unit, 50);
+                                if (strlen(unit) >= 50) {
+                                    (tmpRectangle->units)[49] = '\0';
+                                }  
+                                unit = '\0';           
+                            }               
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "height") == 0) {
                         //printf ("found height\n");
                         if (atof(cont) >= 0) {
                             tmpRectangle->height = strtof(cont, &unit);
-                            strcpy(tmpRectangle->units, unit);
+                            if (strlen(unit) > 0) {
+                                strncpy(tmpRectangle->units, unit, 50);
+                                if (strlen(unit) >= 50) {
+                                    (tmpRectangle->units)[49] = '\0';
+                                }  
+                                unit = '\0';           
+                            }    
                         }
                     } else {
                         //printf ("found other attribute");
@@ -1114,16 +1190,34 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cx") == 0) {
                         //printf ("found cx\n");
                         tmpCircle->cx = strtof(cont, &unit);
-                        strcpy(tmpCircle->units, unit);
+                        if (strlen(unit) > 0) {
+                            strncpy(tmpCircle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpCircle->units)[49] = '\0';
+                            }   
+                            unit = '\0';
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "cy") == 0) {
                         //printf ("found cy\n");
                         tmpCircle->cy = strtof(cont, &unit);
-                        strcpy(tmpCircle->units, unit);
+                        if (strlen(unit) > 0) {
+                            strncpy(tmpCircle->units, unit, 50);
+                            if (strlen(unit) >= 50) {
+                                (tmpCircle->units)[49] = '\0';
+                            }   
+                            unit = '\0';
+                        }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "r") == 0) {
                         //printf ("found r\n");
                         if (atof(cont) >= 0) {
                             tmpCircle->r = strtof(cont, &unit);
-                            strcpy(tmpCircle->units, unit);
+                            if (strlen(unit) > 0) {
+                                strncpy(tmpCircle->units, unit, 50);
+                                if (strlen(unit) >= 50) {
+                                    (tmpCircle->units)[49] = '\0';
+                                }   
+                                unit = '\0';
+                            }
                         }
                     } else {
                         //printf ("found other attribute");

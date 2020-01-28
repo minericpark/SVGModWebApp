@@ -115,7 +115,7 @@ char* SVGimageToString(SVGimage* img) {
 
     statLen = 256 * 3;
     len = strlen(circStr) + strlen(recStr) + strlen(pathStr) + strlen(groupStr) + strlen(attrStr) + statLen;
-	tmpStr = (char*)malloc(sizeof(char)*len + 217);
+	tmpStr = (char*)malloc(sizeof(char)*len + 300);
 	
     /*Compile all strings into tmpStr (to return)*/
 	sprintf(tmpStr, "--------------------\nName: %s\nTitle: %s\nDescription: %s\n--------------------\nList of rects: %s\n--------------------\nList of circs: %s\n--------------------\nList of attributes: %s\n--------------------\nList of paths: %s\n--------------------\nList of groups: %s\n", nameStr, titleStr, descStr, recStr, circStr, attrStr, pathStr, groupStr);
@@ -643,11 +643,11 @@ char* rectangleToString(void* data) {
     yLen = 4;
     widthLen = 4;
     heightLen = 4;
-    unitLen = 50;
+    unitLen = 51;
     listStr = toString(tmpRectangle->otherAttributes);
-    attriLen = strlen(listStr);
+    attriLen = strlen(listStr) + 1;
 
-    tmpStr = (char*)malloc(sizeof(char)*(xLen + yLen + widthLen + heightLen + unitLen + attriLen) + 44);
+    tmpStr = (char*)malloc(sizeof(char)*(xLen + yLen + widthLen + heightLen + unitLen + attriLen) + 100);
 	
     /*Store compiled string into tmpStr*/
     sprintf(tmpStr, "x: %f\ny: %f\nwidth: %f\nheight: %f\nunit: %s\nattribute list: %s\n", tmpRectangle->x, tmpRectangle->y, tmpRectangle->width, tmpRectangle->height, tmpRectangle->units, listStr);	

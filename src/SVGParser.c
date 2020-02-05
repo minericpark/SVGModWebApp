@@ -477,6 +477,19 @@ int numAttr(SVGimage* img) {
     return count;
 }
 
+/* ************************************ A2 Functions ****************************************************** */
+
+bool validateSVGimage(SVGimage* image, char* schemaFile) {
+    
+}
+
+SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
+
+}
+
+bool writeSVGimage(SVGimage* image, char* fileName) {
+
+}
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */
 

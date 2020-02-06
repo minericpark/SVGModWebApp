@@ -27,6 +27,11 @@ int count_additional_attributes(Group * givenGroup);
 //Empty stub (to avoid logical errors)
 void emptyStub();
 
+//Recursion function that converts the provided image to an xmlDoc
 xmlDoc* convertImgToDoc (SVGimage * givenSVG);
-int validateDoc (xmlDoc * givenDoc);
+//Recursion function that converts the provided group into a node and attaches it to the tree
 void convertGroup (xmlNode * parent_node, Group * givenGroup);
+//Recursion function that validates the provided image
+void validateImage (SVGimage * givenImg, int * valid);
+//Recursion function that validates the provided group
+void validateGroup (Group * givenGroup, int * valid);

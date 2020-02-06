@@ -19,7 +19,7 @@
 SVGimage* createSVGimage(char* fileName) {
 
     SVGimage* newImg = NULL;
-    int* valid = (int*)malloc(sizeof(int));
+    int* valid;
 
     if (fileName == NULL) {
         return NULL;
@@ -36,18 +36,23 @@ SVGimage* createSVGimage(char* fileName) {
         return NULL;
     }
 
+    valid = (int*)malloc(sizeof(int));
     *valid = 1;
 
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
 
+    /*Empty document detected*/
     if (root_element == NULL) {
-        printf ("empty document\n");
+        free(valid);
+        xmlFreeDoc(doc);
+        xmlCleanupParser();
         return NULL;
     }
 
     /*Check for namespace (if null, return NULL)*/
     if ((root_element->ns) == NULL) {
+        free(valid);
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return NULL;
@@ -496,16 +501,57 @@ int numAttr(SVGimage* img) {
 bool validateSVGimage(SVGimage* image, char* schemaFile) {
     
     xmlDoc* doc;
+    xmlSchema* givenSchema = NULL;
+    xmlSchemaParserCtxt* ctxt;
+    int parseFail = 0;
 
     if (image == NULL || schemaFile == NULL) {
         return false;
     }
 
     doc = convertImgToDoc(image);
-    //Convert image to xmlDoc
-    //Validate the initial tree
-    //Use libxml2 function with schemaFile to validate
-    //True if validation success, false otherwise
+
+    ctxt = xmlSchemaNewParserCtxt (schemaFile);
+    xmlSchemaSetParserErrors (ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+    givenSchema = xmlSchemaParse(ctxt);
+    xmlSchemaFreeParserCtxt(ctxt);
+
+    if (doc == NULL) { //Doc fails to parse
+        parseFail = 1;
+    }
+    else {
+        xmlSchemaValidCtxt* cvtxt;
+        int ret;
+
+        cvtxt = xmlSchemaNewValidCtxt(givenSchema);
+        xmlSchemaSetValidErrors(cvtxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+        ret = xmlSchemaValidateDoc(cvtxt, doc);
+        if (ret == 0) { //Validates appropriately
+            parseFail = 0;
+        } else if (ret > 0) { //Fails to validate
+            parseFail = 1;
+        } else { //Creates an internal error
+            parseFail = 1;
+        }
+        xmlSchemaFreeValidCtxt(cvtxt);
+        xmlFreeDoc(doc);
+    }
+    
+    if(givenSchema != NULL) {
+        xmlSchemaFree(givenSchema);
+    }
+    
+    xmlSchemaCleanupTypes();
+    xmlCleanupParser();
+
+    //Do manual img travel parsing
+    
+
+    if (parseFail == 1) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
@@ -514,6 +560,7 @@ SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
     SVGimage* newImg = NULL;
     xmlSchema* givenSchema = NULL;
     xmlSchemaParserCtxt* ctxt;
+    int parseFail = 0;
     
     if (fileName == NULL || schemaFile == NULL) {
         return NULL;
@@ -528,8 +575,9 @@ SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
 
     imgDoc = xmlReadFile (fileName, NULL, 0);
 
+    //img doc unable to parse
     if (imgDoc == NULL) {
-        fprintf(stderr, "Could not parse %s\n", XMLFileName);
+        parseFail = 1;
     }
     else {
         xmlSchemaValidCtxt* cvtxt;
@@ -538,12 +586,13 @@ SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
         cvtxt = xmlSchemaNewValidCtxt(givenSchema);
         xmlSchemaSetValidErrors(cvtxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
         ret = xmlSchemaValidateDoc(cvtxt, imgDoc);
+        //Validates
         if (ret == 0) {
-            printf("%s validates\n", fileName);
-        } else if (ret > 0) {
-            printf("%s fails to validate\n", fileName);
-        } else {
-            printf("%s validation generated an internal error\n", fileName);
+            parseFail = 0;
+        } else if (ret > 0) { //Fails to validate
+            parseFail = 1;
+        } else { //Generates an internal issue
+            parseFail = 1;
         }
         xmlSchemaFreeValidCtxt(cvtxt);
         xmlFreeDoc(imgDoc);
@@ -551,9 +600,18 @@ SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
 
     /*Call createSVGimage function*/
     newImg = createSVGimage(fileName);
+    
+    /*Free schema and cleanup parser*/
+    if(givenSchema != NULL) {
+        xmlSchemaFree(givenSchema);
+    }
+    xmlSchemaCleanupTypes();
+    xmlCleanupParser();
 
     /*Failed parse*/
     if (newImg == NULL) {
+        return NULL;
+    } else if (parseFail == 1) {
         return NULL;
     }
 
@@ -609,22 +667,20 @@ xmlDoc* convertImgToDoc (SVGimage * givenSVG) {
     doc = xmlNewDoc ((const xmlChar*) "1.0");
     root_node = xmlNewNode (NULL, (const xmlChar*) "svg"); //Create node (root)
     xmlDocSetRootElement (doc, root_node);
-    xmlNewProp (root_node, (const xmlChar*) "attribute", NULL);
-    xmlNewChild (root_node, NULL, (const xmlChar*) "extra", NULL); 
 
     /*If there exists a namespace, add as attribute*/
-    if (givenSVG->namespace == NULL) {
+    if (givenSVG->namespace == NULL || strcmp(givenSVG->namespace, "") == 0) {
         return NULL;
     } else {
-        xmlNewNs(root_node, (const xmlChar*) givenSVG->namespace, NULL);
+        xmlSetNs(root_node, xmlNewNs(root_node, (const xmlChar*) givenSVG->namespace, NULL));
     }
 
     /*If there exists a title in the SVGimage, create node for it*/
-    if (givenSVG->title != NULL) {
+    if (givenSVG->title != NULL && strcmp(givenSVG->title, "") != 0) {
         xmlNewChild (root_node, NULL, (const xmlChar*) "title", (const xmlChar*) givenSVG->title);
     }
     /*If there exists a description in the SVGimage, create node for it*/
-    if (givenSVG->description != NULL) {
+    if (givenSVG->description != NULL && strcmp(givenSVG->description, "") != 0) {
         xmlNewChild (root_node, NULL, (const xmlChar*) "desc", (const xmlChar*) givenSVG->description);
     }
 
@@ -721,14 +777,6 @@ xmlDoc* convertImgToDoc (SVGimage * givenSVG) {
     }
 
     return doc;
-}
-
-/*Validate provided document and return either 0 or 1*/
-int validateDoc (xmlDoc * givenDoc) {
-
-    //Validates a provided tree (manually?)
-    //Follow specified requirements
-
 }
 
 /*Recursion function that checks each groups, and creates new nodes (then attachs them into the provided parent node*/
@@ -835,6 +883,24 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
         /**/
         convertGroup (new_node, (Group*)elem);
     }
+}
+
+/*Validate provided document and return either 0 or 1*/
+void validateImage (SVGimage * givenImg, int * valid) {
+
+    //Validates a provided tree (manually?)
+    //Follow specified requirements
+    ListIterator tmpIterator;
+    ListIterator tmpIterator2;
+    void* elem;
+    void* elem2;
+
+    
+
+}
+
+void validateGroup (Group * givenGroup, int * valid) {
+
 }
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */

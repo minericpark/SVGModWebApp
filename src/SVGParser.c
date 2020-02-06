@@ -491,6 +491,16 @@ bool writeSVGimage(SVGimage* image, char* fileName) {
 
 }
 
+/* ******************************** Additional helper functions ******************************************* */
+
+xmlDoc* convertImgToDoc (SVGImage * givenSVG) {
+    
+}
+
+int validateDoc (xmlDoc * givenDoc) {
+
+}
+
 /* ******************************* List helper functions  - MUST be implemented *************************** */
 
 /* Free's attribute appropriately by freeing the name, value, then the attribute */

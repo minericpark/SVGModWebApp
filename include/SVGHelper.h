@@ -26,3 +26,6 @@ void add_additional_paths(Group * givenGroup, List* givenList);
 int count_additional_attributes(Group * givenGroup);
 //Empty stub (to avoid logical errors)
 void emptyStub();
+
+xmlDoc* convertImgToDoc (SVGImage * givenSVG);
+int validateDoc (xmlDoc * givenDoc);

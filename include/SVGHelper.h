@@ -10,10 +10,10 @@
 
 //Recursion function that parses the a_node and stores product into givenImg
 //Utilizes count to assure recursion does not pass farther than required
-void parse_image(xmlNode * a_node, SVGimage* givenImg, int count);
+void parse_image(xmlNode * a_node, SVGimage* givenImg, int count, int * valid);
 //Recursion function used for additional parsing (similar function to parse_image) for groups
 //Called by parse_image when encountering groups, then recursively called when groups encountered within groups
-void group_parse(xmlNode * a_node, Group* givenGroup, int count);
+void group_parse(xmlNode * a_node, Group* givenGroup, int count, int * valid);
 //Recursion function that parses the givenGroup and stores the rectangles found into givenList
 void add_additional_rects(Group * givenGroup, List* givenList);
 //Recursion function that parses the givenGroup and stores the circles found into givenList
@@ -27,5 +27,6 @@ int count_additional_attributes(Group * givenGroup);
 //Empty stub (to avoid logical errors)
 void emptyStub();
 
-xmlDoc* convertImgToDoc (SVGImage * givenSVG);
+xmlDoc* convertImgToDoc (SVGimage * givenSVG);
 int validateDoc (xmlDoc * givenDoc);
+void convertGroup (xmlNode * parent_node, Group * givenGroup);

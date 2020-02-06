@@ -8,6 +8,12 @@ SVGimage* SVGtest(char* fileName) {
     return testImg;
 }
 
+SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
+    SVGimage* testImg;
+    testImg = createValidSVGimage(fileName, schemaName);
+    return testImg;
+}
+
 void attributeTest () {
 
     printf ("----------Attribute Test----------\n");
@@ -535,7 +541,7 @@ int main(int argc, char **argv) {
     int numAttributes;
     int numRects;
 
-    if (argc != 2)
+    if (argc < 2)
         return(1);
 
     /*Function*/
@@ -544,7 +550,7 @@ int main(int argc, char **argv) {
     //circTest();
     //pathTest();
     //groupTest();
-    testImg = SVGtest(argv[1]);
+    testImg = SVGtest(argv[1], argv[2]);
     if (testImg != NULL) {
         testString = SVGimageToString(testImg);
         printf ("%s\n", testString);
@@ -565,6 +571,11 @@ int main(int argc, char **argv) {
         freeList(circs);
         freeList(paths);
         freeList(groups);
+
+        if (writeSVGimage(testImg, "test") == false) {
+            printf ("failed write\n");
+        }
+
         deleteSVGimage(testImg);
     }
     return 0;

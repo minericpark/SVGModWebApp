@@ -19,6 +19,7 @@
 SVGimage* createSVGimage(char* fileName) {
 
     SVGimage* newImg = NULL;
+    int* valid = (int*)malloc(sizeof(int));
 
     if (fileName == NULL) {
         return NULL;
@@ -34,6 +35,8 @@ SVGimage* createSVGimage(char* fileName) {
         printf("error: could not parse file %s\n", fileName);
         return NULL;
     }
+
+    *valid = 1;
 
     /*Get the root element node */
     root_element = xmlDocGetRootElement(doc);
@@ -62,7 +65,18 @@ SVGimage* createSVGimage(char* fileName) {
     newImg->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
 
     /*Call helper function that parses and stores svg struct into newImg*/
-    parse_image(root_element, newImg, 0);
+    parse_image(root_element, newImg, 0, valid);
+
+    if (*valid == 0) {
+        printf ("invalid svg image\n");
+        free(valid);
+        deleteSVGimage(newImg);
+        xmlFreeDoc(doc);
+        xmlCleanupParser();
+        return NULL;
+    }
+
+    free(valid);
 
     /*free the document */
     xmlFreeDoc(doc);
@@ -481,24 +495,346 @@ int numAttr(SVGimage* img) {
 
 bool validateSVGimage(SVGimage* image, char* schemaFile) {
     
+    xmlDoc* doc;
+
+    if (image == NULL || schemaFile == NULL) {
+        return false;
+    }
+
+    doc = convertImgToDoc(image);
+    //Convert image to xmlDoc
+    //Validate the initial tree
+    //Use libxml2 function with schemaFile to validate
+    //True if validation success, false otherwise
 }
 
 SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
 
+    xmlDoc* imgDoc;
+    SVGimage* newImg = NULL;
+    xmlSchema* givenSchema = NULL;
+    xmlSchemaParserCtxt* ctxt;
+    
+    if (fileName == NULL || schemaFile == NULL) {
+        return NULL;
+    }
+
+    ctxt = xmlSchemaNewParserCtxt (schemaFile);
+
+    xmlSchemaSetParserErrors (ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+
+    givenSchema = xmlSchemaParse(ctxt);
+    xmlSchemaFreeParserCtxt(ctxt);
+
+    imgDoc = xmlReadFile (fileName, NULL, 0);
+
+    if (imgDoc == NULL) {
+        fprintf(stderr, "Could not parse %s\n", XMLFileName);
+    }
+    else {
+        xmlSchemaValidCtxt* cvtxt;
+        int ret;
+
+        cvtxt = xmlSchemaNewValidCtxt(givenSchema);
+        xmlSchemaSetValidErrors(cvtxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+        ret = xmlSchemaValidateDoc(cvtxt, imgDoc);
+        if (ret == 0) {
+            printf("%s validates\n", fileName);
+        } else if (ret > 0) {
+            printf("%s fails to validate\n", fileName);
+        } else {
+            printf("%s validation generated an internal error\n", fileName);
+        }
+        xmlSchemaFreeValidCtxt(cvtxt);
+        xmlFreeDoc(imgDoc);
+    }
+
+    /*Call createSVGimage function*/
+    newImg = createSVGimage(fileName);
+
+    /*Failed parse*/
+    if (newImg == NULL) {
+        return NULL;
+    }
+
+    return newImg;
 }
 
 bool writeSVGimage(SVGimage* image, char* fileName) {
 
+    xmlDoc* doc;
+    char tmpName[256];
+
+    if (image == NULL || fileName == NULL) {
+        return false;
+    }
+
+    doc = convertImgToDoc(image);
+
+    /*Check if error occurred with the parsing*/
+    if (doc == NULL) {
+        xmlFreeDoc(doc);
+        xmlCleanupParser();
+        return false;
+    }
+
+    strcpy (tmpName, fileName);
+    strcat (tmpName, ".svg");
+
+    /*Check if write is successful or not*/
+    if (xmlSaveFormatFileEnc(tmpName, doc, "UTF-8", 1) != -1) {
+        xmlFreeDoc(doc);
+        xmlCleanupParser();
+        return true;
+    } else {
+        xmlFreeDoc(doc);
+        xmlCleanupParser();
+        return false;
+    }
 }
 
 /* ******************************** Additional helper functions ******************************************* */
 
-xmlDoc* convertImgToDoc (SVGImage * givenSVG) {
+/*Convert provided givenSVG to a doc file*/
+xmlDoc* convertImgToDoc (SVGimage * givenSVG) {
+
+    ListIterator tmpIterator;
+    ListIterator tmpIterator2;
+    xmlDoc* doc = NULL;
+    xmlNode* root_node = NULL;
+    xmlNode* tmp_node = NULL;
+    void* elem;
+    void* elem2;
     
+    doc = xmlNewDoc ((const xmlChar*) "1.0");
+    root_node = xmlNewNode (NULL, (const xmlChar*) "svg"); //Create node (root)
+    xmlDocSetRootElement (doc, root_node);
+    xmlNewProp (root_node, (const xmlChar*) "attribute", NULL);
+    xmlNewChild (root_node, NULL, (const xmlChar*) "extra", NULL); 
+
+    /*If there exists a namespace, add as attribute*/
+    if (givenSVG->namespace == NULL) {
+        return NULL;
+    } else {
+        xmlNewNs(root_node, (const xmlChar*) givenSVG->namespace, NULL);
+    }
+
+    /*If there exists a title in the SVGimage, create node for it*/
+    if (givenSVG->title != NULL) {
+        xmlNewChild (root_node, NULL, (const xmlChar*) "title", (const xmlChar*) givenSVG->title);
+    }
+    /*If there exists a description in the SVGimage, create node for it*/
+    if (givenSVG->description != NULL) {
+        xmlNewChild (root_node, NULL, (const xmlChar*) "desc", (const xmlChar*) givenSVG->description);
+    }
+
+    /*If there exists attributes for svg, create attributes*/
+    tmpIterator = createIterator(givenSVG->otherAttributes);
+    while ((elem = nextElement(&tmpIterator)) != NULL) {
+        xmlNewProp (root_node, (const xmlChar*)((Attribute*)elem)->name, (const xmlChar*)((Attribute*)elem)->value);
+    }
+
+    /*If there exists list of rectangles, create node for them*/
+    tmpIterator = createIterator(givenSVG->rectangles);
+    while((elem = nextElement(&tmpIterator)) != NULL){
+        tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+        char xStr[256];
+        char yStr[256];
+        char widthStr[256];
+        char heightStr[256];
+
+        sprintf (xStr, "%f", ((Rectangle*)elem)->x);
+        sprintf (yStr, "%f", ((Rectangle*)elem)->y);
+        sprintf (heightStr, "%f", ((Rectangle*)elem)->height);
+        sprintf (widthStr, "%f", ((Rectangle*)elem)->width);
+
+        if (((Rectangle*) elem)->units != NULL) {
+            strcat (xStr, ((Rectangle*)elem)->units);
+            strcat (yStr, ((Rectangle*)elem)->units);
+            strcat (heightStr, ((Rectangle*)elem)->units);
+            strcat (widthStr, ((Rectangle*)elem)->units);
+        }
+
+        tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "rect", NULL);
+        xmlNewProp (tmp_node, (const xmlChar*) "x", (const xmlChar*) xStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "y", (const xmlChar*) yStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "height", (const xmlChar*) heightStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "width", (const xmlChar*) widthStr);
+
+        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+            /*Parse and add attributes*/
+            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+        }
+	}
+
+    /*If there exists list of circles, create node for them*/
+    tmpIterator = createIterator(givenSVG->circles);
+    while((elem = nextElement(&tmpIterator)) != NULL){
+        tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+        char cxStr[256];
+        char cyStr[256];
+        char rStr[256];
+
+        sprintf (cxStr, "%f", ((Circle*)elem)->cx);
+        sprintf (cyStr, "%f", ((Circle*)elem)->cy);
+        sprintf (rStr, "%f", ((Circle*)elem)->r);
+
+        if (((Circle*) elem)->units != NULL) {
+            strcat (cxStr, ((Circle*)elem)->units);
+            strcat (cyStr, ((Circle*)elem)->units);
+            strcat (rStr, ((Circle*)elem)->units);
+        }
+
+        tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "circle", NULL);
+        xmlNewProp (tmp_node, (const xmlChar*) "cx", (const xmlChar*) cxStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "cy", (const xmlChar*) cyStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "r", (const xmlChar*) rStr);
+
+        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+            /*Parse and add attributes*/
+            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+        }
+	}
+
+    /*If there exists list of paths, create node for them*/
+    tmpIterator = createIterator(givenSVG->paths);
+    while((elem = nextElement(&tmpIterator)) != NULL){
+        tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+        char dataStr[256];
+
+        sprintf (dataStr, "%s", ((Path*)elem)->data);
+
+        tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "path", NULL);
+        xmlNewProp (tmp_node, (const xmlChar*) "d", (const xmlChar*) dataStr);
+
+        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+            /*Parse and add attributes*/
+            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+        }
+	}
+
+    /*If there exists list of groups, create node for them (and use recursive function)*/
+    tmpIterator = createIterator (givenSVG->groups);
+    while ((elem = nextElement(&tmpIterator)) != NULL) {
+        /*Parse group*/
+        convertGroup (root_node, (Group*) elem);
+    }
+
+    return doc;
 }
 
+/*Validate provided document and return either 0 or 1*/
 int validateDoc (xmlDoc * givenDoc) {
 
+    //Validates a provided tree (manually?)
+    //Follow specified requirements
+
+}
+
+/*Recursion function that checks each groups, and creates new nodes (then attachs them into the provided parent node*/
+void convertGroup (xmlNode * parent_node, Group * givenGroup) {
+
+    ListIterator tmpIterator;
+    ListIterator tmpIterator2;
+    xmlNode* new_node = NULL;
+    xmlNode* tmp_node = NULL;
+    void* elem;
+    void* elem2;
+
+    new_node = xmlNewChild (parent_node, NULL, (const xmlChar*) "g", NULL); 
+
+    /*If there exists attributes for svg, create attributes*/
+    tmpIterator = createIterator(givenGroup->otherAttributes);
+    while ((elem = nextElement(&tmpIterator)) != NULL) {
+        xmlNewProp (new_node, (const xmlChar*)((Attribute*)elem)->name, (const xmlChar*)((Attribute*)elem)->value);
+    }
+
+    /*If there exists list of rectangles, create node for them*/
+    tmpIterator = createIterator(givenGroup->rectangles);
+    while((elem = nextElement(&tmpIterator)) != NULL){
+        tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+        char xStr[256];
+        char yStr[256];
+        char widthStr[256];
+        char heightStr[256];
+
+        sprintf (xStr, "%f", ((Rectangle*)elem)->x);
+        sprintf (yStr, "%f", ((Rectangle*)elem)->y);
+        sprintf (heightStr, "%f", ((Rectangle*)elem)->height);
+        sprintf (widthStr, "%f", ((Rectangle*)elem)->width);
+
+        if (((Rectangle*) elem)->units != NULL) {
+            strcat (xStr, ((Rectangle*)elem)->units);
+            strcat (yStr, ((Rectangle*)elem)->units);
+            strcat (heightStr, ((Rectangle*)elem)->units);
+            strcat (widthStr, ((Rectangle*)elem)->units);
+        }
+
+        tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "rect", NULL);
+        xmlNewProp (tmp_node, (const xmlChar*) "x", (const xmlChar*) xStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "y", (const xmlChar*) yStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "height", (const xmlChar*) heightStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "width", (const xmlChar*) widthStr);
+
+        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+            /*Parse and add attributes*/
+            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+        }
+	}
+
+    /*If there exists list of circles, create node for them*/
+    tmpIterator = createIterator(givenGroup->circles);
+    while((elem = nextElement(&tmpIterator)) != NULL){
+        tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+        char cxStr[256];
+        char cyStr[256];
+        char rStr[256];
+
+        sprintf (cxStr, "%f", ((Circle*)elem)->cx);
+        sprintf (cyStr, "%f", ((Circle*)elem)->cy);
+        sprintf (rStr, "%f", ((Circle*)elem)->r);
+
+        if (((Circle*) elem)->units != NULL) {
+            strcat (cxStr, ((Circle*)elem)->units);
+            strcat (cyStr, ((Circle*)elem)->units);
+            strcat (rStr, ((Circle*)elem)->units);
+        }
+
+        tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "circle", NULL);
+        xmlNewProp (tmp_node, (const xmlChar*) "cx", (const xmlChar*) cxStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "cy", (const xmlChar*) cyStr);
+        xmlNewProp (tmp_node, (const xmlChar*) "r", (const xmlChar*) rStr);
+
+        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+            /*Parse and add attributes*/
+            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+        }
+	}
+
+    /*If there exists list of paths, create node for them*/
+    tmpIterator = createIterator(givenGroup->paths);
+    while((elem = nextElement(&tmpIterator)) != NULL){
+        tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+        char dataStr[256];
+
+        sprintf (dataStr, "%s", ((Path*)elem)->data);
+
+        tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "path", NULL);
+        xmlNewProp (tmp_node, (const xmlChar*) "d", (const xmlChar*) dataStr);
+
+        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+            /*Parse and add attributes*/
+            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+        }
+	}
+
+    /*If there exists list of groups, create node for them (and use recursive function)*/
+    tmpIterator = createIterator (givenGroup->groups);
+    while ((elem = nextElement(&tmpIterator)) != NULL) {
+        /*Parse group*/
+        /**/
+        convertGroup (new_node, (Group*)elem);
+    }
 }
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */
@@ -780,7 +1116,7 @@ int comparePaths(const void *first, const void *second) {
 
 /*----------------------------------------------------------------*/
 /*Tree traversal helpers*/
-void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
+void parse_image(xmlNode * a_node, SVGimage* givenImg, int count, int * valid)
 {
     SVGimage* tmpImg;
     xmlNode* cur_node = NULL;
@@ -806,10 +1142,11 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                 if (cur_node->ns != NULL) {
                     //printf ("namespace exists\n");
                     strncpy(tmpImg->namespace, (char*) cur_node->ns->href, 256);
-                    printf ("%s\n", tmpImg->namespace);
                     if (strlen((char*)(cur_node->ns)->href) >= 256) {
                         (tmpImg->namespace)[255] = '\0';
                     }
+                } else {
+                    *valid = 0;
                 }
                 /*Parse attributes*/
                 for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
@@ -874,7 +1211,7 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     }
                 }
                 /*Call recursion function that will parse through group*/
-                group_parse(cur_node->children, tmpGroup, 0);
+                group_parse(cur_node->children, tmpGroup, 0, valid);
                 insertBack(tmpImg->groups, tmpGroup);
                 
             } else if (xmlStrcasecmp(cur_node->name, (const xmlChar*) "rect") == 0) {
@@ -911,6 +1248,9 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "width") == 0) {
                         //printf ("found width\n");
+                        if (strtof(cont, &unit) < 0) {
+                            *valid = 0;
+                        }
                         if ((float*)cont >= 0) {
                             tmpRectangle->width = strtof(cont, &unit);
                             if (strlen(unit) > 0) { 
@@ -923,6 +1263,9 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "height") == 0) {
                         //printf ("found height\n");
+                        if (strtof(cont, &unit) < 0) {
+                            *valid = 0;
+                        }
                         if ((float*)cont >= 0) {
                             tmpRectangle->height = strtof(cont, &unit);
                             if (strlen(unit) > 0) { 
@@ -961,12 +1304,12 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                     cont = (char *)(value->content);
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "d") == 0) {
                         //printf ("found data\n");
+                        if (strcmp(cont, "") == 0) {
+                            *valid = 0;
+                        }
                         if (cont != NULL) {
                             tmpPath->data = (char*)malloc(sizeof(char) * strlen(cont) + 1);
                             strcpy(tmpPath->data, cont);
-                        } else {
-                            deletePath(tmpPath);
-                            break;
                         }
                     } else {
                         //printf ("found other attribute");
@@ -1018,6 +1361,9 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "r") == 0) {
                         //printf ("found r\n");
+                        if (strtof(cont, &unit) < 0) {
+                            *valid = 0;
+                        }
                         if (atof(cont) >= 0) {
                             tmpCircle->r = strtof(cont, &unit);
                             if (strlen(unit) > 0) {
@@ -1045,13 +1391,13 @@ void parse_image(xmlNode * a_node, SVGimage* givenImg, int count)
             }
         }
         if (count < 1) {
-            parse_image(cur_node->children, tmpImg, 1);
+            parse_image(cur_node->children, tmpImg, 1, valid);
         }
     }
 }
 
 /*Similar to parse_image, similar structure and similar functions*/
-void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
+void group_parse (xmlNode *a_node, Group* givenGroup, int count, int * valid) {
 
     Group* tmpGroup;
     xmlNode* cur_node = NULL;
@@ -1091,7 +1437,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     }
                 }
                 //printf("recursion called\n");
-                group_parse(cur_node->children, tmpGroup2, 0);
+                group_parse(cur_node->children, tmpGroup2, 0, valid);
                 insertBack(tmpGroup->groups, tmpGroup2);
                 //printf ("group inserted\n");
                 count = 1;
@@ -1129,6 +1475,9 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "width") == 0) {
                         //printf ("found width\n");
+                        if (strtof(cont, &unit) < 0) {
+                            *valid = 0;
+                        }
                         if (atof(cont) >= 0) {
                             tmpRectangle->width = strtof(cont, &unit);
                             if (strlen(unit) > 0) {
@@ -1141,6 +1490,9 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "height") == 0) {
                         //printf ("found height\n");
+                        if (strtof(cont, &unit) < 0) {
+                            *valid = 0;
+                        }
                         if (atof(cont) >= 0) {
                             tmpRectangle->height = strtof(cont, &unit);
                             if (strlen(unit) > 0) {
@@ -1178,12 +1530,12 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                     cont = (char *)(value->content);
                     if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "d") == 0) {
                         //printf ("found data\n");
+                        if (strcmp(cont, "") == 0) {
+                            *valid = 0;
+                        }
                         if (cont != NULL) {
                             tmpPath->data = (char*)malloc(sizeof(char) * strlen(cont) + 1);
                             strcpy(tmpPath->data, cont);
-                        } else {
-                            deletePath(tmpPath);
-                            break;
                         }
                     } else {
                         //printf ("found other attribute");
@@ -1232,6 +1584,9 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
                         }
                     } else if (xmlStrcasecmp((const xmlChar*) attrName, (const xmlChar*) "r") == 0) {
                         //printf ("found r\n");
+                        if (strtof(cont, &unit) < 0) {
+                            *valid = 0;
+                        }
                         if (atof(cont) >= 0) {
                             tmpCircle->r = strtof(cont, &unit);
                             if (strlen(unit) > 0) {
@@ -1260,7 +1615,7 @@ void group_parse (xmlNode *a_node, Group* givenGroup, int count) {
         }
         if (count < 1) {
             //printf ("recurses one iteration\n");
-            group_parse(cur_node->children, tmpGroup, 1);
+            group_parse(cur_node->children, tmpGroup, 1, valid);
         }
     }
 

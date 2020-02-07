@@ -660,7 +660,6 @@ bool writeSVGimage(SVGimage* image, char* fileName) {
 
 void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribute* newAttribute) {
 
-
     //New attribute either -> changes existing attribute, changes existing attribute within list, adds new attribute
     ListIterator tmpIterator;
     ListIterator tmpIterator2;
@@ -696,7 +695,7 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
             if (foundAttr != 1) {
                 if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
                         newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
-                    insertBack(((Circle*)elem)->otherAttributes, newAttribute);
+                    insertBack(image->otherAttributes, newAttribute);
                     freeAttr = 0;
                 }
             }

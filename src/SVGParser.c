@@ -670,6 +670,12 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
     int freeAttr = 1;
     char* buffer;
     char* tmpString;
+
+    //If no elemtype, exit function
+    if (elemType != RECT && elemType != CIRC && elemType != PATH && elemType != GROUP && elemType != SVG_IMAGE) {
+        return;
+    }
+
     //Modify the image itself
     if (elemType == SVG_IMAGE) {
         //Modify title
@@ -858,6 +864,21 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
 }
 
 void addComponent(SVGimage* image, elementType type, void* newElement) {
+
+    //If no elemtype, exit function
+    if (type != RECT && type != CIRC && type != PATH && type != GROUP && type != SVG_IMAGE) {
+        return;
+    }
+
+    if (type == CIRC) { //If type is circle, insert into circle list of image
+        insertBack ((image)->circles, (Circle*)newElement);
+    } else if (type == RECT) { //If type is rectangle, insert into rectangle list of image
+        insertBack ((image)->rectangles, (Rectangle*)newElement);
+    } else if (type == PATH) { //If type is path, insert into path list of image
+        insertBack ((image)->paths, (Path*)newElement);
+    } else { //If none, then exit
+        return;
+    }
 
 }
 

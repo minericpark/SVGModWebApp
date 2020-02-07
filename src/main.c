@@ -287,6 +287,10 @@ int main(int argc, char **argv) {
     Attribute* newAttribute3;
     Attribute* newAttribute4;
     Attribute* newAttribute5;
+    Rectangle* newRect;
+    Circle* newCircle;
+    Path* newPath;
+    Group* newGroup;
     char tmpStr[100];
 
     if (argc < 2)
@@ -325,6 +329,10 @@ int main(int argc, char **argv) {
         newAttribute3 = (Attribute*)calloc(1, sizeof(Attribute));
         newAttribute4 = (Attribute*)calloc(1, sizeof(Attribute));
         newAttribute5 = (Attribute*)calloc(1, sizeof(Attribute));
+
+        newRect = (Rectangle*)calloc(1, sizeof(Rectangle));
+        newCircle = (Circle*)calloc(1, sizeof(Circle));
+        newPath = (Path*)calloc(1, sizeof(Path));
 
         strcpy(tmpStr, "width");
 		memLen = strlen(tmpStr)+2;
@@ -376,11 +384,31 @@ int main(int argc, char **argv) {
 		newAttribute5->value = (char*)malloc(sizeof(char)*memLen);
 		strcpy(newAttribute5->value, tmpStr);
 
+        newRect->x = 30;
+        newRect->y = 30;
+        newRect->width = 100;
+        newRect->height = 100;
+        newRect->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+
+        newCircle->cx = 30;
+        newCircle->cy = 30;
+        newCircle->r = 30;
+        newCircle->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+
+        newPath->data = (char*)malloc(sizeof(char)*17 + 1);
+        strcpy(newPath->data, "30 30 30 30 30 30");
+        newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+
         setAttribute(testImg, RECT, 0, newAttribute);
         setAttribute(testImg, CIRC, 0, newAttribute2);
         setAttribute(testImg, PATH, 0, newAttribute3);
         setAttribute(testImg, GROUP, 0, newAttribute4);
         setAttribute(testImg, SVG_IMAGE, 0, newAttribute5);
+
+        addComponent(testImg, GROUP, newGroup);
+        addComponent(testImg, RECT, newRect);
+        addComponent(testImg, CIRC, newCircle);
+        addComponent(testImg, PATH, newPath);
 
         if (writeSVGimage(testImg, "test") == false) {
             printf ("failed write\n");

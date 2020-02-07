@@ -28,7 +28,7 @@ LinkedListAPI.o: include/LinkedListAPI.h src/LinkedListAPI.c
 libsvgparser.so: SVGParser.o
 	$(CC) -shared -o bin/libsvgparser.so bin/SVGParser.o
 
-SVGParser.o: include/SVGParser_A2temp.h src/SVGParser.c
+SVGParser.o: include/SVGParser_A2temp2.h src/SVGParser.c
 	$(CC) $(CFLAGS) -I$(INC_PATH) -c -fpic src/SVGParser.c -lxml2 -o bin/SVGParser.o
 
 clean:

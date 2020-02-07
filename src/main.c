@@ -1,5 +1,5 @@
 #include "LinkedListAPI.h"
-#include "SVGParser_A2temp.h"
+#include "SVGParser_A2temp2.h"
 
 SVGimage* SVGtest(char* fileName) {
 
@@ -281,6 +281,13 @@ int main(int argc, char **argv) {
     List* groups;
     int numAttributes;
     int numRects;
+    int memLen;
+    Attribute* newAttribute;
+    Attribute* newAttribute2;
+    Attribute* newAttribute3;
+    Attribute* newAttribute4;
+    Attribute* newAttribute5;
+    char tmpStr[100];
 
     if (argc < 2)
         return(1);
@@ -312,6 +319,68 @@ int main(int argc, char **argv) {
         freeList(circs);
         freeList(paths);
         freeList(groups);
+
+        newAttribute = (Attribute*)malloc(sizeof(Attribute));
+        newAttribute2 = (Attribute*)malloc(sizeof(Attribute));
+        newAttribute3 = (Attribute*)malloc(sizeof(Attribute));
+        newAttribute4 = (Attribute*)malloc(sizeof(Attribute));
+        newAttribute5 = (Attribute*)malloc(sizeof(Attribute));
+
+        strcpy(tmpStr, "width");
+		memLen = strlen(tmpStr)+2;
+		newAttribute->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute->name, tmpStr);
+		
+		strcpy(tmpStr, "10");
+		memLen = strlen(tmpStr)+2;
+		newAttribute->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute->value, tmpStr);
+
+        strcpy(tmpStr, "r");
+		memLen = strlen(tmpStr)+2;
+		newAttribute2->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute2->name, tmpStr);
+		
+		strcpy(tmpStr, "10");
+		memLen = strlen(tmpStr)+2;
+		newAttribute2->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute2->value, tmpStr);
+
+        strcpy(tmpStr, "d");
+		memLen = strlen(tmpStr)+2;
+		newAttribute3->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute3->name, tmpStr);
+		
+		strcpy(tmpStr, "100 4378 32190231");
+		memLen = strlen(tmpStr)+2;
+		newAttribute3->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute3->value, tmpStr);
+
+        strcpy(tmpStr, "fill");
+		memLen = strlen(tmpStr)+2;
+		newAttribute4->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute4->name, tmpStr);
+		
+		strcpy(tmpStr, "none");
+		memLen = strlen(tmpStr)+2;
+		newAttribute4->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute4->value, tmpStr);
+
+        strcpy(tmpStr, "border");
+		memLen = strlen(tmpStr)+2;
+		newAttribute5->name = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute5->name, tmpStr);
+		
+		strcpy(tmpStr, "10px");
+		memLen = strlen(tmpStr)+2;
+		newAttribute5->value = (char*)malloc(sizeof(char)*memLen);
+		strcpy(newAttribute5->value, tmpStr);
+
+        setAttribute(testImg, RECT, 1, newAttribute);
+        setAttribute(testImg, CIRC, 1, newAttribute2);
+        setAttribute(testImg, PATH, 1, newAttribute3);
+        setAttribute(testImg, GROUP, 1, newAttribute4);
+        setAttribute(testImg, SVG_IMAGE, 1, newAttribute5);
 
         if (writeSVGimage(testImg, "test") == false) {
             printf ("failed write\n");

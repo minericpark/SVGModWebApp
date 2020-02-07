@@ -670,72 +670,184 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
     int foundAttr = 0;
     int freeAttr = 1;
     char* buffer;
+    char* tmpString;
     //Modify the image itself
     if (elemType == SVG_IMAGE) {
         //Modify title
         if (strcmp(newAttribute->name, "title") == 0) {
-            strcpy(image->title, newAttribute->value);
+            image->title[0] = '\0';
+            strncpy(image->title, newAttribute->value, 256);
         } else if (strcmp(newAttribute->name, "description") == 0) { //Modify description
-            strcpy(image->description, newAttribute->value);
+            image->description[0] = '\0';
+            strncpy(image->description, newAttribute->value, 256);
         } else { //Add new attribute
             tmpIterator = createIterator(image->otherAttributes);
-            while ((elem = nextElement(&tmpIterator2)) != NULL) {
-
+            while ((elem = nextElement(&tmpIterator)) != NULL) {
+                if (strcmp(((Attribute*)elem)->name, newAttribute->name) == 0) { //Matched attribute
+                    if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                        tmpString = (char*)realloc(((Attribute*)elem)->value, strlen(newAttribute->value) + 1);
+                        ((Attribute*)elem)->value = tmpString;
+                        strcpy(((Attribute*)elem)->value, newAttribute->value);
+                        foundAttr = 1;
+                    }
+                }
+            }
+            //Add new attribute if not found
+            if (foundAttr != 1) {
+                if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
+                        newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                    insertBack(((Circle*)elem)->otherAttributes, newAttribute);
+                    freeAttr = 0;
+                }
             }
         }
-    } else if (elemType == CIRC) {
-        if (elemIndex != NULL) {
-            tmpIterator = createIterator(image->circles);
-            while((elem = nextElement(&tmpIterator)) != NULL){
-                //Determine if index is found
-                if (elemIndex == count) {
-                    if (strcmp(newAttribute->name, "cx") == 0) { //Modify cx
-                        ((Circle*)elem)->cx = strtof (newAttribute->value, &buffer);
-                    } else if (strcmp(newAttribute->name, "cy") == 0) { //Modify cy
-                        ((Circle*)elem)->cy = strtof (newAttribute->value, &buffer);
-                    } else if (strcmp(newAttribute->name, "r") == 0) { //Modify r
-                        if (strtof(newAttribute->value, &buffer) >= 0) {
-                            ((Circle*)elem)->r = strtof (newAttribute->value, &buffer);
-                        }
-                    } else if (strcmp(newAttribute->name, "units") == 0) { //Modify units
-                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
-                            strcpy(((Circle*)elem)->units, newAttribute->value);
-                        }
-                    } else { //Search through attributes list
-                        tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
-                        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                            if (strcmp(((Attribute*)elem2)->name, newAttribute->name) == 0) { //Matched attribute
-                                if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
-                                    strcpy(((Attribute*)elem2)->value, newAttribute->value);
-                                    foundAttr = 1;
-                                }
-                            }
-                        }
-                        //Add new attribute if not found
-                        if (foundAttr != 1) {
-                            if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
-                                    newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
-                                insertBack(((Circle*)elem)->otherAttributes, newAttribute);
-                                freeAttr = 0;
+    } else if (elemType == CIRC) { //Modify a circle object
+        tmpIterator = createIterator(image->circles);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            //Determine if index is found
+            if (elemIndex == count) {
+                if (strcmp(newAttribute->name, "cx") == 0) { //Modify cx
+                    ((Circle*)elem)->cx = strtof (newAttribute->value, &buffer);
+                } else if (strcmp(newAttribute->name, "cy") == 0) { //Modify cy
+                    ((Circle*)elem)->cy = strtof (newAttribute->value, &buffer);
+                } else if (strcmp(newAttribute->name, "r") == 0) { //Modify r
+                    if (strtof(newAttribute->value, &buffer) >= 0) {
+                        ((Circle*)elem)->r = strtof (newAttribute->value, &buffer);
+                    }
+                } else if (strcmp(newAttribute->name, "units") == 0) { //Modify units
+                    if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                        strcpy(((Circle*)elem)->units, newAttribute->value);
+                    }
+                } else { //Search through attributes list
+                    tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+                    while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                        if (strcmp(((Attribute*)elem2)->name, newAttribute->name) == 0) { //Matched attribute
+                            if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                                tmpString = (char*)realloc(((Attribute*)elem2)->value, strlen(newAttribute->value) + 1);
+                                ((Attribute*)elem2)->value = tmpString;
+                                strcpy(((Attribute*)elem2)->value, newAttribute->value);
+                                foundAttr = 1;
                             }
                         }
                     }
+                    //Add new attribute if not found
+                    if (foundAttr != 1) {
+                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
+                                newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                            insertBack(((Circle*)elem)->otherAttributes, newAttribute);
+                            freeAttr = 0;
+                        }
+                    }
                 }
-                count++;
-	        }
+            }
+            count++;
         }
-
-    } else if (elemType == RECT) {
-        if (elemIndex != NULL) {
-            
+    } else if (elemType == RECT) { //Modify a rectangle object
+        tmpIterator = createIterator(image->rectangles);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            //Determine if index is found
+            if (elemIndex == count) {
+                if (strcmp(newAttribute->name, "x") == 0) { //Modify x
+                    ((Rectangle*)elem)->x = strtof (newAttribute->value, &buffer);
+                } else if (strcmp(newAttribute->name, "y") == 0) { //Modify y
+                    ((Rectangle*)elem)->y = strtof (newAttribute->value, &buffer);
+                } else if (strcmp(newAttribute->name, "width") == 0) { //Modify width
+                    if (strtof(newAttribute->value, &buffer) >= 0) {
+                        ((Rectangle*)elem)->width = strtof (newAttribute->value, &buffer);
+                    }
+                } else if (strcmp(newAttribute->name, "height") == 0) { //Modify height
+                    if (strtof(newAttribute->value, &buffer) >= 0) {
+                        ((Rectangle*)elem)->height = strtof (newAttribute->value, &buffer);
+                    }
+                } else if (strcmp(newAttribute->name, "units") == 0) { //Modify units
+                    if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                        strcpy(((Rectangle*)elem)->units, newAttribute->value);
+                    }
+                } else { //Search through attributes list
+                    tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+                    while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                        if (strcmp(((Attribute*)elem2)->name, newAttribute->name) == 0) { //Matched attribute
+                            if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                                tmpString = (char*)realloc(((Attribute*)elem2)->value, strlen(newAttribute->value) + 1);
+                                ((Attribute*)elem2)->value = tmpString;
+                                strcpy(((Attribute*)elem2)->value, newAttribute->value);
+                                foundAttr = 1;
+                            }
+                        }
+                    }
+                    //Add new attribute if not found
+                    if (foundAttr != 1) {
+                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
+                                newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                            insertBack(((Rectangle*)elem)->otherAttributes, newAttribute);
+                            freeAttr = 0;
+                        }
+                    }
+                }
+            }
+            count++;
         }
-    } else if (elemType == PATH) {
-        if (elemIndex != NULL) {
-            
+    } else if (elemType == PATH) { //Modify a path object
+        tmpIterator = createIterator(image->paths);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            //Determine if index is found
+            if (elemIndex == count) {
+                if (strcmp(newAttribute->name, "data") == 0) { //Modify data
+                    if (strcmp(newAttribute->value, "") != 0 && newAttribute->value != NULL) {
+                        tmpString = (char*)realloc(((Path*)elem)->data, strlen(newAttribute->value) + 1);
+                        ((Path*)elem)->data = tmpString;
+                        strcpy(((Path*)elem)->data, newAttribute->value);
+                    }
+                } else { //Search through attributes list
+                    tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+                    while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                        if (strcmp(((Attribute*)elem2)->name, newAttribute->name) == 0) { //Matched attribute
+                            if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                                tmpString = (char*)realloc(((Attribute*)elem2)->value, strlen(newAttribute->value) + 1);
+                                ((Attribute*)elem2)->value = tmpString;
+                                strcpy(((Attribute*)elem2)->value, newAttribute->value);
+                                foundAttr = 1;
+                            }
+                        }
+                    }
+                    //Add new attribute if not found
+                    if (foundAttr != 1) {
+                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
+                                newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                            insertBack(((Path*)elem)->otherAttributes, newAttribute);
+                            freeAttr = 0;
+                        }
+                    }
+                }
+            }
+            count++;
         }
-    } else if (elemType == GROUP) {
-        if (elemIndex != NULL) {
-            
+    } else if (elemType == GROUP) { //Modify a group object
+        tmpIterator = createIterator(image->groups);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            //Determine if index is found
+            if (elemIndex == count) {
+                tmpIterator2 = createIterator(((Group*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (strcmp(((Attribute*)elem2)->name, newAttribute->name) == 0) { //Matched attribute
+                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
+                            tmpString = (char*)realloc(((Attribute*)elem2)->value, strlen(newAttribute->value) + 1);
+                            ((Attribute*)elem2)->value = tmpString;
+                            strcpy(((Attribute*)elem2)->value, newAttribute->value);
+                            foundAttr = 1;
+                        }
+                    }
+                }
+                //Add new attribute if not found
+                if (foundAttr != 1) {
+                    if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
+                            newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                        insertBack(((Group*)elem)->otherAttributes, newAttribute);
+                        freeAttr = 0;
+                    }
+                }
+            }
+            count++;
         }
     }
 

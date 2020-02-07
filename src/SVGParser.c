@@ -72,8 +72,8 @@ SVGimage* createSVGimage(char* fileName) {
     /*Call helper function that parses and stores svg struct into newImg*/
     parse_image(root_element, newImg, 0, valid);
 
+    //Invalid image
     if (*valid == 0) {
-        printf ("invalid svg image\n");
         free(valid);
         deleteSVGimage(newImg);
         xmlFreeDoc(doc);
@@ -503,11 +503,13 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
     xmlDoc* doc;
     xmlSchema* givenSchema = NULL;
     xmlSchemaParserCtxt* ctxt;
-    int parseFail = 0;
+    int *parseFail;
 
     if (image == NULL || schemaFile == NULL) {
         return false;
     }
+
+    parseFail = (int*)malloc(sizeof(int));
 
     doc = convertImgToDoc(image);
 
@@ -517,7 +519,7 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
     xmlSchemaFreeParserCtxt(ctxt);
 
     if (doc == NULL) { //Doc fails to parse
-        parseFail = 1;
+        *parseFail = 1;
     }
     else {
         xmlSchemaValidCtxt* cvtxt;
@@ -527,11 +529,11 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
         xmlSchemaSetValidErrors(cvtxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
         ret = xmlSchemaValidateDoc(cvtxt, doc);
         if (ret == 0) { //Validates appropriately
-            parseFail = 0;
+            *parseFail = 0;
         } else if (ret > 0) { //Fails to validate
-            parseFail = 1;
+            *parseFail = 1;
         } else { //Creates an internal error
-            parseFail = 1;
+            *parseFail = 1;
         }
         xmlSchemaFreeValidCtxt(cvtxt);
         xmlFreeDoc(doc);
@@ -545,11 +547,13 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
     xmlCleanupParser();
 
     //Do manual img travel parsing
-    
+    validateImage (image, parseFail);
 
-    if (parseFail == 1) {
+    if (*parseFail == 1) {
+        free(parseFail);
         return false;
     } else {
+        free(parseFail);
         return true;
     }
 }
@@ -598,13 +602,16 @@ SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
         xmlFreeDoc(imgDoc);
     }
 
-    /*Call createSVGimage function*/
-    newImg = createSVGimage(fileName);
+    if (parseFail != 1) {
+        /*Call createSVGimage function*/
+        newImg = createSVGimage(fileName);
+    }
     
     /*Free schema and cleanup parser*/
-    if(givenSchema != NULL) {
+    if (givenSchema != NULL) {
         xmlSchemaFree(givenSchema);
     }
+    
     xmlSchemaCleanupTypes();
     xmlCleanupParser();
 
@@ -886,7 +893,7 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
 }
 
 /*Validate provided document and return either 0 or 1*/
-void validateImage (SVGimage * givenImg, int * valid) {
+void validateImage (SVGimage * givenImg, int * invalid) {
 
     //Validates a provided tree (manually?)
     //Follow specified requirements
@@ -895,12 +902,219 @@ void validateImage (SVGimage * givenImg, int * valid) {
     void* elem;
     void* elem2;
 
+    //Namespace is empty
+    if (givenImg->namespace == NULL || strcmp(givenImg->namespace, "") == 0) {
+        *invalid = 1;
+    }
+
+    //Check all attributes
+    if (givenImg->otherAttributes != NULL) {
+        tmpIterator = createIterator(givenImg->otherAttributes);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            if (((Attribute*)elem)->name == NULL) {
+                *invalid = 1;
+            }
+            if (((Attribute*)elem)->value == NULL) {
+            *invalid = 1;
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+
+    //check all rectangles
+    if (givenImg->rectangles != NULL) {
+        tmpIterator = createIterator(givenImg->rectangles);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+            if (((Rectangle*)elem)->width < 0) {
+                *invalid = 1;
+            }
+            if (((Rectangle*)elem)->height < 0) {
+                *invalid = 1;
+            }
+            if (((Rectangle*)elem)->otherAttributes == NULL) {
+                *invalid = 1;
+            }
+            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                if (((Attribute*)elem2)->name == NULL) {
+                    *invalid = 1;
+                }
+                if (((Attribute*)elem2)->value == NULL) {
+                    *invalid = 1;
+                }
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
     
+    //Check all circles
+    if (givenImg->circles != NULL) {
+        tmpIterator = createIterator(givenImg->circles);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+            if (((Circle*)elem)->r < 0) {
+                *invalid = 1;
+            }
+            if (((Circle*)elem)->otherAttributes == NULL) {
+                *invalid = 1;
+            }
+            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                if (((Attribute*)elem2)->name == NULL) {
+                    *invalid = 1;
+                }
+                if (((Attribute*)elem2)->value == NULL) {
+                    *invalid = 1;
+                }
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+
+    //Check all paths
+    if (givenImg->paths != NULL) {
+        tmpIterator = createIterator(givenImg->paths);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+            if (((Path*)elem)->data == NULL) {
+                *invalid = 1;
+            }
+            if (((Path*)elem)->otherAttributes == NULL) {
+                *invalid = 1;
+            }
+            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                if (((Attribute*)elem2)->name == NULL) {
+                    *invalid = 1;
+                }
+                if (((Attribute*)elem2)->value == NULL) {
+                    *invalid = 1;
+                }
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+
+    //Check all groups
+    if (givenImg->groups != NULL) {
+        tmpIterator = createIterator(givenImg->groups);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            validateGroup ((Group*)elem, invalid);
+        }
+    } else {
+        *invalid = 1;
+    }
 
 }
 
-void validateGroup (Group * givenGroup, int * valid) {
+void validateGroup (Group * givenGroup, int * invalid) {
 
+    ListIterator tmpIterator;
+    ListIterator tmpIterator2;
+    void* elem;
+    void* elem2;
+
+    //Check all attributes
+    if (givenGroup->otherAttributes != NULL) {
+        tmpIterator = createIterator(givenGroup->otherAttributes);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            if (((Attribute*)elem)->name == NULL) {
+                *invalid = 1;
+            }
+            if (((Attribute*)elem)->value == NULL) {
+            *invalid = 1;
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+
+    //check all rectangles
+    if (givenGroup->rectangles != NULL) {
+        tmpIterator = createIterator(givenGroup->rectangles);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+            if (((Rectangle*)elem)->width < 0) {
+                *invalid = 1;
+            }
+            if (((Rectangle*)elem)->height < 0) {
+                *invalid = 1;
+            }
+            if (((Rectangle*)elem)->otherAttributes == NULL) {
+                *invalid = 1;
+            }
+            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                if (((Attribute*)elem2)->name == NULL) {
+                    *invalid = 1;
+                }
+                if (((Attribute*)elem2)->value == NULL) {
+                    *invalid = 1;
+                }
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+    
+    //Check all circles
+    if (givenGroup->circles != NULL) {
+        tmpIterator = createIterator(givenGroup->circles);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+            if (((Circle*)elem)->r < 0) {
+                *invalid = 1;
+            }
+            if (((Circle*)elem)->otherAttributes == NULL) {
+                *invalid = 1;
+            }
+            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                if (((Attribute*)elem2)->name == NULL) {
+                    *invalid = 1;
+                }
+                if (((Attribute*)elem2)->value == NULL) {
+                    *invalid = 1;
+                }
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+
+    //Check all paths
+    if (givenGroup->paths != NULL) {
+        tmpIterator = createIterator(givenGroup->paths);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+            if (((Path*)elem)->data == NULL) {
+                *invalid = 1;
+            }
+            if (((Path*)elem)->otherAttributes == NULL) {
+                *invalid = 1;
+            }
+            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                if (((Attribute*)elem2)->name == NULL) {
+                    *invalid = 1;
+                }
+                if (((Attribute*)elem2)->value == NULL) {
+                    *invalid = 1;
+                }
+            }
+        }
+    } else {
+        *invalid = 1;
+    }
+
+    //Check all groups
+    if (givenGroup->groups != NULL) {
+        tmpIterator = createIterator(givenGroup->groups);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            validateGroup ((Group*)elem, invalid);
+        }
+    } else {
+        *invalid = 1;
+    }
 }
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */

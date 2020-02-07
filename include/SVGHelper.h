@@ -32,6 +32,6 @@ xmlDoc* convertImgToDoc (SVGimage * givenSVG);
 //Recursion function that converts the provided group into a node and attaches it to the tree
 void convertGroup (xmlNode * parent_node, Group * givenGroup);
 //Recursion function that validates the provided image
-void validateImage (SVGimage * givenImg, int * valid);
+void validateImage (SVGimage * givenImg, int * invalid);
 //Recursion function that validates the provided group
-void validateGroup (Group * givenGroup, int * valid);
+void validateGroup (Group * givenGroup, int * invalid);

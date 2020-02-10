@@ -676,6 +676,10 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
         return;
     }
 
+    if (image == NULL || newAttribute == NULL) {
+        return;
+    }
+
     //Modify the image itself
     if (elemType == SVG_IMAGE) {
         //Modify title
@@ -882,7 +886,51 @@ void addComponent(SVGimage* image, elementType type, void* newElement) {
 
 }
 
+char* attrToJSON(const Attribute *a) {
+    return NULL;
+}
 
+char* circleToJSON(const Circle *c) {
+    return NULL;
+}
+
+char* rectToJSON(const Rectangle *r) {
+    return NULL;
+}
+
+char* pathToJSON(const Path *p) {
+    return NULL;
+}
+
+char* groupToJSON(const Group *g) {
+    return NULL;
+}
+
+
+char* attrListToJSON(const List *list) {
+    return NULL;
+}
+
+char* circListToJSON(const List *list) {
+    return NULL;
+}
+
+char* rectListToJSON(const List *list) {
+    return NULL;
+}
+
+char* pathListToJSON(const List *list) {
+    return NULL;
+}
+
+char* groupListToJSON(const List *list) {
+    return NULL;
+}
+
+
+char* SVGtoJSON(const SVGimage* imge) {
+    return NULL;
+}
 
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */

@@ -3,7 +3,7 @@
  * Student Number: 1001018
  **/
 
-#include "SVGParser_A2temp2.h"
+#include "SVGParser.h"
 #include "SVGHelper.h"
 
 /** Function to create an SVG object based on the contents of an SVG file.

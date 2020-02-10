@@ -1,5 +1,5 @@
 #include "LinkedListAPI.h"
-#include "SVGParser_A2temp2.h"
+#include "SVGParser.h"
 
 SVGimage* SVGtest(char* fileName) {
 

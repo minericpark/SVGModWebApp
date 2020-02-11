@@ -477,7 +477,7 @@ void mainTest(char* fileName1, char* fileName2) {
         newPath->data = (char*)malloc(sizeof(char)*17 + 1);
         strcpy(newPath->data, "30 30 30 30 30 30");
         newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
-
+/*
         setAttribute(testImg, RECT, 0, newAttribute);
         setAttribute(testImg, CIRC, 0, newAttribute2);
         setAttribute(testImg, PATH, 0, newAttribute3);
@@ -488,7 +488,7 @@ void mainTest(char* fileName1, char* fileName2) {
         addComponent(testImg, RECT, newRect);
         addComponent(testImg, CIRC, newCircle);
         addComponent(testImg, PATH, newPath);
-
+*/
         if (writeSVGimage(testImg, "test") == false) {
             printf ("failed write\n");
         }

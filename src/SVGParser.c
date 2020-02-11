@@ -546,6 +546,7 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
     xmlSchemaCleanupTypes();
     xmlCleanupParser();
 
+    printf ("entering validate\n");
     //Do manual img travel parsing
     validateImage (image, parseFail);
 
@@ -668,6 +669,7 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
     int count = 0;
     int foundAttr = 0;
     int freeAttr = 1;
+    int* invalid;
     char* buffer;
     char* tmpString;
 
@@ -677,6 +679,15 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
     }
 
     if (image == NULL || newAttribute == NULL) {
+        return;
+    }
+
+    //Check validity of image
+    invalid = (int*)malloc(sizeof(int));
+    *invalid = 0;
+    validateImage(image, invalid);
+    if (*invalid == 1) {
+        printf ("image is invalid\n");
         return;
     }
 
@@ -927,7 +938,7 @@ char* circleToJSON(const Circle *c) {
 
     newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
 
-    sprintf (newStr, "{\"cx\":%f,\"cy\":%f,\"r\":%f,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, numAttr, c->units);    
+    sprintf (newStr, "{\"cx\":%.2f,\"cy\":%.2f,\"r\":%.2f,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, numAttr, c->units);    
 
     return newStr;
 }
@@ -952,7 +963,7 @@ char* rectToJSON(const Rectangle *r) {
 
     newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
 
-    sprintf (newStr, "{\"x\":%f,\"y\":%f,\"w\":%f,\"h\":%f,\"numAttr\":%d,\"units\":\"%s\"}", r->x, r->y, r->width, r->height, numAttr, r->units);    
+    sprintf (newStr, "{\"x\":%.2f,\"y\":%.2f,\"w\":%.2f,\"h\":%.2f,\"numAttr\":%d,\"units\":\"%s\"}", r->x, r->y, r->width, r->height, numAttr, r->units);    
 
     return newStr;
 }
@@ -2224,95 +2235,110 @@ xmlDoc* convertImgToDoc (SVGimage * givenSVG) {
     }
 
     /*If there exists attributes for svg, create attributes*/
-    tmpIterator = createIterator(givenSVG->otherAttributes);
-    while ((elem = nextElement(&tmpIterator)) != NULL) {
-        xmlNewProp (root_node, (const xmlChar*)((Attribute*)elem)->name, (const xmlChar*)((Attribute*)elem)->value);
+    if (givenSVG->otherAttributes != NULL) {
+        tmpIterator = createIterator(givenSVG->otherAttributes);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            xmlNewProp (root_node, (const xmlChar*)((Attribute*)elem)->name, (const xmlChar*)((Attribute*)elem)->value);
+        }
     }
 
     /*If there exists list of rectangles, create node for them*/
-    tmpIterator = createIterator(givenSVG->rectangles);
-    while((elem = nextElement(&tmpIterator)) != NULL){
-        tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
-        char xStr[256];
-        char yStr[256];
-        char widthStr[256];
-        char heightStr[256];
+    if (givenSVG->rectangles != NULL) {
+        tmpIterator = createIterator(givenSVG->rectangles);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            char xStr[256];
+            char yStr[256];
+            char widthStr[256];
+            char heightStr[256];
 
-        sprintf (xStr, "%f", ((Rectangle*)elem)->x);
-        sprintf (yStr, "%f", ((Rectangle*)elem)->y);
-        sprintf (heightStr, "%f", ((Rectangle*)elem)->height);
-        sprintf (widthStr, "%f", ((Rectangle*)elem)->width);
+            sprintf (xStr, "%.2f", ((Rectangle*)elem)->x);
+            sprintf (yStr, "%.2f", ((Rectangle*)elem)->y);
+            sprintf (heightStr, "%.2f", ((Rectangle*)elem)->height);
+            sprintf (widthStr, "%.2f", ((Rectangle*)elem)->width);
 
-        if (((Rectangle*) elem)->units != NULL) {
-            strcat (xStr, ((Rectangle*)elem)->units);
-            strcat (yStr, ((Rectangle*)elem)->units);
-            strcat (heightStr, ((Rectangle*)elem)->units);
-            strcat (widthStr, ((Rectangle*)elem)->units);
-        }
+            if (((Rectangle*) elem)->units != NULL) {
+                strcat (xStr, ((Rectangle*)elem)->units);
+                strcat (yStr, ((Rectangle*)elem)->units);
+                strcat (widthStr, ((Rectangle*)elem)->units);
+                strcat (heightStr, ((Rectangle*)elem)->units);
+            }
 
-        tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "rect", NULL);
-        xmlNewProp (tmp_node, (const xmlChar*) "x", (const xmlChar*) xStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "y", (const xmlChar*) yStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "height", (const xmlChar*) heightStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "width", (const xmlChar*) widthStr);
+            tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "rect", NULL);
+            xmlNewProp (tmp_node, (const xmlChar*) "x", (const xmlChar*) xStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "y", (const xmlChar*) yStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "width", (const xmlChar*) widthStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "height", (const xmlChar*) heightStr);
 
-        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-            /*Parse and add attributes*/
-            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
-        }
-	}
+            if (((Rectangle*)elem)->otherAttributes != NULL) {
+                tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    /*Parse and add attributes*/
+                    xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+                }
+            }
+	    }
+    }
 
     /*If there exists list of circles, create node for them*/
-    tmpIterator = createIterator(givenSVG->circles);
-    while((elem = nextElement(&tmpIterator)) != NULL){
-        tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
-        char cxStr[256];
-        char cyStr[256];
-        char rStr[256];
+    if (givenSVG->circles != NULL) {
+        tmpIterator = createIterator(givenSVG->circles);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            char cxStr[256];
+            char cyStr[256];
+            char rStr[256];
 
-        sprintf (cxStr, "%f", ((Circle*)elem)->cx);
-        sprintf (cyStr, "%f", ((Circle*)elem)->cy);
-        sprintf (rStr, "%f", ((Circle*)elem)->r);
+            sprintf (cxStr, "%.2f", ((Circle*)elem)->cx);
+            sprintf (cyStr, "%.2f", ((Circle*)elem)->cy);
+            sprintf (rStr, "%.2f", ((Circle*)elem)->r);
 
-        if (((Circle*) elem)->units != NULL) {
-            strcat (cxStr, ((Circle*)elem)->units);
-            strcat (cyStr, ((Circle*)elem)->units);
-            strcat (rStr, ((Circle*)elem)->units);
-        }
+            if (((Circle*) elem)->units != NULL) {
+                strcat (cxStr, ((Circle*)elem)->units);
+                strcat (cyStr, ((Circle*)elem)->units);
+                strcat (rStr, ((Circle*)elem)->units);
+            }
 
-        tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "circle", NULL);
-        xmlNewProp (tmp_node, (const xmlChar*) "cx", (const xmlChar*) cxStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "cy", (const xmlChar*) cyStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "r", (const xmlChar*) rStr);
+            tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "circle", NULL);
+            xmlNewProp (tmp_node, (const xmlChar*) "cx", (const xmlChar*) cxStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "cy", (const xmlChar*) cyStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "r", (const xmlChar*) rStr);
 
-        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-            /*Parse and add attributes*/
-            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
-        }
-	}
+            if (((Circle*)elem)->otherAttributes != NULL) {
+                tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                /*Parse and add attributes*/
+                    xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+                }
+            }
+	    }
+    }
 
     /*If there exists list of paths, create node for them*/
-    tmpIterator = createIterator(givenSVG->paths);
-    while((elem = nextElement(&tmpIterator)) != NULL){
-        tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
-        char dataStr[256];
+    if (givenSVG->paths != NULL) {
+        tmpIterator = createIterator(givenSVG->paths);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            char dataStr[256];
 
-        sprintf (dataStr, "%s", ((Path*)elem)->data);
+            sprintf (dataStr, "%s", ((Path*)elem)->data);
 
-        tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "path", NULL);
-        xmlNewProp (tmp_node, (const xmlChar*) "d", (const xmlChar*) dataStr);
-
-        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-            /*Parse and add attributes*/
-            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
-        }
-	}
+            tmp_node = xmlNewChild (root_node, NULL, (const xmlChar*) "path", NULL);
+            xmlNewProp (tmp_node, (const xmlChar*) "d", (const xmlChar*) dataStr);
+            if (((Path*)elem)->otherAttributes != NULL) {
+                tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    /*Parse and add attributes*/
+                    xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+                }
+            }
+	    }
+    }
 
     /*If there exists list of groups, create node for them (and use recursive function)*/
-    tmpIterator = createIterator (givenSVG->groups);
-    while ((elem = nextElement(&tmpIterator)) != NULL) {
-        /*Parse group*/
-        convertGroup (root_node, (Group*) elem);
+    if (givenSVG->groups != NULL) {
+        tmpIterator = createIterator (givenSVG->groups);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            /*Parse group*/
+            convertGroup (root_node, (Group*) elem);
+        }
     }
 
     return doc;
@@ -2331,96 +2357,113 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
     new_node = xmlNewChild (parent_node, NULL, (const xmlChar*) "g", NULL); 
 
     /*If there exists attributes for svg, create attributes*/
-    tmpIterator = createIterator(givenGroup->otherAttributes);
-    while ((elem = nextElement(&tmpIterator)) != NULL) {
-        xmlNewProp (new_node, (const xmlChar*)((Attribute*)elem)->name, (const xmlChar*)((Attribute*)elem)->value);
+    if (givenGroup->otherAttributes != NULL) {
+        tmpIterator = createIterator(givenGroup->otherAttributes);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            xmlNewProp (new_node, (const xmlChar*)((Attribute*)elem)->name, (const xmlChar*)((Attribute*)elem)->value);
+        }   
     }
 
     /*If there exists list of rectangles, create node for them*/
-    tmpIterator = createIterator(givenGroup->rectangles);
-    while((elem = nextElement(&tmpIterator)) != NULL){
-        tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
-        char xStr[256];
-        char yStr[256];
-        char widthStr[256];
-        char heightStr[256];
+    if (givenGroup->rectangles != NULL) {
+        tmpIterator = createIterator(givenGroup->rectangles);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            char xStr[256];
+            char yStr[256];
+            char widthStr[256];
+            char heightStr[256];
 
-        sprintf (xStr, "%f", ((Rectangle*)elem)->x);
-        sprintf (yStr, "%f", ((Rectangle*)elem)->y);
-        sprintf (heightStr, "%f", ((Rectangle*)elem)->height);
-        sprintf (widthStr, "%f", ((Rectangle*)elem)->width);
+            sprintf (xStr, "%.2f", ((Rectangle*)elem)->x);
+            sprintf (yStr, "%.2f", ((Rectangle*)elem)->y);
+            sprintf (heightStr, "%.2f", ((Rectangle*)elem)->height);
+            sprintf (widthStr, "%.2f", ((Rectangle*)elem)->width);
 
-        if (((Rectangle*) elem)->units != NULL) {
-            strcat (xStr, ((Rectangle*)elem)->units);
-            strcat (yStr, ((Rectangle*)elem)->units);
-            strcat (heightStr, ((Rectangle*)elem)->units);
-            strcat (widthStr, ((Rectangle*)elem)->units);
-        }
+            if (((Rectangle*) elem)->units != NULL) {
+                strcat (xStr, ((Rectangle*)elem)->units);
+                strcat (yStr, ((Rectangle*)elem)->units);
+                strcat (widthStr, ((Rectangle*)elem)->units);
+                strcat (heightStr, ((Rectangle*)elem)->units);
+            }
 
-        tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "rect", NULL);
-        xmlNewProp (tmp_node, (const xmlChar*) "x", (const xmlChar*) xStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "y", (const xmlChar*) yStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "height", (const xmlChar*) heightStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "width", (const xmlChar*) widthStr);
+            tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "rect", NULL);
+            xmlNewProp (tmp_node, (const xmlChar*) "x", (const xmlChar*) xStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "y", (const xmlChar*) yStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "width", (const xmlChar*) widthStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "height", (const xmlChar*) heightStr);
 
-        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-            /*Parse and add attributes*/
-            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
-        }
-	}
+            if (((Rectangle*)elem)->otherAttributes != NULL) {
+                tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    /*Parse and add attributes*/
+                    xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+                }
+            }
+	    }
+    }
 
     /*If there exists list of circles, create node for them*/
-    tmpIterator = createIterator(givenGroup->circles);
-    while((elem = nextElement(&tmpIterator)) != NULL){
-        tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
-        char cxStr[256];
-        char cyStr[256];
-        char rStr[256];
+    if (givenGroup->circles != NULL) {
+        tmpIterator = createIterator(givenGroup->circles);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            char cxStr[256];
+            char cyStr[256];
+            char rStr[256];
 
-        sprintf (cxStr, "%f", ((Circle*)elem)->cx);
-        sprintf (cyStr, "%f", ((Circle*)elem)->cy);
-        sprintf (rStr, "%f", ((Circle*)elem)->r);
+            sprintf (cxStr, "%.2f", ((Circle*)elem)->cx);
+            sprintf (cyStr, "%.2f", ((Circle*)elem)->cy);
+            sprintf (rStr, "%.2f", ((Circle*)elem)->r);
 
-        if (((Circle*) elem)->units != NULL) {
-            strcat (cxStr, ((Circle*)elem)->units);
-            strcat (cyStr, ((Circle*)elem)->units);
-            strcat (rStr, ((Circle*)elem)->units);
-        }
+            if (((Circle*) elem)->units != NULL) {
+                strcat (cxStr, ((Circle*)elem)->units);
+                strcat (cyStr, ((Circle*)elem)->units);
+                strcat (rStr, ((Circle*)elem)->units);
+            }
 
-        tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "circle", NULL);
-        xmlNewProp (tmp_node, (const xmlChar*) "cx", (const xmlChar*) cxStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "cy", (const xmlChar*) cyStr);
-        xmlNewProp (tmp_node, (const xmlChar*) "r", (const xmlChar*) rStr);
+            tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "circle", NULL);
+            xmlNewProp (tmp_node, (const xmlChar*) "cx", (const xmlChar*) cxStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "cy", (const xmlChar*) cyStr);
+            xmlNewProp (tmp_node, (const xmlChar*) "r", (const xmlChar*) rStr);
 
-        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-            /*Parse and add attributes*/
-            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
-        }
-	}
+            if (((Circle*)elem)->otherAttributes != NULL) {
+                tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    /*Parse and add attributes*/
+                    xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+                }
+            }
+    	}
 
+    }
+    
     /*If there exists list of paths, create node for them*/
-    tmpIterator = createIterator(givenGroup->paths);
-    while((elem = nextElement(&tmpIterator)) != NULL){
-        tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
-        char dataStr[256];
+    if (givenGroup->paths != NULL) {
+        tmpIterator = createIterator(givenGroup->paths);
+        while((elem = nextElement(&tmpIterator)) != NULL){
+            char dataStr[256];
 
-        sprintf (dataStr, "%s", ((Path*)elem)->data);
+            sprintf (dataStr, "%s", ((Path*)elem)->data);
 
-        tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "path", NULL);
-        xmlNewProp (tmp_node, (const xmlChar*) "d", (const xmlChar*) dataStr);
+            tmp_node = xmlNewChild (new_node, NULL, (const xmlChar*) "path", NULL);
+            xmlNewProp (tmp_node, (const xmlChar*) "d", (const xmlChar*) dataStr);
 
-        while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-            /*Parse and add attributes*/
-            xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
-        }
-	}
+            if (((Path*)elem)->otherAttributes != NULL) {
+                tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    /*Parse and add attributes*/
+                    xmlNewProp (tmp_node, (const xmlChar*) ((Attribute*)elem2)->name, (const xmlChar*) ((Attribute*)elem2)->value);
+                }
+            }
+	    }
+    }
 
     /*If there exists list of groups, create node for them (and use recursive function)*/
-    tmpIterator = createIterator (givenGroup->groups);
-    while ((elem = nextElement(&tmpIterator)) != NULL) {
-        /*Parse group*/
-        /**/
-        convertGroup (new_node, (Group*)elem);
+    if (givenGroup->groups != NULL) {
+        tmpIterator = createIterator (givenGroup->groups);
+        while ((elem = nextElement(&tmpIterator)) != NULL) {
+            /*Parse group*/
+            /**/
+            convertGroup (new_node, (Group*)elem);
+        }
     }
 }
 
@@ -2447,7 +2490,7 @@ void validateImage (SVGimage * givenImg, int * invalid) {
                 *invalid = 1;
             }
             if (((Attribute*)elem)->value == NULL) {
-            *invalid = 1;
+                *invalid = 1;
             }
         }
     } else {
@@ -2464,18 +2507,18 @@ void validateImage (SVGimage * givenImg, int * invalid) {
             if (((Rectangle*)elem)->height < 0) {
                 *invalid = 1;
             }
-            if (((Rectangle*)elem)->otherAttributes == NULL) {
-                *invalid = 1;
-            } else {
+            if (((Rectangle*)elem)->otherAttributes != NULL) {
                 tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
-            }
-            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                if (((Attribute*)elem2)->name == NULL) {
-                    *invalid = 1;
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (((Attribute*)elem2)->name == NULL) {
+                        *invalid = 1;
+                    }
+                    if (((Attribute*)elem2)->value == NULL) {
+                        *invalid = 1;
+                    }
                 }
-                if (((Attribute*)elem2)->value == NULL) {
-                    *invalid = 1;
-                }
+            } else {
+                *invalid = 1;
             }
         }
     } else {
@@ -2489,18 +2532,18 @@ void validateImage (SVGimage * givenImg, int * invalid) {
             if (((Circle*)elem)->r < 0) {
                 *invalid = 1;
             }
-            if (((Circle*)elem)->otherAttributes == NULL) {
-                *invalid = 1;
-            } else {
+            if (((Circle*)elem)->otherAttributes != NULL) {
                 tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
-            }
-            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                if (((Attribute*)elem2)->name == NULL) {
-                    *invalid = 1;
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (((Attribute*)elem2)->name == NULL) {
+                        *invalid = 1;
+                    }
+                    if (((Attribute*)elem2)->value == NULL) {
+                        *invalid = 1;
+                    }
                 }
-                if (((Attribute*)elem2)->value == NULL) {
-                    *invalid = 1;
-                }
+            } else {
+                *invalid = 1;
             }
         }
     } else {
@@ -2514,18 +2557,18 @@ void validateImage (SVGimage * givenImg, int * invalid) {
             if (((Path*)elem)->data == NULL) {
                 *invalid = 1;
             }
-            if (((Path*)elem)->otherAttributes == NULL) {
-                *invalid = 1;
-            } else {
+            if (((Path*)elem)->otherAttributes != NULL) {
                 tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
-            }
-            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                if (((Attribute*)elem2)->name == NULL) {
-                    *invalid = 1;
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (((Attribute*)elem2)->name == NULL) {
+                        *invalid = 1;
+                    }
+                    if (((Attribute*)elem2)->value == NULL) {
+                        *invalid = 1;
+                    }
                 }
-                if (((Attribute*)elem2)->value == NULL) {
-                    *invalid = 1;
-                }
+            } else {
+                *invalid = 1;
             }
         }
     } else {
@@ -2576,18 +2619,18 @@ void validateGroup (Group * givenGroup, int * invalid) {
             if (((Rectangle*)elem)->height < 0) {
                 *invalid = 1;
             }
-            if (((Rectangle*)elem)->otherAttributes == NULL) {
-                *invalid = 1;
-            } else {
+            if (((Rectangle*)elem)->otherAttributes != NULL) {
                 tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
-            }
-            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                if (((Attribute*)elem2)->name == NULL) {
-                    *invalid = 1;
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (((Attribute*)elem2)->name == NULL) {
+                        *invalid = 1;
+                    }
+                    if (((Attribute*)elem2)->value == NULL) {
+                        *invalid = 1;
+                    }
                 }
-                if (((Attribute*)elem2)->value == NULL) {
-                    *invalid = 1;
-                }
+            } else {
+                *invalid = 1;
             }
         }
     } else {
@@ -2601,18 +2644,18 @@ void validateGroup (Group * givenGroup, int * invalid) {
             if (((Circle*)elem)->r < 0) {
                 *invalid = 1;
             }
-            if (((Circle*)elem)->otherAttributes == NULL) {
-                *invalid = 1;
-            } else {
+            if (((Circle*)elem)->otherAttributes != NULL) {
                 tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
-            }
-            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                if (((Attribute*)elem2)->name == NULL) {
-                    *invalid = 1;
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (((Attribute*)elem2)->name == NULL) {
+                        *invalid = 1;
+                    }
+                    if (((Attribute*)elem2)->value == NULL) {
+                        *invalid = 1;
+                    }
                 }
-                if (((Attribute*)elem2)->value == NULL) {
-                    *invalid = 1;
-                }
+            } else {
+                *invalid = 1;
             }
         }
     } else {
@@ -2626,18 +2669,18 @@ void validateGroup (Group * givenGroup, int * invalid) {
             if (((Path*)elem)->data == NULL) {
                 *invalid = 1;
             }
-            if (((Path*)elem)->otherAttributes == NULL) {
-                *invalid = 1;
-            } else {
+            if (((Path*)elem)->otherAttributes != NULL) {
                 tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
-            }
-            while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
-                if (((Attribute*)elem2)->name == NULL) {
-                    *invalid = 1;
+                while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
+                    if (((Attribute*)elem2)->name == NULL) {
+                        *invalid = 1;
+                    }
+                    if (((Attribute*)elem2)->value == NULL) {
+                        *invalid = 1;
+                    }
                 }
-                if (((Attribute*)elem2)->value == NULL) {
-                    *invalid = 1;
-                }
+            } else {
+                *invalid = 1;
             }
         }
     } else {

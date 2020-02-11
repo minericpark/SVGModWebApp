@@ -14,6 +14,22 @@ SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
     return testImg;
 }
 
+void groupTest(SVGimage* givenImg) {
+    char* tmpString;
+    printf ("----------Group Test----------\n");
+    tmpString = groupToJSON(getFromBack(givenImg->groups));
+    printf ("%s\n", tmpString);
+    free(tmpString);
+
+    tmpString = SVGtoJSON(givenImg);
+    printf ("%s\n", tmpString);
+    free(tmpString);
+
+    tmpString = attrListToJSON(givenImg->otherAttributes);
+    printf ("%s\n", tmpString);
+    free(tmpString);
+}
+
 void attributeTest () {
 
     printf ("----------Attribute Test----------\n");
@@ -39,10 +55,19 @@ void attributeTest () {
     compLen = compareAttributes(tmpAttribute, tmpAttribute2);
     printf ("%d\n", compLen);
 
-    deleteAttribute(tmpAttribute);
-    deleteAttribute(tmpAttribute2);
     free(testString);
     free(testString2);
+
+    testString = attrToJSON(tmpAttribute);
+    printf ("%s\n", testString);
+    free(testString);
+
+    testString = attrToJSON(tmpAttribute2);
+    printf ("%s\n", testString);
+    free(testString);
+
+    deleteAttribute(tmpAttribute);
+    deleteAttribute(tmpAttribute2);
 }
 
 void rectTest() {
@@ -116,6 +141,14 @@ void rectTest() {
 
     free(testString);
     free(testString2);
+
+    testString = rectToJSON(testRect);
+    printf ("%s\n", testString);
+    free(testString);
+    
+    testString = rectToJSON(testRect2);
+    printf ("%s\n", testString);
+    free(testString);
 
     deleteRectangle(testRect);
     deleteRectangle(testRect2);
@@ -191,6 +224,14 @@ void circTest() {
     free(testString);
     free(testString2);
 
+    testString = circleToJSON(testCirc);
+    printf ("%s\n", testString);
+    free(testString);
+
+    testString = circleToJSON(testCirc2);
+    printf ("%s\n", testString);
+    free(testString);
+
     deleteCircle(testCirc);
     deleteCircle(testCirc2);
 }
@@ -258,17 +299,21 @@ void pathTest() {
     printf ("Compare value: %d\n", compLen);
 
     free(testString);
+    testString = pathToJSON(testPath);
+    printf ("%s\n", testString);
+
+    free(testString);
+    testString = pathToJSON(testPath2);
+    printf ("%s\n", testString);
+
+    free(testString);
     free(testString2);
 
     deletePath(testPath);
     deletePath(testPath2);
 }
 
-/**
- * Simple main for testing of library
- */
-int main(int argc, char **argv) {
-
+void mainTest(char* fileName1, char* fileName2) {
     SVGimage* testImg;
     char* testString;
     char* testString2;
@@ -293,16 +338,15 @@ int main(int argc, char **argv) {
     Group* newGroup;
     char tmpStr[100];
 
-    if (argc < 2)
-        return(1);
-
     /*Function*/
     //attributeTest();
     //rectTest();
     //circTest();
     //pathTest();
     //groupTest();
-    testImg = SVGtestA2(argv[1], argv[2]);
+    printf ("----------Main Test----------\n");
+
+    testImg = SVGtestA2(fileName1, fileName2);
     if (testImg != NULL) {
         testString = SVGimageToString(testImg);
         printf ("%s\n", testString);
@@ -344,6 +388,10 @@ int main(int argc, char **argv) {
 		newAttribute->value = (char*)malloc(sizeof(char)*memLen);
 		strcpy(newAttribute->value, tmpStr);
 
+        testString = attrToJSON(newAttribute);
+        printf ("%s\n", testString);
+        free(testString);
+
         strcpy(tmpStr, "r");
 		memLen = strlen(tmpStr)+2;
 		newAttribute2->name = (char*)malloc(sizeof(char)*memLen);
@@ -353,6 +401,10 @@ int main(int argc, char **argv) {
 		memLen = strlen(tmpStr)+2;
 		newAttribute2->value = (char*)malloc(sizeof(char)*memLen);
 		strcpy(newAttribute2->value, tmpStr);
+
+        testString = attrToJSON(newAttribute2);
+        printf ("%s\n", testString);
+        free(testString);
 
         strcpy(tmpStr, "data");
 		memLen = strlen(tmpStr)+2;
@@ -413,7 +465,7 @@ int main(int argc, char **argv) {
         if (writeSVGimage(testImg, "test") == false) {
             printf ("failed write\n");
         }
-        if (validateSVGimage(testImg, argv[2]) == false){
+        if (validateSVGimage(testImg, fileName2) == false){
             printf ("validation failed\n");
         } else {
             printf ("validation success\n");
@@ -421,5 +473,25 @@ int main(int argc, char **argv) {
 
         deleteSVGimage(testImg);
     }
+}
+
+/**
+ * Simple main for testing of library
+ */
+int main(int argc, char **argv) {
+
+
+    SVGimage* test = SVGtestA2(argv[1], argv[2]);
+
+    mainTest(argv[1], argv[2]);
+
+    attributeTest();
+    rectTest();
+    pathTest();
+    circTest();
+    groupTest(test);
+
+    deleteSVGimage(test);
+
     return 0;
 }

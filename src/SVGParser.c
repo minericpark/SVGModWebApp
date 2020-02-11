@@ -886,50 +886,284 @@ void addComponent(SVGimage* image, elementType type, void* newElement) {
 
 }
 
+//Turns an attribute into a JSON string
 char* attrToJSON(const Attribute *a) {
-    return NULL;
+    char* newStr;
+    int nameLen;
+    int valLen;
+    
+    if (a == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "{}");
+        return newStr;
+    }
+
+    nameLen = strlen(a->name);
+    valLen = strlen(a->value);
+
+    newStr = (char*)malloc(sizeof(char) * (nameLen + valLen + 22) + 1);
+
+    sprintf (newStr, "{\"name\":\"%s\",\"value\":\"%s\"}", a->name, a->value);    
+
+    return newStr;
 }
 
+//Turns a circle into a JSON string
 char* circleToJSON(const Circle *c) {
-    return NULL;
+    char* newStr;
+    int unitLen = 0;
+    int numAttr = 0;
+    int strLen = 0;
+    
+    if (c == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "{}");
+        return newStr;
+    }
+
+    numAttr = getLength(c->otherAttributes);
+    unitLen = strlen(c->units);
+    strLen = unitLen + (25 * 3) + (sizeof(int) * 1) + 40;
+
+    newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
+
+    sprintf (newStr, "{\"cx\":%f,\"cy\":%f,\"r\":%f,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, numAttr, c->units);    
+
+    return newStr;
 }
 
+//Turns a rectangle into a JSON string
 char* rectToJSON(const Rectangle *r) {
-    return NULL;
+    char* newStr;
+    int unitLen = 0;
+    int numAttr = 0;
+    int strLen = 0;
+    
+    if (r == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "{}");
+        return newStr;
+    }
+
+    numAttr = getLength(r->otherAttributes);
+    unitLen = strlen(r->units);
+    //16 - Account for max size of float
+    strLen = unitLen + (25 * 4) + (sizeof(int) * 1) + 43;
+
+    newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
+
+    sprintf (newStr, "{\"x\":%f,\"y\":%f,\"w\":%f,\"h\":%f,\"numAttr\":%d,\"units\":\"%s\"}", r->x, r->y, r->width, r->height, numAttr, r->units);    
+
+    return newStr;
 }
 
 char* pathToJSON(const Path *p) {
-    return NULL;
+    char* newStr;
+    int dataLen = 0;
+    int numAttr = 0;
+    int strLen = 0;
+    
+    if (p == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "{}");
+        return newStr;
+    }
+
+    numAttr = getLength(p->otherAttributes);
+    dataLen = strlen(p->data);
+    strLen = dataLen + (sizeof(int) * 1) + 19;
+
+    newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
+
+    sprintf (newStr, "{\"d\":\"%s\",\"numAttr\":%d}", p->data, numAttr);    
+
+    return newStr;
 }
 
 char* groupToJSON(const Group *g) {
-    return NULL;
-}
+    char* newStr;
+    int childLen = 0;
+    int numAttr = 0;
+    int strLen = 0;
+    
+    if (g == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "{}");
+        return newStr;
+    }
 
+    childLen = getLength (g->circles) + getLength (g->rectangles) + getLength (g->paths) + getLength (g->groups);
+    numAttr = getLength(g->otherAttributes);
+    strLen = (sizeof(int) * 2) + 24;
 
-char* attrListToJSON(const List *list) {
-    return NULL;
-}
+    newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
 
-char* circListToJSON(const List *list) {
-    return NULL;
-}
+    sprintf (newStr, "{\"children\":%d,\"numAttr\":%d}", childLen, numAttr);    
 
-char* rectListToJSON(const List *list) {
-    return NULL;
-}
-
-char* pathListToJSON(const List *list) {
-    return NULL;
-}
-
-char* groupListToJSON(const List *list) {
-    return NULL;
+    return newStr;
 }
 
 
 char* SVGtoJSON(const SVGimage* imge) {
-    return NULL;
+    char* newStr;
+    int numGroup = 0;
+    int numRect = 0;
+    int numCirc = 0;
+    int numPath = 0;
+    int strLen = 0;
+    List* tmpGroup;
+    List* tmpRect;
+    List* tmpCirc;
+    List* tmpPath;
+    SVGimage* tmpImg;
+    
+    if (imge == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "{}");
+        return newStr;
+    }
+
+    tmpImg = (SVGimage*) imge;
+
+    tmpGroup = getGroups(tmpImg);
+    tmpRect = getRects(tmpImg);
+    tmpCirc = getCircles(tmpImg);
+    tmpPath = getPaths(tmpImg);
+
+    numGroup = getLength(tmpGroup);
+    numRect = getLength(tmpRect);
+    numCirc = getLength(tmpCirc);
+    numPath = getLength(tmpPath);
+
+    strLen = (sizeof(int) * 4) + 48;
+
+    newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
+
+    sprintf (newStr, "{\"numRect\":%d,\"numCirc\":%d,\"numPaths\":%d,\"numGroups\":%d}", numRect, numCirc, numPath, numGroup);    
+
+    freeList(tmpGroup);
+    freeList(tmpRect);
+    freeList(tmpCirc);
+    freeList(tmpPath);
+
+    return newStr;
+}
+
+
+char* attrListToJSON(const List *list) {
+    char* newStr;
+    char* tmpStr;
+    int numAttr = 0;
+    int strLen = 0;
+    int tmpCount = 0;
+    ListIterator tmpIterator;
+    List* tmpList;
+    void* elem;
+    
+    if (list == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "[]");
+        return newStr;
+    }
+
+    tmpList = (List*) list;
+    tmpIterator = createIterator(tmpList);
+    numAttr = getLength(tmpList);
+
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        tmpStr = attrToJSON((Attribute*)elem);
+        strLen += (sizeof(char) * strlen(tmpStr));
+        free(tmpStr);
+    }
+
+    newStr = (char*)malloc(sizeof(char) * (strLen + 2 + (numAttr - 1)) + 1);
+    tmpIterator = createIterator(tmpList);
+    elem = NULL;
+
+    strcpy (newStr, "[");
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        //Last element
+        tmpStr = attrToJSON((Attribute*)elem);
+        strcat (newStr, tmpStr);
+        free(tmpStr);
+        if (tmpCount < numAttr - 1) {
+            strcat (newStr, ",");
+        }
+        tmpCount++;
+    }
+
+    strcat (newStr, "]");
+
+    //sprintf (newStr, "{\"children\":%d,\"numAttr\":%d}", childLen, numAttr);    
+
+    return newStr;
+}
+
+char* circListToJSON(const List *list) {
+    char* newStr;
+    char* tmpStr;
+    int numAttr = 0;
+    int strLen = 0;
+    int tmpCount = 0;
+    ListIterator tmpIterator;
+    List* tmpList;
+    void* elem;
+    
+    if (list == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "[]");
+        return newStr;
+    }
+
+    tmpList = (List*) list;
+    tmpIterator = createIterator(tmpList);
+    numAttr = getLength(tmpList);
+
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        tmpStr = attrToJSON((Attribute*)elem);
+        strLen += (sizeof(char) * strlen(tmpStr));
+        free(tmpStr);
+    }
+
+    newStr = (char*)malloc(sizeof(char) * (strLen + 2 + (numAttr - 1)) + 1);
+    tmpIterator = createIterator(tmpList);
+    elem = NULL;
+
+    strcpy (newStr, "[");
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        //Last element
+        tmpStr = attrToJSON((Attribute*)elem);
+        strcat (newStr, tmpStr);
+        free(tmpStr);
+        if (tmpCount < numAttr - 1) {
+            strcat (newStr, ",");
+        }
+        tmpCount++;
+    }
+
+    strcat (newStr, "]");
+
+    //sprintf (newStr, "{\"children\":%d,\"numAttr\":%d}", childLen, numAttr);    
+
+    return newStr;
+}
+
+char* rectListToJSON(const List *list) {
+    if (list == NULL) {
+        return NULL;
+    }
+}
+
+char* pathListToJSON(const List *list) {
+    if (list == NULL) {
+        return NULL;
+    }
+}
+
+char* groupListToJSON(const List *list) {
+    if (list == NULL) {
+        return NULL;
+    }
 }
 
 
@@ -1094,10 +1328,10 @@ char* rectangleToString(void* data) {
 	
 	tmpRectangle = (Rectangle*)data;
     /*Initialize all required values*/
-    xLen = 4;
-    yLen = 4;
-    widthLen = 4;
-    heightLen = 4;
+    xLen = 25;
+    yLen = 25;
+    widthLen = 25;
+    heightLen = 25;
     unitLen = 51;
     listStr = toString(tmpRectangle->otherAttributes);
     attriLen = strlen(listStr) + 1;
@@ -1146,9 +1380,9 @@ char* circleToString(void* data) {
 	
 	tmpCircle = (Circle*)data;
     /*Initialize all required variables*/
-    cxLen = 4;
-    cyLen = 4;
-    rLen = 4;
+    cxLen = 25;
+    cyLen = 25;
+    rLen = 25;
     unitLen = 50;
     listStr = toString(tmpCircle->otherAttributes);
     attriLen = strlen(listStr);
@@ -2099,7 +2333,6 @@ void validateImage (SVGimage * givenImg, int * invalid) {
     if (givenImg->rectangles != NULL) {
         tmpIterator = createIterator(givenImg->rectangles);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
-            tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
             if (((Rectangle*)elem)->width < 0) {
                 *invalid = 1;
             }
@@ -2108,6 +2341,8 @@ void validateImage (SVGimage * givenImg, int * invalid) {
             }
             if (((Rectangle*)elem)->otherAttributes == NULL) {
                 *invalid = 1;
+            } else {
+                tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
             }
             while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
                 if (((Attribute*)elem2)->name == NULL) {
@@ -2126,12 +2361,13 @@ void validateImage (SVGimage * givenImg, int * invalid) {
     if (givenImg->circles != NULL) {
         tmpIterator = createIterator(givenImg->circles);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
-            tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
             if (((Circle*)elem)->r < 0) {
                 *invalid = 1;
             }
             if (((Circle*)elem)->otherAttributes == NULL) {
                 *invalid = 1;
+            } else {
+                tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
             }
             while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
                 if (((Attribute*)elem2)->name == NULL) {
@@ -2150,12 +2386,13 @@ void validateImage (SVGimage * givenImg, int * invalid) {
     if (givenImg->paths != NULL) {
         tmpIterator = createIterator(givenImg->paths);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
-            tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
             if (((Path*)elem)->data == NULL) {
                 *invalid = 1;
             }
             if (((Path*)elem)->otherAttributes == NULL) {
                 *invalid = 1;
+            } else {
+                tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
             }
             while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
                 if (((Attribute*)elem2)->name == NULL) {
@@ -2208,7 +2445,6 @@ void validateGroup (Group * givenGroup, int * invalid) {
     if (givenGroup->rectangles != NULL) {
         tmpIterator = createIterator(givenGroup->rectangles);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
-            tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
             if (((Rectangle*)elem)->width < 0) {
                 *invalid = 1;
             }
@@ -2217,6 +2453,8 @@ void validateGroup (Group * givenGroup, int * invalid) {
             }
             if (((Rectangle*)elem)->otherAttributes == NULL) {
                 *invalid = 1;
+            } else {
+                tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
             }
             while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
                 if (((Attribute*)elem2)->name == NULL) {
@@ -2235,12 +2473,13 @@ void validateGroup (Group * givenGroup, int * invalid) {
     if (givenGroup->circles != NULL) {
         tmpIterator = createIterator(givenGroup->circles);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
-            tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
             if (((Circle*)elem)->r < 0) {
                 *invalid = 1;
             }
             if (((Circle*)elem)->otherAttributes == NULL) {
                 *invalid = 1;
+            } else {
+                tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
             }
             while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
                 if (((Attribute*)elem2)->name == NULL) {
@@ -2259,12 +2498,13 @@ void validateGroup (Group * givenGroup, int * invalid) {
     if (givenGroup->paths != NULL) {
         tmpIterator = createIterator(givenGroup->paths);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
-            tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
             if (((Path*)elem)->data == NULL) {
                 *invalid = 1;
             }
             if (((Path*)elem)->otherAttributes == NULL) {
                 *invalid = 1;
+            } else {
+                tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
             }
             while ((elem2 = nextElement(&tmpIterator2)) != NULL) {
                 if (((Attribute*)elem2)->name == NULL) {
@@ -2289,4 +2529,3 @@ void validateGroup (Group * givenGroup, int * invalid) {
         *invalid = 1;
     }
 }
-

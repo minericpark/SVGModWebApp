@@ -16,6 +16,8 @@ SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
 
 void groupTest(SVGimage* givenImg) {
     char* tmpString;
+    List* tmpList;
+
     printf ("----------Group Test----------\n");
     tmpString = groupToJSON(getFromBack(givenImg->groups));
     printf ("%s\n", tmpString);
@@ -28,6 +30,31 @@ void groupTest(SVGimage* givenImg) {
     tmpString = attrListToJSON(givenImg->otherAttributes);
     printf ("%s\n", tmpString);
     free(tmpString);
+
+    tmpList = getCircles(givenImg);
+    tmpString = circListToJSON(tmpList);
+    printf ("%s\n", tmpString);
+    freeList(tmpList);
+    free(tmpString);
+
+    tmpList = getRects(givenImg);
+    tmpString = rectListToJSON(tmpList);
+    printf ("%s\n", tmpString);
+    freeList(tmpList);
+    free(tmpString);
+
+    tmpList = getPaths(givenImg);
+    tmpString = pathListToJSON(tmpList);
+    printf ("%s\n", tmpString);
+    freeList(tmpList);
+    free(tmpString);
+
+    tmpList = getGroups(givenImg);
+    tmpString = groupListToJSON(tmpList);
+    printf ("%s\n", tmpString);
+    freeList(tmpList);
+    free(tmpString);
+
 }
 
 void attributeTest () {

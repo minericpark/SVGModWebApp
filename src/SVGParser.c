@@ -957,6 +957,7 @@ char* rectToJSON(const Rectangle *r) {
     return newStr;
 }
 
+//Turns a path into a JSON string
 char* pathToJSON(const Path *p) {
     char* newStr;
     int dataLen = 0;
@@ -980,6 +981,7 @@ char* pathToJSON(const Path *p) {
     return newStr;
 }
 
+//Turns a group into a JSON string
 char* groupToJSON(const Group *g) {
     char* newStr;
     int childLen = 0;
@@ -1003,7 +1005,7 @@ char* groupToJSON(const Group *g) {
     return newStr;
 }
 
-
+//Turns an SVG into a JSON string
 char* SVGtoJSON(const SVGimage* imge) {
     char* newStr;
     int numGroup = 0;
@@ -1049,7 +1051,7 @@ char* SVGtoJSON(const SVGimage* imge) {
     return newStr;
 }
 
-
+//Turns an attribute list to json (multiple attributes)
 char* attrListToJSON(const List *list) {
     char* newStr;
     char* tmpStr;
@@ -1094,11 +1096,10 @@ char* attrListToJSON(const List *list) {
 
     strcat (newStr, "]");
 
-    //sprintf (newStr, "{\"children\":%d,\"numAttr\":%d}", childLen, numAttr);    
-
     return newStr;
 }
 
+//Turns a circle list to json (multiple circles)
 char* circListToJSON(const List *list) {
     char* newStr;
     char* tmpStr;
@@ -1120,7 +1121,7 @@ char* circListToJSON(const List *list) {
     numAttr = getLength(tmpList);
 
     while((elem = nextElement(&tmpIterator)) != NULL) {
-        tmpStr = attrToJSON((Attribute*)elem);
+        tmpStr = circleToJSON((Circle*)elem);
         strLen += (sizeof(char) * strlen(tmpStr));
         free(tmpStr);
     }
@@ -1132,7 +1133,7 @@ char* circListToJSON(const List *list) {
     strcpy (newStr, "[");
     while((elem = nextElement(&tmpIterator)) != NULL) {
         //Last element
-        tmpStr = attrToJSON((Attribute*)elem);
+        tmpStr = circleToJSON((Circle*)elem);
         strcat (newStr, tmpStr);
         free(tmpStr);
         if (tmpCount < numAttr - 1) {
@@ -1143,27 +1144,151 @@ char* circListToJSON(const List *list) {
 
     strcat (newStr, "]");
 
-    //sprintf (newStr, "{\"children\":%d,\"numAttr\":%d}", childLen, numAttr);    
+    return newStr;
+}
+
+//Turns a rectangle list to json (multiple rectangles)
+char* rectListToJSON(const List *list) {
+    char* newStr;
+    char* tmpStr;
+    int numAttr = 0;
+    int strLen = 0;
+    int tmpCount = 0;
+    ListIterator tmpIterator;
+    List* tmpList;
+    void* elem;
+    
+    if (list == NULL) {
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "[]");
+        return newStr;
+    }
+
+    tmpList = (List*) list;
+    tmpIterator = createIterator(tmpList);
+    numAttr = getLength(tmpList);
+
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        tmpStr = rectToJSON((Rectangle*)elem);
+        strLen += (sizeof(char) * strlen(tmpStr));
+        free(tmpStr);
+    }
+
+    newStr = (char*)malloc(sizeof(char) * (strLen + 2 + (numAttr - 1)) + 1);
+    tmpIterator = createIterator(tmpList);
+    elem = NULL;
+
+    strcpy (newStr, "[");
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        //Last element
+        tmpStr = rectToJSON((Rectangle*)elem);
+        strcat (newStr, tmpStr);
+        free(tmpStr);
+        if (tmpCount < numAttr - 1) {
+            strcat (newStr, ",");
+        }
+        tmpCount++;
+    }
+
+    strcat (newStr, "]");
 
     return newStr;
 }
 
-char* rectListToJSON(const List *list) {
-    if (list == NULL) {
-        return NULL;
-    }
-}
-
+//Turns a path list to json (multiple paths)
 char* pathListToJSON(const List *list) {
+    char* newStr;
+    char* tmpStr;
+    int numAttr = 0;
+    int strLen = 0;
+    int tmpCount = 0;
+    ListIterator tmpIterator;
+    List* tmpList;
+    void* elem;
+    
     if (list == NULL) {
-        return NULL;
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "[]");
+        return newStr;
     }
+
+    tmpList = (List*) list;
+    tmpIterator = createIterator(tmpList);
+    numAttr = getLength(tmpList);
+
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        tmpStr = pathToJSON((Path*)elem);
+        strLen += (sizeof(char) * strlen(tmpStr));
+        free(tmpStr);
+    }
+
+    newStr = (char*)malloc(sizeof(char) * (strLen + 2 + (numAttr - 1)) + 1);
+    tmpIterator = createIterator(tmpList);
+    elem = NULL;
+
+    strcpy (newStr, "[");
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        //Last element
+        tmpStr = pathToJSON((Path*)elem);
+        strcat (newStr, tmpStr);
+        free(tmpStr);
+        if (tmpCount < numAttr - 1) {
+            strcat (newStr, ",");
+        }
+        tmpCount++;
+    }
+
+    strcat (newStr, "]");
+
+    return newStr;
 }
 
+//Turns a group list to json (multiple groups)
 char* groupListToJSON(const List *list) {
+    char* newStr;
+    char* tmpStr;
+    int numAttr = 0;
+    int strLen = 0;
+    int tmpCount = 0;
+    ListIterator tmpIterator;
+    List* tmpList;
+    void* elem;
+    
     if (list == NULL) {
-        return NULL;
+        newStr = (char*)malloc(sizeof(char) * 2 + 1);
+        strcpy (newStr, "[]");
+        return newStr;
     }
+
+    tmpList = (List*) list;
+    tmpIterator = createIterator(tmpList);
+    numAttr = getLength(tmpList);
+
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        tmpStr = groupToJSON((Group*)elem);
+        strLen += (sizeof(char) * strlen(tmpStr));
+        free(tmpStr);
+    }
+
+    newStr = (char*)malloc(sizeof(char) * (strLen + 2 + (numAttr - 1)) + 1);
+    tmpIterator = createIterator(tmpList);
+    elem = NULL;
+
+    strcpy (newStr, "[");
+    while((elem = nextElement(&tmpIterator)) != NULL) {
+        //Last element
+        tmpStr = groupToJSON((Group*)elem);
+        strcat (newStr, tmpStr);
+        free(tmpStr);
+        if (tmpCount < numAttr - 1) {
+            strcat (newStr, ",");
+        }
+        tmpCount++;
+    }
+
+    strcat (newStr, "]");
+
+    return newStr;
 }
 
 

@@ -28,11 +28,12 @@ LinkedListAPI.o: include/LinkedListAPI.h src/LinkedListAPI.c
 libsvgparser.so: SVGParser.o
 	$(CC) -shared -o bin/libsvgparser.so bin/SVGParser.o
 
-SVGParser.o: include/SVGParser_A2temp2.h src/SVGParser.c
+SVGParser.o: include/SVGParser.h src/SVGParser.c
 	$(CC) $(CFLAGS) -I$(INC_PATH) -c -fpic src/SVGParser.c -lxml2 -o bin/SVGParser.o
 
 clean:
 	rm -rf bin/*.o bin/*.so
 
 #Enter this line before running make -> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./bin
+
 #Enter this line for testing: valgrind --leak-check=full --track-origins=yes ./bin/test quad01.svg

@@ -546,7 +546,6 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
     xmlSchemaCleanupTypes();
     xmlCleanupParser();
 
-    printf ("entering validate\n");
     //Do manual img travel parsing
     validateImage (image, parseFail);
 
@@ -645,10 +644,9 @@ bool writeSVGimage(SVGimage* image, char* fileName) {
     }
 
     strcpy (tmpName, fileName);
-    strcat (tmpName, ".svg");
 
     /*Check if write is successful or not*/
-    if (xmlSaveFormatFileEnc(tmpName, doc, "UTF-8", 1) != -1) {
+    if (xmlSaveFormatFileEnc(tmpName, doc, NULL, 1) != -1) {
         xmlFreeDoc(doc);
         xmlCleanupParser();
         return true;
@@ -669,7 +667,6 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
     int count = 0;
     int foundAttr = 0;
     int freeAttr = 1;
-    int* invalid;
     char* buffer;
     char* tmpString;
 
@@ -679,15 +676,6 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
     }
 
     if (image == NULL || newAttribute == NULL) {
-        return;
-    }
-
-    //Check validity of image
-    invalid = (int*)malloc(sizeof(int));
-    *invalid = 0;
-    validateImage(image, invalid);
-    if (*invalid == 1) {
-        printf ("image is invalid\n");
         return;
     }
 
@@ -714,8 +702,8 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
             }
             //Add new attribute if not found
             if (foundAttr != 1) {
-                if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
-                        newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
+                        (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                     insertBack(image->otherAttributes, newAttribute);
                     freeAttr = 0;
                 }
@@ -752,8 +740,8 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                     }
                     //Add new attribute if not found
                     if (foundAttr != 1) {
-                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
-                                newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                        if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
+                                (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                             insertBack(((Circle*)elem)->otherAttributes, newAttribute);
                             freeAttr = 0;
                         }
@@ -797,8 +785,8 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                     }
                     //Add new attribute if not found
                     if (foundAttr != 1) {
-                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
-                                newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                        if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
+                                (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                             insertBack(((Rectangle*)elem)->otherAttributes, newAttribute);
                             freeAttr = 0;
                         }
@@ -812,7 +800,7 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
         while((elem = nextElement(&tmpIterator)) != NULL){
             //Determine if index is found
             if (elemIndex == count) {
-                if (strcmp(newAttribute->name, "data") == 0) { //Modify data
+                if (strcmp(newAttribute->name, "data") == 0 || strcmp(newAttribute->name, "d") == 0) { //Modify data
                     if (strcmp(newAttribute->value, "") != 0 && newAttribute->value != NULL) {
                         tmpString = (char*)realloc(((Path*)elem)->data, strlen(newAttribute->value) + 1);
                         ((Path*)elem)->data = tmpString;
@@ -832,8 +820,8 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                     }
                     //Add new attribute if not found
                     if (foundAttr != 1) {
-                        if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
-                                newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                        if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
+                                (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                             insertBack(((Path*)elem)->otherAttributes, newAttribute);
                             freeAttr = 0;
                         }
@@ -860,8 +848,8 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                 }
                 //Add new attribute if not found
                 if (foundAttr != 1) {
-                    if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0 &&
-                            newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0) {
+                    if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
+                            (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                         insertBack(((Group*)elem)->otherAttributes, newAttribute);
                         freeAttr = 0;
                     }

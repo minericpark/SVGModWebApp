@@ -15,6 +15,18 @@ SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
     return testImg;
 }
 
+void JSONTest() {
+    char* testString = (char*)malloc(sizeof(char)*41);
+    SVGimage* test;
+
+    strcpy (testString, "{\"title\":\"titleVal\",\"descr\":\"descrVal\"}");
+
+    test = JSONtoSVG(testString);
+    printf ("%s\n", SVGimageToString(test));
+    free(testString);
+    deleteSVGimage(test);
+}
+
 void groupTest(SVGimage* givenImg) {
     char* tmpString;
     List* tmpList;
@@ -512,14 +524,16 @@ int main(int argc, char **argv) {
 
 
     SVGimage* test = SVGtestA2(argv[1], argv[2]);
-
+/*
     mainTest(argv[1], argv[2]);
 
     attributeTest();
     rectTest();
     pathTest();
     circTest();
-    groupTest(test);
+    groupTest(test);*/
+
+    JSONTest();
 
     deleteSVGimage(test);
 

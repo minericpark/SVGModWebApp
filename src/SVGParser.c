@@ -1258,6 +1258,55 @@ char* groupListToJSON(const List *list) {
     return newStr;
 }
 
+/* ******************************* Extra A2 functions - Optional ****************************************** */
+
+SVGimage* JSONtoSVG(const char* svgString) {
+
+    char tmpString[256];
+    char* tmpString2;
+    SVGimage* newImg;
+
+    if (svgString == NULL) {
+        return NULL;
+    }
+
+    strcpy(tmpString, svgString);
+
+    /*String must include both title and descr, if either null, invalid*/
+    if (strstr(tmpString, "title") == NULL || strstr(tmpString, "descr") == NULL) {
+        return NULL;
+    }
+
+    newImg = (SVGimage*)malloc(sizeof(SVGimage));
+    newImg->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+    newImg->circles = initializeList(circleToString, deleteCircle, compareCircles);
+    newImg->groups = initializeList(groupToString, deleteGroup, compareGroups);
+    newImg->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);
+    newImg->paths = initializeList(pathToString, deletePath, comparePaths);
+    strcpy(newImg->namespace, "https://www.w3.org/2000/svg");
+    
+    tmpString2 = strtok(tmpString, "{},:\"");
+    while (tmpString2 != NULL) {
+        if (strcmp(tmpString2, "title") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            strcpy(newImg->title, tmpString2);
+        } else if (strcmp(tmpString2, "descr") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            strcpy(newImg->description, tmpString2);
+        }
+        tmpString2 = strtok(NULL, "{},:\"");
+    }
+
+    return newImg;
+}
+
+Rectangle* JSONtoRect(const char* svgString) {
+
+}
+
+Circle* JSONtoCircle(const char* svgString) {
+
+}
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */
 

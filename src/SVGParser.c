@@ -1284,6 +1284,8 @@ SVGimage* JSONtoSVG(const char* svgString) {
     newImg->rectangles = initializeList(rectangleToString, deleteRectangle, compareRectangles);
     newImg->paths = initializeList(pathToString, deletePath, comparePaths);
     strcpy(newImg->namespace, "https://www.w3.org/2000/svg");
+    strcpy(newImg->title, "");
+    strcpy(newImg->description, "");
     
     tmpString2 = strtok(tmpString, "{},:\"");
     while (tmpString2 != NULL) {
@@ -1302,10 +1304,95 @@ SVGimage* JSONtoSVG(const char* svgString) {
 
 Rectangle* JSONtoRect(const char* svgString) {
 
+    char tmpString[256];
+    char* tmpString2;
+    char* tmpToken;
+    Rectangle* newRect;
+
+    if (svgString == NULL) {
+        return NULL;
+    }
+
+    strcpy(tmpString, svgString);
+
+    /*String must include all elements, if any null, invalid*/
+    if (strstr(tmpString, "x") == NULL || strstr(tmpString, "y") == NULL || strstr(tmpString, "w") == NULL ||
+        strstr(tmpString, "h") == NULL || strstr(tmpString, "units") == NULL) {
+        return NULL;
+    }
+
+    newRect = (Rectangle*)malloc(sizeof(Rectangle));
+    newRect->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+    strcpy(newRect->units, "");
+
+    tmpString2 = strtok(tmpString, "{},:\"");
+    while (tmpString2 != NULL) {
+        if (strcmp(tmpString2, "x") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newRect->x = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "y") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newRect->y = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "w") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newRect->width = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "h") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newRect->height = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "units") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            strcpy(newRect->units, tmpString2);
+        }
+        tmpString2 = strtok(NULL, "{},:\"");
+    }
+
+    return newRect;
 }
 
 Circle* JSONtoCircle(const char* svgString) {
 
+    char tmpString[256];
+    char* tmpString2;
+    char* tmpToken;
+    Circle* newCirc;
+
+    if (svgString == NULL) {
+        return NULL;
+    }
+
+    strcpy(tmpString, svgString);
+
+    /*String must include all elements, if any null, invalid*/
+    if (strstr(tmpString, "cx") == NULL || strstr(tmpString, "cy") == NULL || strstr(tmpString, "r") == NULL ||
+        strstr(tmpString, "units") == NULL) {
+        return NULL;
+    }
+
+    newCirc = (Circle*)malloc(sizeof(Circle));
+    newCirc->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
+    strcpy(newCirc->units, "");
+
+    tmpString2 = strtok(tmpString, "{},:\"");
+    while (tmpString2 != NULL) {
+        if (strcmp(tmpString2, "cx") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newCirc->cx = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "cy") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newCirc->cy = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "r") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            newCirc->r = strtof(tmpString2, &tmpToken);
+        } else if (strcmp(tmpString2, "units") == 0) {
+            tmpString2 = strtok(NULL, "{},:\"");
+            if (tmpString2 != NULL && strcmp(tmpString2, "") != 0) {
+                strcpy(newCirc->units, tmpString2);   
+            }
+        }
+        tmpString2 = strtok(NULL, "{},:\"");
+    }
+
+    return newCirc;    
 }
 
 /* ******************************* List helper functions  - MUST be implemented *************************** */

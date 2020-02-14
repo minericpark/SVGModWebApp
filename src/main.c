@@ -16,14 +16,27 @@ SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
 }
 
 void JSONTest() {
+
     char* testString = (char*)malloc(sizeof(char)*41);
+    char* testString2 = (char*)malloc(sizeof(char)*41);
+    char* testString3 = (char*)malloc(sizeof(char)*33);
     SVGimage* test;
+    Rectangle* rect;
+    Circle* circ;
 
     strcpy (testString, "{\"title\":\"titleVal\",\"descr\":\"descrVal\"}");
+    strcpy (testString2, "{\"x\":1,\"y\":2,\"w\":19,\"h\":15,\"units\",\"cm\"}");
+    strcpy (testString3, "{\"cx\":3,\"cy\":3,\"r\":3,\"units\":\"\"}");
 
     test = JSONtoSVG(testString);
+    rect = JSONtoRect(testString2);
+    circ = JSONtoCircle(testString3);
     printf ("%s\n", SVGimageToString(test));
+    printf ("%s\n", rectangleToString(rect));
+    printf ("%s\n", circleToString(circ));
     free(testString);
+    deleteCircle(circ);
+    deleteRectangle(rect);
     deleteSVGimage(test);
 }
 

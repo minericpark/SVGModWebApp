@@ -509,14 +509,22 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
         return false;
     }
 
+    ctxt = xmlSchemaNewParserCtxt (schemaFile);
+    /*Check if ctxt parser returns an error or not*/
+    if (ctxt != NULL) {
+        xmlSchemaSetParserErrors (ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+        givenSchema = xmlSchemaParse(ctxt);
+        xmlSchemaFreeParserCtxt(ctxt);
+    } else {
+        /*Cleanup everything if ctxt holds an error*/
+        xmlSchemaCleanupTypes();
+        xmlCleanupParser();
+        return false;
+    }
+
     parseFail = (int*)malloc(sizeof(int));
 
     doc = convertImgToDoc(image);
-
-    ctxt = xmlSchemaNewParserCtxt (schemaFile);
-    xmlSchemaSetParserErrors (ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
-    givenSchema = xmlSchemaParse(ctxt);
-    xmlSchemaFreeParserCtxt(ctxt);
 
     if (doc == NULL) { //Doc fails to parse
         *parseFail = 1;
@@ -560,65 +568,21 @@ bool validateSVGimage(SVGimage* image, char* schemaFile) {
 
 SVGimage* createValidSVGimage(char* fileName, char* schemaFile) {
 
-    xmlDoc* imgDoc;
     SVGimage* newImg = NULL;
-    xmlSchema* givenSchema = NULL;
-    xmlSchemaParserCtxt* ctxt;
-    int parseFail = 0;
     
     if (fileName == NULL || schemaFile == NULL) {
         return NULL;
     }
 
-    ctxt = xmlSchemaNewParserCtxt (schemaFile);
+    newImg = createSVGimage(fileName);
 
-    xmlSchemaSetParserErrors (ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
-
-    givenSchema = xmlSchemaParse(ctxt);
-    xmlSchemaFreeParserCtxt(ctxt);
-
-    imgDoc = xmlReadFile (fileName, NULL, 0);
-
-    //img doc unable to parse
-    if (imgDoc == NULL) {
-        parseFail = 1;
-    }
-    else {
-        xmlSchemaValidCtxt* cvtxt;
-        int ret;
-
-        cvtxt = xmlSchemaNewValidCtxt(givenSchema);
-        xmlSchemaSetValidErrors(cvtxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
-        ret = xmlSchemaValidateDoc(cvtxt, imgDoc);
-        //Validates
-        if (ret == 0) {
-            parseFail = 0;
-        } else if (ret > 0) { //Fails to validate
-            parseFail = 1;
-        } else { //Generates an internal issue
-            parseFail = 1;
-        }
-        xmlSchemaFreeValidCtxt(cvtxt);
-        xmlFreeDoc(imgDoc);
+    /*If validation fails, remove the created image*/
+    if (validateSVGimage(newImg, schemaFile) != true) {
+        deleteSVGimage(newImg);
     }
 
-    if (parseFail != 1) {
-        /*Call createSVGimage function*/
-        newImg = createSVGimage(fileName);
-    }
-    
-    /*Free schema and cleanup parser*/
-    if (givenSchema != NULL) {
-        xmlSchemaFree(givenSchema);
-    }
-    
-    xmlSchemaCleanupTypes();
-    xmlCleanupParser();
-
-    /*Failed parse*/
+    /*Failed parse: Note that this is technicallyy useless, but just kept for safety*/
     if (newImg == NULL) {
-        return NULL;
-    } else if (parseFail == 1) {
         return NULL;
     }
 
@@ -868,6 +832,10 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
 
 void addComponent(SVGimage* image, elementType type, void* newElement) {
 
+    //Check if image or newElement is null
+    if (image == NULL || newElement == NULL) {
+        return;
+    }
     //If no elemtype, exit function
     if (type != RECT && type != CIRC && type != PATH && type != GROUP && type != SVG_IMAGE) {
         return;

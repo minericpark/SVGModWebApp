@@ -11,6 +11,7 @@ SVGimage* SVGtest(char* fileName) {
 SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
     SVGimage* testImg;
     testImg = createValidSVGimage(fileName, schemaName);
+    
     return testImg;
 }
 
@@ -359,6 +360,7 @@ void mainTest(char* fileName1, char* fileName2) {
     Attribute* newAttribute3;
     Attribute* newAttribute4;
     Attribute* newAttribute5;
+    Attribute* fakeAttribute = NULL;
     Rectangle* newRect;
     Circle* newCircle;
     Path* newPath;
@@ -477,7 +479,8 @@ void mainTest(char* fileName1, char* fileName2) {
         newPath->data = (char*)malloc(sizeof(char)*17 + 1);
         strcpy(newPath->data, "30 30 30 30 30 30");
         newPath->otherAttributes = initializeList(attributeToString, deleteAttribute, compareAttributes);
-/*
+
+        setAttribute(testImg, RECT, 0, fakeAttribute);
         setAttribute(testImg, RECT, 0, newAttribute);
         setAttribute(testImg, CIRC, 0, newAttribute2);
         setAttribute(testImg, PATH, 0, newAttribute3);
@@ -488,7 +491,7 @@ void mainTest(char* fileName1, char* fileName2) {
         addComponent(testImg, RECT, newRect);
         addComponent(testImg, CIRC, newCircle);
         addComponent(testImg, PATH, newPath);
-*/
+
         if (writeSVGimage(testImg, "test") == false) {
             printf ("failed write\n");
         }

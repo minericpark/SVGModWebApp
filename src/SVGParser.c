@@ -1266,7 +1266,7 @@ SVGimage* JSONtoSVG(const char* svgString) {
     char* tmpString2;
     SVGimage* newImg;
 
-    if (svgString == NULL) {
+    if (svgString == NULL || strcmp(svgString, "") == 0) {
         return NULL;
     }
 
@@ -1309,7 +1309,7 @@ Rectangle* JSONtoRect(const char* svgString) {
     char* tmpToken;
     Rectangle* newRect;
 
-    if (svgString == NULL) {
+    if (svgString == NULL || strcmp(svgString, "") == 0) {
         return NULL;
     }
 
@@ -1356,7 +1356,7 @@ Circle* JSONtoCircle(const char* svgString) {
     char* tmpToken;
     Circle* newCirc;
 
-    if (svgString == NULL) {
+    if (svgString == NULL || strcmp(svgString, "") == 0) {
         return NULL;
     }
 

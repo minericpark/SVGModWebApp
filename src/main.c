@@ -35,6 +35,8 @@ void JSONTest() {
     printf ("%s\n", rectangleToString(rect));
     printf ("%s\n", circleToString(circ));
     free(testString);
+    free(testString2);
+    free(testString3);
     deleteCircle(circ);
     deleteRectangle(rect);
     deleteSVGimage(test);
@@ -389,7 +391,7 @@ void mainTest(char* fileName1, char* fileName2) {
     Rectangle* newRect;
     Circle* newCircle;
     Path* newPath;
-    Group* newGroup;
+    Group* newGroup = NULL;
     char tmpStr[100];
 
     /*Function*/
@@ -537,16 +539,19 @@ int main(int argc, char **argv) {
 
 
     SVGimage* test = SVGtestA2(argv[1], argv[2]);
-/*
+
     mainTest(argv[1], argv[2]);
 
     attributeTest();
     rectTest();
     pathTest();
     circTest();
-    groupTest(test);*/
+    if (test == NULL) {
+        printf ("object null\n");
+    }
+    groupTest(test);
 
-    JSONTest();
+    //JSONTest();
 
     deleteSVGimage(test);
 

@@ -2343,10 +2343,10 @@ xmlDoc* convertImgToDoc (SVGimage * givenSVG) {
             char widthStr[256];
             char heightStr[256];
 
-            sprintf (xStr, "%.2f", ((Rectangle*)elem)->x);
-            sprintf (yStr, "%.2f", ((Rectangle*)elem)->y);
-            sprintf (heightStr, "%.2f", ((Rectangle*)elem)->height);
-            sprintf (widthStr, "%.2f", ((Rectangle*)elem)->width);
+            sprintf (xStr, "%f", ((Rectangle*)elem)->x);
+            sprintf (yStr, "%f", ((Rectangle*)elem)->y);
+            sprintf (heightStr, "%f", ((Rectangle*)elem)->height);
+            sprintf (widthStr, "%f", ((Rectangle*)elem)->width);
 
             if (((Rectangle*) elem)->units != NULL) {
                 strcat (xStr, ((Rectangle*)elem)->units);
@@ -2379,9 +2379,9 @@ xmlDoc* convertImgToDoc (SVGimage * givenSVG) {
             char cyStr[256];
             char rStr[256];
 
-            sprintf (cxStr, "%.2f", ((Circle*)elem)->cx);
-            sprintf (cyStr, "%.2f", ((Circle*)elem)->cy);
-            sprintf (rStr, "%.2f", ((Circle*)elem)->r);
+            sprintf (cxStr, "%f", ((Circle*)elem)->cx);
+            sprintf (cyStr, "%f", ((Circle*)elem)->cy);
+            sprintf (rStr, "%f", ((Circle*)elem)->r);
 
             if (((Circle*) elem)->units != NULL) {
                 strcat (cxStr, ((Circle*)elem)->units);
@@ -2465,10 +2465,10 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
             char widthStr[256];
             char heightStr[256];
 
-            sprintf (xStr, "%.2f", ((Rectangle*)elem)->x);
-            sprintf (yStr, "%.2f", ((Rectangle*)elem)->y);
-            sprintf (heightStr, "%.2f", ((Rectangle*)elem)->height);
-            sprintf (widthStr, "%.2f", ((Rectangle*)elem)->width);
+            sprintf (xStr, "%f", ((Rectangle*)elem)->x);
+            sprintf (yStr, "%f", ((Rectangle*)elem)->y);
+            sprintf (heightStr, "%f", ((Rectangle*)elem)->height);
+            sprintf (widthStr, "%f", ((Rectangle*)elem)->width);
 
             if (((Rectangle*) elem)->units != NULL) {
                 strcat (xStr, ((Rectangle*)elem)->units);
@@ -2501,9 +2501,9 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
             char cyStr[256];
             char rStr[256];
 
-            sprintf (cxStr, "%.2f", ((Circle*)elem)->cx);
-            sprintf (cyStr, "%.2f", ((Circle*)elem)->cy);
-            sprintf (rStr, "%.2f", ((Circle*)elem)->r);
+            sprintf (cxStr, "%f", ((Circle*)elem)->cx);
+            sprintf (cyStr, "%f", ((Circle*)elem)->cy);
+            sprintf (rStr, "%f", ((Circle*)elem)->r);
 
             if (((Circle*) elem)->units != NULL) {
                 strcat (cxStr, ((Circle*)elem)->units);

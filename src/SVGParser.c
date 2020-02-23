@@ -644,7 +644,13 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
         return;
     }
 
+    //check if image or attribute is null
     if (image == NULL || newAttribute == NULL) {
+        return;
+    }
+
+    //Check if attribute name or value are null
+    if (newAttribute->name == NULL || newAttribute->value == NULL) {
         return;
     }
 
@@ -654,9 +660,11 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
         if (strcmp(newAttribute->name, "title") == 0) {
             image->title[0] = '\0';
             strncpy(image->title, newAttribute->value, 256);
+            foundAttr = 1;
         } else if (strcmp(newAttribute->name, "description") == 0) { //Modify description
             image->description[0] = '\0';
             strncpy(image->description, newAttribute->value, 256);
+            foundAttr = 1;
         } else { //Add new attribute
             tmpIterator = createIterator(image->otherAttributes);
             while ((elem = nextElement(&tmpIterator)) != NULL) {
@@ -674,7 +682,6 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                 if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
                         (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                     insertBack(image->otherAttributes, newAttribute);
-                    freeAttr = 0;
                 }
             }
         }
@@ -685,15 +692,19 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
             if (elemIndex == count) {
                 if (strcmp(newAttribute->name, "cx") == 0) { //Modify cx
                     ((Circle*)elem)->cx = strtof (newAttribute->value, &buffer);
+                    foundAttr = 1;
                 } else if (strcmp(newAttribute->name, "cy") == 0) { //Modify cy
                     ((Circle*)elem)->cy = strtof (newAttribute->value, &buffer);
+                    foundAttr = 1;
                 } else if (strcmp(newAttribute->name, "r") == 0) { //Modify r
                     if (strtof(newAttribute->value, &buffer) >= 0) {
                         ((Circle*)elem)->r = strtof (newAttribute->value, &buffer);
+                        foundAttr = 1;
                     }
                 } else if (strcmp(newAttribute->name, "units") == 0) { //Modify units
                     if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
                         strcpy(((Circle*)elem)->units, newAttribute->value);
+                        foundAttr = 1;
                     }
                 } else { //Search through attributes list
                     tmpIterator2 = createIterator(((Circle*)elem)->otherAttributes);
@@ -712,7 +723,6 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                         if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
                                 (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                             insertBack(((Circle*)elem)->otherAttributes, newAttribute);
-                            freeAttr = 0;
                         }
                     }
                 }
@@ -726,19 +736,24 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
             if (elemIndex == count) {
                 if (strcmp(newAttribute->name, "x") == 0) { //Modify x
                     ((Rectangle*)elem)->x = strtof (newAttribute->value, &buffer);
+                    foundAttr = 1;
                 } else if (strcmp(newAttribute->name, "y") == 0) { //Modify y
                     ((Rectangle*)elem)->y = strtof (newAttribute->value, &buffer);
+                    foundAttr = 1;
                 } else if (strcmp(newAttribute->name, "width") == 0) { //Modify width
                     if (strtof(newAttribute->value, &buffer) >= 0) {
                         ((Rectangle*)elem)->width = strtof (newAttribute->value, &buffer);
+                        foundAttr = 1;
                     }
                 } else if (strcmp(newAttribute->name, "height") == 0) { //Modify height
                     if (strtof(newAttribute->value, &buffer) >= 0) {
                         ((Rectangle*)elem)->height = strtof (newAttribute->value, &buffer);
+                        foundAttr = 1;
                     }
                 } else if (strcmp(newAttribute->name, "units") == 0) { //Modify units
                     if (newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) {
                         strcpy(((Rectangle*)elem)->units, newAttribute->value);
+                        foundAttr = 1;
                     }
                 } else { //Search through attributes list
                     tmpIterator2 = createIterator(((Rectangle*)elem)->otherAttributes);
@@ -757,7 +772,6 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                         if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
                                 (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                             insertBack(((Rectangle*)elem)->otherAttributes, newAttribute);
-                            freeAttr = 0;
                         }
                     }
                 }
@@ -774,6 +788,7 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                         tmpString = (char*)realloc(((Path*)elem)->data, strlen(newAttribute->value) + 1);
                         ((Path*)elem)->data = tmpString;
                         strcpy(((Path*)elem)->data, newAttribute->value);
+                        foundAttr = 1;
                     }
                 } else { //Search through attributes list
                     tmpIterator2 = createIterator(((Path*)elem)->otherAttributes);
@@ -792,7 +807,6 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                         if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
                                 (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                             insertBack(((Path*)elem)->otherAttributes, newAttribute);
-                            freeAttr = 0;
                         }
                     }
                 }
@@ -820,12 +834,15 @@ void setAttribute(SVGimage* image, elementType elemType, int elemIndex, Attribut
                     if ((newAttribute->value != NULL && strcmp(newAttribute->value, "") != 0) ||
                             (newAttribute->name != NULL && strcmp(newAttribute->name, "") != 0)) {
                         insertBack(((Group*)elem)->otherAttributes, newAttribute);
-                        freeAttr = 0;
                     }
                 }
             }
             count++;
         }
+    }
+
+    if (foundAttr != 1) { //If attribute was not found, do not free attribute (whether it has been inserted, or is invalid)
+        freeAttr = 0;
     }
 
     /*Free attribute when necessary*/

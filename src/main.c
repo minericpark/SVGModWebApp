@@ -548,8 +548,9 @@ int main(int argc, char **argv) {
     circTest();
     if (test == NULL) {
         printf ("object null\n");
+    } else {
+        groupTest(test);
     }
-    groupTest(test);
 
     //JSONTest();
 

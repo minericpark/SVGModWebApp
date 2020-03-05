@@ -20,6 +20,12 @@ a:link:hover {
     cursor: pointer;
     cursor: hand;
 }
+th, td {
+    border: 1px solid #dddddd;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 13px;
+}
 input[type=submit], button {
     cursor: pointer;
     cursor: hand;

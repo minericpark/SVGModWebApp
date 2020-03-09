@@ -27,6 +27,28 @@ $(document).ready(function() {
         }
     });
 
+    var form = document.getElementById('uploadFile');
+        var formData = new FormData(form);
+
+        $.ajax({
+            type: "post",
+            url: '/upload',
+            data: formData,
+            contentType: false,
+            processData: false,
+            cache: false,
+
+            beforeSend: function() {
+                //
+            },
+            success: function(msg) {
+                console.log();
+            },
+            error: function() {
+                //Error
+            }
+        });
+
     // Event listener form example , we can use this instead explicitly listening for events
     // No redirects if possible
     $('#someform').submit(function(e){
@@ -36,5 +58,7 @@ $(document).ready(function() {
         $.ajax({
             //Create an object for connecting to another waypoint
         });
-    });
+    }); 
+
+
 });

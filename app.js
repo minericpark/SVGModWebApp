@@ -81,3 +81,6 @@ app.get('/someendpoint', function(req , res){
 
 app.listen(portNum);
 console.log('Running app at localhost: ' + portNum);
+
+//Load table here
+//Load file view here

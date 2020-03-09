@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>SVG Modifier</title>
+    <title>SVG Image Viewer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Web Application the Modifies provided SVG files">
@@ -17,8 +17,8 @@
     <!-- Custom CSS End -->
 </head>
 <body>
-    <h3>Download test</h3>
-    If the A3 stub is running and simple.gpx exists in the uploads/ directory on the server, then clicking on the link below will download it from the server.<br>
+    <h3>SVG Image Viewer</h3>
+    <br>
     <a href="rects.svg">rects.svg</a>
     <p></p>
     <img src="rects.svg">
@@ -37,6 +37,17 @@
         </div>
     </form>
     <!-- Leave me at the bottom of body -->
+    <div id="filelog">File Log Panel</div>
+
+    <form ref='upload-file' id='upload-file' enctype="multipart/form-data" action="/upload" method='post'>
+        <input type='file' name='uploadFile' id='uploadFile'/>
+        <input type='submit' class="btn btn-secondary btn-sm">
+    </form>
+
+    <div id="svgview">SVG View Panel</div>
+    
+    <div id="additional">Additional Function</div>
+
     <table>
         <tr>
             <th>Image (click to download)</th>
@@ -51,6 +62,9 @@
 
     <script src="/index.js"></script>
 </body>
+<footer>
+    <p>Developed by Eric Minseo Park (2020) for the purpose of an academic project</p>
+</footer>
 </html>
 
 

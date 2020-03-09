@@ -12,6 +12,14 @@ body {
     line-height: 1.75;
     background-color: #FFFFFF;
 }
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+}
 a:link:hover {
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;

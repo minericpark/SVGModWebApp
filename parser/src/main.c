@@ -11,6 +11,10 @@ SVGimage* SVGtest(char* fileName) {
 SVGimage* SVGtestA2 (char* fileName, char* schemaName) {
     SVGimage* testImg;
     testImg = createValidSVGimage(fileName, schemaName);
+
+    if (testImg != NULL) {
+        writeSVGimage(testImg, "test.svg");
+    }
     
     return testImg;
 }
@@ -539,8 +543,6 @@ int main(int argc, char **argv) {
 
 
     SVGimage* test = SVGtestA2(argv[1], argv[2]);
-
-    mainTest(argv[1], argv[2]);
 
     attributeTest();
     rectTest();

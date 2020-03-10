@@ -1053,7 +1053,7 @@ char* attrListToJSON(const List *list) {
     List* tmpList;
     void* elem;
     
-    if (list == NULL) {
+    if (list == NULL || getLength((List*) list) <= 0) {
         newStr = (char*)malloc(sizeof(char) * 2 + 1);
         strcpy (newStr, "[]");
         return newStr;
@@ -1101,7 +1101,7 @@ char* circListToJSON(const List *list) {
     List* tmpList;
     void* elem;
     
-    if (list == NULL) {
+    if (list == NULL || getLength((List*) list) <= 0) {
         newStr = (char*)malloc(sizeof(char) * 2 + 1);
         strcpy (newStr, "[]");
         return newStr;
@@ -1149,7 +1149,7 @@ char* rectListToJSON(const List *list) {
     List* tmpList;
     void* elem;
     
-    if (list == NULL) {
+    if (list == NULL || getLength((List*) list) <= 0) {
         newStr = (char*)malloc(sizeof(char) * 2 + 1);
         strcpy (newStr, "[]");
         return newStr;
@@ -1197,7 +1197,7 @@ char* pathListToJSON(const List *list) {
     List* tmpList;
     void* elem;
     
-    if (list == NULL) {
+    if (list == NULL || getLength((List*) list) <= 0) {
         newStr = (char*)malloc(sizeof(char) * 2 + 1);
         strcpy (newStr, "[]");
         return newStr;
@@ -1245,7 +1245,7 @@ char* groupListToJSON(const List *list) {
     List* tmpList;
     void* elem;
     
-    if (list == NULL) {
+    if (list == NULL || getLength((List*) list) <= 0) {
         newStr = (char*)malloc(sizeof(char) * 2 + 1);
         strcpy (newStr, "[]");
         return newStr;
@@ -2553,12 +2553,12 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
     	}
 
     }
-    
+
     /*If there exists list of paths, create node for them*/
     if (givenGroup->paths != NULL) {
         tmpIterator = createIterator(givenGroup->paths);
         while((elem = nextElement(&tmpIterator)) != NULL){
-            char dataStr[256];
+            char dataStr[strlen(((Path*)elem)->data) + 300];
 
             sprintf (dataStr, "%s", ((Path*)elem)->data);
 
@@ -2580,7 +2580,6 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup) {
         tmpIterator = createIterator (givenGroup->groups);
         while ((elem = nextElement(&tmpIterator)) != NULL) {
             /*Parse group*/
-            /**/
             convertGroup (new_node, (Group*)elem);
         }
     }

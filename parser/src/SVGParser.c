@@ -951,6 +951,7 @@ char* rectToJSON(const Rectangle *r) {
 //Turns a path into a JSON string
 char* pathToJSON(const Path *p) {
     char* newStr;
+    char tmpStr[64];
     int dataLen = 0;
     int numAttr = 0;
     int strLen = 0;
@@ -965,9 +966,11 @@ char* pathToJSON(const Path *p) {
     dataLen = strlen(p->data);
     strLen = dataLen + (sizeof(int) * 1) + 19;
 
+    tmpStr[sizeof(tmpStr)] = '\0';
     newStr = (char*)malloc(sizeof(char) * (strLen) + 1);
+    strncpy(tmpStr, p->data, 64);
 
-    sprintf (newStr, "{\"d\":\"%s\",\"numAttr\":%d}", p->data, numAttr);    
+    sprintf (newStr, "{\"d\":\"%s\",\"numAttr\":%d}", tmpStr, numAttr);    
 
     return newStr;
 }

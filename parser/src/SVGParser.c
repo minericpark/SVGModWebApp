@@ -2818,3 +2818,19 @@ void validateGroup (Group * givenGroup, int * invalid) {
         *invalid = 1;
     }
 }
+
+//Wrapper functions for ff-napi from this point on
+
+//Function that converts a given file to a valid img, and returns the appropriate JSON string
+char* fileToJSON (char* filename, char* schema) {
+    
+    SVGimage* tmpImg;
+    tmpImg = createValidSVGimage(filename, schema);
+
+    if (tmpImg == NULL) {
+        return "{}";
+    } else {
+        return SVGtoJSON(tmpImg);
+    }
+
+}

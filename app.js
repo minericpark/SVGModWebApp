@@ -19,6 +19,10 @@ const JavaScriptObfuscator = require('javascript-obfuscator');
 // Important, pass in port as in `npm run dev 1234`, do not change
 const portNum = process.argv[2];
 
+let parserLib = ffi.Library('./libsvgparse', {
+  'fileToJSON': ['string', ['string', 'string']],
+});
+
 // Send HTML at root, do not change
 app.get('/',function(req,res){
   res.sendFile(path.join(__dirname+'/public/index.html'));
@@ -83,4 +87,36 @@ app.listen(portNum);
 console.log('Running app at localhost: ' + portNum);
 
 //Load table here
+app.get('/loadTable', function(req, res) {
+  const path = require('path');
+  const fs = require('fs');
+  var fileList = [];
+
+  const directoryPath = 'uploads/';
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    files.forEach(function (file) {
+      //Parse specified file into datastring required for table
+      let fileName = file;
+      let fileDetails = JSON.parse(parserLib.fileToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+      let fileSize = Math.round(fs.statSync("uploads/" + fileName).size / 1000);
+
+      let fileJSON = {fileName, fileSize, fileDetails};
+      console.log(fileJSON);
+      //Put into the array
+      if (fileDetails != '{}') {
+        console.log(file);
+        fileList.push (fileJSON);
+      }
+    });
+    res.send({
+      //Return the array
+      SVGLog: fileList
+    });
+  });
+});
 //Load file view here

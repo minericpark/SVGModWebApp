@@ -27,6 +27,51 @@ $(document).ready(function() {
         }
     });
 
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/loadTable',
+        success: function(filelog) {
+            var filetable = "<table>";
+            var fileHeader = ["Image (click to download)", "File name (click to download)", "File size", "Number of rectangles", "Number of circles", "Number of paths", "Number of groups"];
+            //If returned array length is 0, display alt message
+            if (filelog.SVGLog.length == 0) {
+                console.log("empty");
+                filetable += '<tr>';
+                filetable += '<td>' + 'No files';
+                filetable += '</td></tr>';
+                
+            } else { //Otherwise, run for loop that creates the table,
+                console.log("there exists files");
+                //Set up header of table
+                filetable += '<tr>';
+                for (i = 0; i < fileHeader.length; i++) {
+                    filetable +='<th>' + fileHeader[i] + '</th>';
+                }
+                filetable += '</tr>';
+
+                console.log(filelog.SVGLog.length);
+                for (i = 0; i < filelog.SVGLog.length; i++) {
+                    filetable += '<tr>';
+                    filetable += '<td><img src="uploads/' + filelog.SVGLog[i].fileName + '"></td>';
+                    filetable += '<td>' + filelog.SVGLog[i].fileName + '</td>';
+                    filetable += '<td>' + filelog.SVGLog[i].fileSize + 'KB</td>';
+                    filetable += '<td>' + filelog.SVGLog[i].fileDetails.numRect + '</td>';
+                    filetable += '<td>' + filelog.SVGLog[i].fileDetails.numCirc + '</td>';
+                    filetable += '<td>' + filelog.SVGLog[i].fileDetails.numPaths + '</td>';
+                    filetable += '<td>' + filelog.SVGLog[i].fileDetails.numGroups + '</td>';
+                    console.log(i);
+                    filetable += '</tr>';
+                }
+            }
+            filetable += "</table>";
+            $('#filelog').html(filetable);
+        },
+        fail: function(error) {
+            console.log(error);
+        }
+    });
+
     var form = document.getElementById('uploadFile');
         var formData = new FormData(form);
 
@@ -42,7 +87,7 @@ $(document).ready(function() {
                 //
             },
             success: function(msg) {
-                console.log();
+                console.log(msg);
             },
             error: function() {
                 //Error

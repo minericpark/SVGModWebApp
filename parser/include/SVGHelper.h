@@ -35,3 +35,6 @@ void convertGroup (xmlNode * parent_node, Group * givenGroup);
 void validateImage (SVGimage * givenImg, int * invalid);
 //Recursion function that validates the provided group
 void validateGroup (Group * givenGroup, int * invalid);
+
+//Functions from this point on are wrapper functions for the server (customized for ffi-napi)
+char* fileToJSON (char* filename, char* schema);

@@ -38,3 +38,4 @@ void validateGroup (Group * givenGroup, int * invalid);
 
 //Functions from this point on are wrapper functions for the server (customized for ffi-napi)
 char* fileToJSON (char* filename, char* schema);
+bool verifyFile (char* filename, char* schema);

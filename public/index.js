@@ -50,11 +50,13 @@ $(document).ready(function() {
                 }
                 filetable += '</tr>';
 
+                //Create cells for each files that exists within uploads
                 console.log(filelog.SVGLog.length);
                 for (i = 0; i < filelog.SVGLog.length; i++) {
                     filetable += '<tr>';
-                    filetable += '<td><img src="uploads/' + filelog.SVGLog[i].fileName + '"></td>';
-                    filetable += '<td>' + filelog.SVGLog[i].fileName + '</td>';
+                    //Use get??
+                    filetable += '<td><a href="' + filelog.SVGLog[i].fileName + '">' + '<img src="' + filelog.SVGLog[i].fileName + '" class="logimage"></td>';
+                    filetable += '<td><a href="' + filelog.SVGLog[i].fileName + '">' + filelog.SVGLog[i].fileName + '</td>';
                     filetable += '<td>' + filelog.SVGLog[i].fileSize + 'KB</td>';
                     filetable += '<td>' + filelog.SVGLog[i].fileDetails.numRect + '</td>';
                     filetable += '<td>' + filelog.SVGLog[i].fileDetails.numCirc + '</td>';
@@ -73,25 +75,31 @@ $(document).ready(function() {
     });
 
     var form = document.getElementById('uploadFile');
-        var formData = new FormData(form);
-
-        $.ajax({
-            type: "post",
-            url: '/upload',
-            data: formData,
-            contentType: false,
-            processData: false,
-            cache: false,
-
-            beforeSend: function() {
-                //
-            },
-            success: function(msg) {
-                console.log(msg);
-            },
-            error: function() {
-                //Error
-            }
+        var formData = new FormData();
+        formData.append ('file', $('input[type=file]')[0].files[0]);
+        
+        $('#submitfile').submit(function(e) {
+            $.ajax({
+                type: "post",
+                url: '/uploadCustom',
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false,
+    
+                beforeSend: function() {
+            //
+                }, 
+                success: function(data) {
+                    console.log(data);
+                    //Print success message
+                    alert("Successfully submitted SVG");
+                },
+                error: function(error) {
+                    //Print error message
+                    alert("Invalid SVG or file");
+                }
+            });
         });
 
     // Event listener form example , we can use this instead explicitly listening for events

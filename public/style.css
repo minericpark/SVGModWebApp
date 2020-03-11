@@ -38,6 +38,15 @@ input[type=submit], button {
     cursor: pointer;
     cursor: hand;
 }
+.filelog {
+    overflow-y:auto;
+    text-align: center;
+}
+.logimage {
+    max-width: 200px;
+    height: auto;
+}
+
 @media(max-width: 900px) {
     html {
         font-size: 14px !important;

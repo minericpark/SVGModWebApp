@@ -2834,3 +2834,16 @@ char* fileToJSON (char* filename, char* schema) {
     }
 
 }
+
+//Function that determines if given file is a valid img, and returns true or false dependent on the answer
+bool verifyFile (char* filename, char* schema) {
+    
+    SVGimage* tmpImg;
+    tmpImg = createValidSVGimage(filename, schema);
+
+    if (tmpImg == NULL) {
+        return false;
+    } else {
+        return true;
+    }
+}

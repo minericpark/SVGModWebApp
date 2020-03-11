@@ -19,9 +19,6 @@
 <body>
     <h3>SVG Image Viewer</h3>
     <br>
-    <a href="rects.svg">rects.svg</a>
-    <p></p>
-    <img src="rects.svg">
 
     <hr>
     <div id="blah">I am blah</div>
@@ -38,12 +35,12 @@
     </form>
     <!-- Leave me at the bottom of body -->
     <hr>
-    <div id="filelog">File Log Panel</div>
+    <div class="filelog" id="filelog">File Log Panel</div>
     <hr>
 
-    <form ref='upload-file' id='upload-file' enctype="multipart/form-data" action="/upload" method='post'>
+    <form ref='upload-file' id='upload-file' enctype="multipart/form-data" action="/uploadCustom" method='post'>
         <input type='file' name='uploadFile' id='uploadFile'/>
-        <input type='submit' class="btn btn-secondary btn-sm">
+        <input type='submit' id='submitfile' class="btn btn-secondary btn-sm">
     </form>
 
     <div id="svgview">SVG View Panel</div>

@@ -21,6 +21,7 @@ const portNum = process.argv[2];
 
 let parserLib = ffi.Library('./libsvgparse', {
   'fileToJSON': ['string', ['string', 'string']],
+  'verifyFile': ['bool', ['string', 'string']],
 });
 
 // Send HTML at root, do not change
@@ -86,6 +87,30 @@ app.get('/someendpoint', function(req , res){
 app.listen(portNum);
 console.log('Running app at localhost: ' + portNum);
 
+//Respond to POST requests that upload files to uploads/ directory
+app.post('/uploadCustom', function(req, res) {
+  if(!req.files) {
+    return res.status(400).send('No files were uploaded.');
+  }
+ 
+  let uploadFile = req.files.uploadFile;
+  let result;
+
+  // Use the mv() method to place the file somewhere on your server
+  uploadFile.mv('uploads/' + uploadFile.name, function(err) {
+    if(err) {
+      return res.status(500).send('Failed to upload file');
+    }
+
+    result = parserLib.verifyFile("uploads/" + uploadFile.name, "parser/" + "svg.xsd");
+    if (result != true) {
+      fs.unlinkSync ('uploads/' + uploadFile.name);
+      req.method = 'get';
+    } 
+    res.redirect('/');
+  });
+});
+
 //Load table here
 app.get('/loadTable', function(req, res) {
   const path = require('path');
@@ -106,12 +131,10 @@ app.get('/loadTable', function(req, res) {
       let fileSize = Math.round(fs.statSync("uploads/" + fileName).size / 1000);
 
       let fileJSON = {fileName, fileSize, fileDetails};
-      console.log(fileJSON);
+      //console.log(fileJSON);
       //Put into the array
-      if (fileDetails != '{}') {
-        console.log(file);
-        fileList.push (fileJSON);
-      }
+      //console.log(file);
+      fileList.push (fileJSON); 
     });
     res.send({
       //Return the array

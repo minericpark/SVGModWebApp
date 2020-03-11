@@ -180,8 +180,60 @@ $(document).ready(function() {
                 svgtable += '</tr>';
 
                 //Add appropriate cells for the file given
-
+                //start with rectangles, circles, paths, then group
+                for (var i = 0; i < fileStruct.SVG.rectListObj.length; i++) {
+                    svgtable += '<tr>';
+                    svgtable += '<td>Rectangle ' + (i+1) + '</td>';
+                    if (fileStruct.SVG.rectListObj[i].units != "") {
+                        svgtable += '<td colspan="4">Upper left corner: x = ' + fileStruct.SVG.rectListObj[i].x + fileStruct.SVG.rectListObj[i].units;
+                        svgtable += ' y = ' + fileStruct.SVG.rectListObj[i].y + fileStruct.SVG.rectListObj[i].units;
+                        svgtable += '<br>Width = ' + fileStruct.SVG.rectListObj[i].w + fileStruct.SVG.rectListObj[i].units;
+                        svgtable += ' Height = ' + fileStruct.SVG.rectListObj[i].h + fileStruct.SVG.rectListObj[i].units;
+                        svgtable += '</td>';
+                    } else {
+                        svgtable += '<td colspan="4">Upper left corner: x = ' + fileStruct.SVG.rectListObj[i].x;
+                        svgtable += ' y = ' + fileStruct.SVG.rectListObj[i].y;
+                        svgtable += '<br>Width = ' + fileStruct.SVG.rectListObj[i].w;
+                        svgtable += ' Height = ' + fileStruct.SVG.rectListObj[i].h;
+                        svgtable += '</td>';
+                    }
+                    svgtable += '<td>' + fileStruct.SVG.rectListObj[i].numAttr + '</td>';
+                    svgtable += '</tr>';
+                } //Add all circles
+                for (var i = 0; i < fileStruct.SVG.circListObj.length; i++) {
+                    svgtable += '<tr>';
+                    svgtable += '<td>Circle ' + (i+1) + '</td>';
+                    //Check if units is empty
+                    if (fileStruct.SVG.circListObj[i].units != "") {
+                        svgtable += '<td colspan="4">Centre: x = ' + fileStruct.SVG.circListObj[i].cx + fileStruct.SVG.circListObj[i].units;
+                        svgtable += ' y = ' + fileStruct.SVG.circListObj[i].cy + fileStruct.SVG.circListObj[i].units;
+                        svgtable += ' radius = ' + fileStruct.SVG.circListObj[i].r + fileStruct.SVG.circListObj[i].units;
+                        svgtable += '</td>';
+                    } else {
+                        svgtable += '<td colspan="4">Centre: x = ' + fileStruct.SVG.circListObj[i].cx;
+                        svgtable += ' y = ' + fileStruct.SVG.circListObj[i].cy;
+                        svgtable += ' radius = ' + fileStruct.SVG.circListObj[i].r;
+                        svgtable += '</td>';
+                    }
+                    svgtable += '<td>' + fileStruct.SVG.circListObj[i].numAttr + '</td>';
+                    svgtable += '</tr>';
+                } //Add all paths
+                for (var i = 0; i < fileStruct.SVG.pathListObj.length; i++) {
+                    svgtable += '<tr>';
+                    svgtable += '<td>Path ' + (i+1) + '</td>';
+                    svgtable += '<td colspan="4">path data = ' + fileStruct.SVG.pathListObj[i].d + '</td>';
+                    svgtable += '<td>' + fileStruct.SVG.pathListObj[i].numAttr + '</td>';
+                    svgtable += '</tr>';
+                } //Add all groups
+                for (var i = 0; i < fileStruct.SVG.groupListObj.length; i++) {
+                    svgtable += '<tr>';
+                    svgtable += '<td>Group ' + (i+1) + '</td>';
+                    svgtable += '<td colspan="4">' + fileStruct.SVG.groupListObj[i].children + ' child elements</td>';
+                    svgtable += '<td>' + fileStruct.SVG.groupListObj[i].numAttr + '</td>';
+                    svgtable += '</tr>';
+                }
                 svgtable += "</table>";
+                //Update the SVG table 
                 $('#svgview').html(svgtable);
             },
             error: function(error) {

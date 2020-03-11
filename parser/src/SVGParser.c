@@ -2878,9 +2878,10 @@ char* SVGrectToJSON (char* filename, char* schema) {
     tmpImg = createValidSVGimage(filename, schema);
     
     if (tmpImg == NULL) {
-        return "{}";
+        printf ("null\n");
+        return "[]";
     } else {
-        return rectListToJSON(tmpImg->circles);
+        return rectListToJSON(tmpImg->rectangles);
     }
 }
 
@@ -2891,7 +2892,7 @@ char* SVGcircToJSON (char* filename, char* schema) {
     tmpImg = createValidSVGimage(filename, schema);
     
     if (tmpImg == NULL) {
-        return "{}";
+        return "[]";
     } else {
         return circListToJSON(tmpImg->circles);
     }
@@ -2904,22 +2905,22 @@ char* SVGpathToJSON (char* filename, char* schema) {
     tmpImg = createValidSVGimage(filename, schema);
     
     if (tmpImg == NULL) {
-        return "{}";
+        return "[]";
     } else {
-        return pathListToJSON(tmpImg->circles);
+        return pathListToJSON(tmpImg->paths);
     }
 }
 
 //Function that returns the groups from provided SVG in JSON format
 char* SVGgroupToJSON (char* filename, char* schema) {
     SVGimage* tmpImg;
-    
+
     tmpImg = createValidSVGimage(filename, schema);
     
     if (tmpImg == NULL) {
-        return "{}";
+        return "[]";
     } else {
-        return groupListToJSON(tmpImg->circles);
+        return groupListToJSON(tmpImg->groups);
     }
 }
 

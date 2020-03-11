@@ -23,6 +23,10 @@ let parserLib = ffi.Library('./libsvgparse', {
   'fileToJSON': ['string', ['string', 'string']],
   'verifyFile': ['bool', ['string', 'string']],
   'titleDescToJSON': ['string', ['string', 'string']],
+  'SVGrectToJSON': ['string', ['string', 'string']],
+  'SVGcircToJSON': ['string', ['string', 'string']],
+  'SVGpathToJSON': ['string', ['string', 'string']],
+  'SVGgroupToJSON': ['string', ['string', 'string']],
 });
 
 // Send HTML at root, do not change
@@ -186,14 +190,17 @@ app.get('/loadViewSVG', function(req, res) {
     tmpReq = req.query.filename;//
     console.log(tmpReq);
     files.forEach(function (file) {
-      //Parse specified file into datastring required for table
+      //Parse specified file into data object required for table
       if (file == tmpReq) {
         console.log('found');
         let fileName = file;
         var titleDescObj = JSON.parse(parserLib.titleDescToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
-        var 
+        var rectListObj = JSON.parse(parserLib.SVGrectToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+        var circListObj = JSON.parse(parserLib.SVGcircToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+        var pathListObj = JSON.parse(parserLib.SVGpathToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+        var groupListObj = JSON.parse(parserLib.SVGgroupToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
 
-        fileStruct = {fileName, titleDescObj};
+        fileStruct = {fileName, titleDescObj, rectListObj, circListObj, pathListObj, groupListObj};
       }
     });
 

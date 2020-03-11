@@ -29,7 +29,7 @@ a:link:hover {
     cursor: hand;
 }
 th, td {
-    border: 3px solid #dddddd;
+    border: 1px solid #dddddd;
     border-collapse: collapse;
     text-align: center;
     font-size: 13px;

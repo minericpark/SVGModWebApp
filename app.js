@@ -142,4 +142,66 @@ app.get('/loadTable', function(req, res) {
     });
   });
 });
+
+//Load dropdown here
+app.get('/loadDropDown', function(req, res) {
+  const path = require('path');
+  const fs = require('fs');
+  var fileList = [];
+
+  const directoryPath = 'uploads/';
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    files.forEach(function (file) {
+      //Parse specified file into datastring required for table
+      let fileName = file;
+      //console.log(fileJSON);
+      //Put into the array
+      //console.log(file);
+      fileList.push (fileName); 
+    });
+    res.send({
+      //Return the array
+      SVGLog: fileList
+    });
+  });
+});
+
 //Load file view here
+app.get('/loadViewSVG', function(req, res) {
+  const path = require('path');
+  const fs = require('fs');
+  var fileList = [];
+
+  const directoryPath = 'uploads/';
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log(req);
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    files.forEach(function (file) {
+      //Parse specified file into datastring required for table
+      let fileName = file;
+      let fileDetails = JSON.parse(parserLib.fileToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+      let fileSize = Math.round(fs.statSync("uploads/" + fileName).size / 1000);
+
+      let fileJSON = {fileName, fileSize, fileDetails};
+      //console.log(fileJSON);
+      //Put into the array
+      //console.log(file);
+      fileList.push (fileJSON); 
+    });
+    res.send({
+      //Return the array
+      SVGLog: fileList
+    });
+  });
+});

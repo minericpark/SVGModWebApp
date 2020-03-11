@@ -27,6 +27,7 @@ $(document).ready(function() {
         }
     });
 
+    //Ajax call that loads the initial SVG viewing table (calls loadTable)
     $.ajax({
         type: 'get',
         dataType: 'json',
@@ -45,14 +46,14 @@ $(document).ready(function() {
                 console.log("there exists files");
                 //Set up header of table
                 filetable += '<tr>';
-                for (i = 0; i < fileHeader.length; i++) {
+                for (var i = 0; i < fileHeader.length; i++) {
                     filetable +='<th>' + fileHeader[i] + '</th>';
                 }
                 filetable += '</tr>';
 
                 //Create cells for each files that exists within uploads
                 console.log(filelog.SVGLog.length);
-                for (i = 0; i < filelog.SVGLog.length; i++) {
+                for (var i = 0; i < filelog.SVGLog.length; i++) {
                     filetable += '<tr>';
                     //Use get??
                     filetable += '<td><a href="' + filelog.SVGLog[i].fileName + '">' + '<img src="' + filelog.SVGLog[i].fileName + '" class="logimage"></td>';
@@ -74,6 +75,7 @@ $(document).ready(function() {
         }
     });
 
+    //Ajax call that uploads files to server (calls uploadCustom)
     var form = document.getElementById('uploadFile');
         var formData = new FormData();
         formData.append ('file', $('input[type=file]')[0].files[0]);
@@ -87,9 +89,6 @@ $(document).ready(function() {
                 processData: false,
                 cache: false,
     
-                beforeSend: function() {
-            //
-                }, 
                 success: function(data) {
                     console.log(data);
                     //Print success message
@@ -102,6 +101,56 @@ $(document).ready(function() {
             });
         });
 
+    //Ajax call that loads the dropdown menu
+    $.ajax({
+        type: "get",
+        datatype: 'json',
+        url: '/loadDropDown',
+        success: function(filelog) {
+            var filedropdown = '<select id="images">';
+            //If returned array length is 0, disable dropdown list
+            if (filelog.SVGLog.length == 0) {
+                console.log("empty");
+                filedropdown = '<select id="images" disabled>';
+                
+            } else { //Otherwise, run for loop that creates the dropdown,
+                console.log("there exists files");
+                //Set up all SVG options
+                console.log(filelog.SVGLog.length);
+                for (i = 0; i < filelog.SVGLog.length; i++) {
+                    filedropdown += '<option value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
+                    //Use get??
+                    console.log(i);
+                }
+            }
+            filedropdown += '</select>';
+            $('#svgdropdown').html(filedropdown);
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+
+    //
+    var selected = document.getElementById('images');
+
+    //Ajax call that loads the SVG View Panel
+    $.ajax({
+        type: "get",
+        datatype: 'json',
+        data: getSelectedOpt(selected).text,                
+        contentType: false,
+        processData: false,
+        cache: false,
+        url: '/loadViewSVG',
+        success: function(filelog) {
+            console.log(getSelectedOpt(selected).text);
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+
     // Event listener form example , we can use this instead explicitly listening for events
     // No redirects if possible
     $('#someform').submit(function(e){
@@ -111,7 +160,18 @@ $(document).ready(function() {
         $.ajax({
             //Create an object for connecting to another waypoint
         });
-    }); 
-
+    });
 
 });
+
+function getSelectedOpt(selected) {
+    var option;
+    var len = selection.options.length;
+    for (var i = 0; i < len; i++) {
+        option = selected.options[i];
+        if (option.selected === true) {
+            break;
+        }
+    }
+    return option;
+}

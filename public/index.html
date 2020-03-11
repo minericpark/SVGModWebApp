@@ -36,28 +36,18 @@
     <!-- Leave me at the bottom of body -->
     <hr>
     <div class="filelog" id="filelog">File Log Panel</div>
-    <hr>
 
     <form ref='upload-file' id='upload-file' enctype="multipart/form-data" action="/uploadCustom" method='post'>
         <input type='file' name='uploadFile' id='uploadFile'/>
         <input type='submit' id='submitfile' class="btn btn-secondary btn-sm">
     </form>
+    <hr>
 
-    <div id="svgview">SVG View Panel</div>
+    <div class="dropdown" id="svgdropdown">Dropdown Menu</div>
     
+    <div id="svgview">SVG View Panel</div>
+    <hr>
     <div id="additional">Additional Function</div>
-
-    <table>
-        <tr>
-            <th>Image (click to download)</th>
-            <th>File name (click to download)</th>
-            <th>File size</th>
-            <th>Number of rectangles</th>
-            <th>Number of circles</th>
-            <th>Number of paths</th>
-            <th>Number of groups</th>
-        </tr>
-    </table>
 
     <script src="/index.js"></script>
 </body>

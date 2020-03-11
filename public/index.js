@@ -131,24 +131,63 @@ $(document).ready(function() {
         }
     });
 
-    //
-    var selected = document.getElementById('images');
+    //When dropdown changes, adjust SVG view panel
+    $('#svgdropdown').change(function() {
+        var selected = $('#images').children("option:selected").val();
+        var svgtable = "<table>";
+            var svgHeader = ["Title", "Description", "Component", "Summary", "Other Attributes"];
+        //console.log(selected);
+        //Ajax call that loads the SVG View Panel
+        $.ajax({
+            type: "get",
+            datatype: 'json',
+            data: {
+                filename: selected,
+            },
+            url: '/loadViewSVG',
+            success: function(fileStruct) {
+                console.log(selected);
+                console.log(fileStruct.SVG.fileName);
+                console.log(fileStruct.SVG.titleDescObj);
+                console.log(fileStruct.SVG.titleDescObj.title);
+                console.log(fileStruct.SVG.titleDescObj.desc);
 
-    //Ajax call that loads the SVG View Panel
-    $.ajax({
-        type: "get",
-        datatype: 'json',
-        data: getSelectedOpt(selected).text,                
-        contentType: false,
-        processData: false,
-        cache: false,
-        url: '/loadViewSVG',
-        success: function(filelog) {
-            console.log(getSelectedOpt(selected).text);
-        },
-        error: function(error) {
-            console.log(error);
-        }
+                //Create picture
+                svgtable += '<tr><th colspan="10"><img src="' + 'uploads/' + fileStruct.SVG.fileName + '" class="svgpanelimage"></th></tr>';
+
+                //Create first two headers
+                svgtable += '<tr>';
+                for (var i = 0; i < 2; i++) {
+                    svgtable +='<th colspan="3">' + svgHeader[i] + '</th>';
+                }
+                svgtable += '</tr>';
+
+                //Add cells for title and description
+                svgtable += '<tr>';
+                svgtable += '<td colspan="3">' + fileStruct.SVG.titleDescObj.title + '</td>';
+                svgtable += '<td colspan="3">' + fileStruct.SVG.titleDescObj.desc + '</td>';
+                svgtable += '<tr>';
+
+                //Add last 3 headers
+                svgtable += '<tr>';
+                for (var i = 2; i < svgHeader.length; i++) {
+                    if (i == 3) {
+                        svgtable += '<th colspan="4">' + svgHeader[i] + '</th>';
+                    } else {
+                        svgtable += '<th>' + svgHeader[i] + '</th>';
+                    }
+                }
+                svgtable += '</tr>';
+
+                //Add appropriate cells for the file given
+
+                svgtable += "</table>";
+                $('#svgview').html(svgtable);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
     });
 
     // Event listener form example , we can use this instead explicitly listening for events
@@ -163,15 +202,3 @@ $(document).ready(function() {
     });
 
 });
-
-function getSelectedOpt(selected) {
-    var option;
-    var len = selection.options.length;
-    for (var i = 0; i < len; i++) {
-        option = selected.options[i];
-        if (option.selected === true) {
-            break;
-        }
-    }
-    return option;
-}

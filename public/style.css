@@ -29,7 +29,7 @@ a:link:hover {
     cursor: hand;
 }
 th, td {
-    border: 1px solid #dddddd;
+    border: 3px solid #dddddd;
     border-collapse: collapse;
     text-align: center;
     font-size: 13px;
@@ -44,6 +44,11 @@ input[type=submit], button {
 }
 .logimage {
     max-width: 200px;
+    height: auto;
+}
+.svgpanelimage {
+    min-width: 800px;
+    max-width: 800px;
     height: auto;
 }
 

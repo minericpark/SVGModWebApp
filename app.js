@@ -22,6 +22,7 @@ const portNum = process.argv[2];
 let parserLib = ffi.Library('./libsvgparse', {
   'fileToJSON': ['string', ['string', 'string']],
   'verifyFile': ['bool', ['string', 'string']],
+  'titleDescToJSON': ['string', ['string', 'string']],
 });
 
 // Send HTML at root, do not change
@@ -113,8 +114,6 @@ app.post('/uploadCustom', function(req, res) {
 
 //Load table here
 app.get('/loadTable', function(req, res) {
-  const path = require('path');
-  const fs = require('fs');
   var fileList = [];
 
   const directoryPath = 'uploads/';
@@ -127,7 +126,7 @@ app.get('/loadTable', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into datastring required for table
       let fileName = file;
-      let fileDetails = JSON.parse(parserLib.fileToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+      var fileDetails = JSON.parse(parserLib.fileToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
       let fileSize = Math.round(fs.statSync("uploads/" + fileName).size / 1000);
 
       let fileJSON = {fileName, fileSize, fileDetails};
@@ -145,8 +144,6 @@ app.get('/loadTable', function(req, res) {
 
 //Load dropdown here
 app.get('/loadDropDown', function(req, res) {
-  const path = require('path');
-  const fs = require('fs');
   var fileList = [];
 
   const directoryPath = 'uploads/';
@@ -173,35 +170,36 @@ app.get('/loadDropDown', function(req, res) {
 
 //Load file view here
 app.get('/loadViewSVG', function(req, res) {
-  const path = require('path');
-  const fs = require('fs');
-  var fileList = [];
-
   const directoryPath = 'uploads/';
+  var tmpReq;
+  let fileStruct;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log(req);
+  console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
       return console.log ('Unable to scan directory');
     }
 
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;//
+    console.log(tmpReq);
     files.forEach(function (file) {
       //Parse specified file into datastring required for table
-      let fileName = file;
-      let fileDetails = JSON.parse(parserLib.fileToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
-      let fileSize = Math.round(fs.statSync("uploads/" + fileName).size / 1000);
+      if (file == tmpReq) {
+        console.log('found');
+        let fileName = file;
+        var titleDescObj = JSON.parse(parserLib.titleDescToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
+        var 
 
-      let fileJSON = {fileName, fileSize, fileDetails};
-      //console.log(fileJSON);
-      //Put into the array
-      //console.log(file);
-      fileList.push (fileJSON); 
+        fileStruct = {fileName, titleDescObj};
+      }
     });
+
     res.send({
       //Return the array
-      SVGLog: fileList
+      SVG: fileStruct
     });
   });
 });

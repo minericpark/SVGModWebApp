@@ -2847,3 +2847,116 @@ bool verifyFile (char* filename, char* schema) {
         return true;
     }
 }
+
+//Function that returns a title and description from a provided SVG (filename) in JSON format
+char* titleDescToJSON (char* filename, char* schema) {
+    SVGimage* tmpImg;
+    char* tmpStr;
+    int descLen;
+    int titleLen;
+
+    tmpImg = createValidSVGimage(filename, schema);
+    
+    if (tmpImg == NULL) {
+        return "{}";
+    } 
+
+    descLen = strlen(tmpImg->description);
+    titleLen = strlen(tmpImg->title);
+
+    tmpStr = (char*)malloc(sizeof(char) * (descLen + titleLen + 22) + 1);
+
+    sprintf (tmpStr, "{\"title\":\"%s\",\"desc\":\"%s\"}", tmpImg->title, removeNL(tmpImg->description));   
+
+    return tmpStr;
+}
+
+//Function that returns the rectangles from provided SVG in JSON format
+char* SVGrectToJSON (char* filename, char* schema) {
+    SVGimage* tmpImg;
+    
+    tmpImg = createValidSVGimage(filename, schema);
+    
+    if (tmpImg == NULL) {
+        return "{}";
+    } else {
+        return rectListToJSON(tmpImg->circles);
+    }
+}
+
+//Function that returns the circles from provided SVG in JSON format
+char* SVGcircToJSON (char* filename, char* schema) {
+    SVGimage* tmpImg;
+    
+    tmpImg = createValidSVGimage(filename, schema);
+    
+    if (tmpImg == NULL) {
+        return "{}";
+    } else {
+        return circListToJSON(tmpImg->circles);
+    }
+}
+
+//Function that returns the paths from provided SVG in JSON format
+char* SVGpathToJSON (char* filename, char* schema) {
+    SVGimage* tmpImg;
+    
+    tmpImg = createValidSVGimage(filename, schema);
+    
+    if (tmpImg == NULL) {
+        return "{}";
+    } else {
+        return pathListToJSON(tmpImg->circles);
+    }
+}
+
+//Function that returns the groups from provided SVG in JSON format
+char* SVGgroupToJSON (char* filename, char* schema) {
+    SVGimage* tmpImg;
+    
+    tmpImg = createValidSVGimage(filename, schema);
+    
+    if (tmpImg == NULL) {
+        return "{}";
+    } else {
+        return groupListToJSON(tmpImg->circles);
+    }
+}
+
+
+
+//Function that checks string and assures no JSON fails
+char* passJSON (char* givenString) {
+
+    char* tmpStr;
+    int i;
+
+    tmpStr = givenString;
+
+    for (i = 0; i < strlen(tmpStr); i++) {
+        //Remove all quotations and replace with interesting character
+        if (tmpStr[i] == '\"') {
+            tmpStr[i] = '*';
+        }
+    }
+
+    return tmpStr;
+}
+
+//Helper function that removes all new lines
+char* removeNL (char* givenString) {
+
+    char* tmpStr;
+    int i;
+
+    tmpStr =  givenString;
+
+    for (i = 0; i < strlen(tmpStr); i++) {
+        if (tmpStr[i] == '\n') {
+            tmpStr[i] = ' ';
+        }
+    }
+
+    return tmpStr;
+
+}

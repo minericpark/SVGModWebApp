@@ -39,3 +39,12 @@ void validateGroup (Group * givenGroup, int * invalid);
 //Functions from this point on are wrapper functions for the server (customized for ffi-napi)
 char* fileToJSON (char* filename, char* schema);
 bool verifyFile (char* filename, char* schema);
+char* titleDescToJSON (char* filename, char* schema);
+
+char* SVGrectToJSON (char* filename, char* schema);
+char* SVGcircToJSON (char* filename, char* schema);
+char* SVGpathToJSON (char* filename, char* schema);
+char* SVGgroupToJSON (char* filename, char* schema);
+
+char* passJSON (char* givenString);
+char* removeNL (char* givenString);

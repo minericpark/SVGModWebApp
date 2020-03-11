@@ -28,6 +28,16 @@ a:link:hover {
     cursor: pointer;
     cursor: hand;
 }
+table.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+td.noFiles {
+    margin-left: auto;
+    margin-right: auto;
+    height:50px;
+    width:200px;
+}
 th, td {
     border: 1px solid #dddddd;
     border-collapse: collapse;
@@ -41,6 +51,19 @@ input[type=submit], button {
 .filelog {
     overflow-y:auto;
     text-align: center;
+    padding: 6px;
+}
+.createsvgbutt {
+    margin: 0 auto;
+}
+.svgview {
+    overflow-y:auto;
+    overflow-x:auto;
+    text-align: center;
+    padding: 10px;
+}
+.svgdropdown {
+    margin: 0 auto;
 }
 .logimage {
     max-width: 200px;

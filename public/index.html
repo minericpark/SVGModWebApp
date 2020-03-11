@@ -39,35 +39,29 @@
 
     <form ref='upload-file' id='upload-file' enctype="multipart/form-data" action="/uploadCustom" method='post'>
         <input type='file' name='uploadFile' id='uploadFile'/>
-        <input type='submit' id='submitfile' class="btn btn-secondary btn-sm">
+        <button type='submit' id='submitfile' class="btn btn-secondary btn-sm">Upload File</button>
     </form>
     <hr>
 
-    <div class="dropdown" id="svgdropdown">Dropdown Menu</div>
+    <div class="createsvgbutt" id="createsvgbutt">
+        <button id="submitNewSVG" class="btn btn-outline-secondary btn-sm" type="submit">Create SVG</button>
+    </div>
     
+    <div class="dropdown" id="svgdropdown">Dropdown Menu</div>
+
     <div id="svgview">SVG View Panel</div>
+
+    <div class="btn-group" role="group" id="editstringbutt">
+        <button id="editTitle" class="btn btn-secondary btn-sm" type="submit">Edit Title</button>
+        <button id="editDesc" class="btn btn-secondary btn-sm" type="submit">Edit Description</button>
+    </div>
+
+    <div class="btn-group" role="group" id="editcomponentbutt">
+        <button id="submitComponent" class="btn btn-secondary btn-sm" type="submit">Add Shapes</button>
+        <button id="reshapeComponents" class="btn btn-secondary btn-sm" type="submit">Scale Shapes</button>
+    </div>
+
     <hr>
-    <div id="additional">Additional Function</div>
-
-    <table>
-        <tr>
-            <th colspan="10"><img src="uploads/quad01.svg" class="svgpanelimage"></th>
-        </tr>
-        <tr>
-            <th colspan="3">Title</th>
-            <th colspan="3">Description</th>
-        </tr>
-        <tr>
-            <td colspan="3">test title</td>
-            <td colspan="3">test description</td>   
-        </tr>
-        <tr>
-            <th>Component</th>
-            <th colspan="4">Summary</th>
-            <th>Other attributes</th>
-        </tr>
-    </table>
-
 
     <script src="/index.js"></script>
 </body>

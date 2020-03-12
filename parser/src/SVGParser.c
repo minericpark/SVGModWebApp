@@ -2924,6 +2924,176 @@ char* SVGgroupToJSON (char* filename, char* schema) {
     }
 }
 
+//Wrapper function that modifies or adds a new attribute to the given component
+char* modifyAttr (char* filename, char* schema, int indexNum, char* name, char* value) {
+
+    Attribute* tmpAttr;
+    SVGimage* selecImage;
+    bool valCheck;
+    char* attrType;
+    int tmpIndex;
+    char* tmpJSON;
+
+    tmpIndex = indexNum;
+    tmpAttr = JSONtoAttribute(name, value);
+    selecImage = createValidSVGimage(filename, schema);
+    attrType = getSVGAttrType(selecImage, indexNum);
+
+    if (strcmp(attrType, "RECT") == 0) { //if Rectangle
+        setAttribute(selecImage, RECT, tmpIndex, tmpAttr);
+    } else if (strcmp(attrType, "CIRC") == 0) {
+        printf ("circle detected");
+        tmpIndex = tmpIndex - getLength(selecImage->rectangles);
+        setAttribute(selecImage, CIRC, tmpIndex, tmpAttr);
+    } else if (strcmp(attrType, "PATH") == 0) {
+        printf ("path detected");
+        tmpIndex = tmpIndex - (getLength(selecImage->rectangles) + getLength(selecImage->circles));
+        setAttribute(selecImage, PATH, tmpIndex, tmpAttr);
+    } else {
+        printf ("group detected");
+        tmpIndex = tmpIndex - (getLength(selecImage->rectangles) + getLength(selecImage->circles) + getLength(selecImage->paths));
+        setAttribute(selecImage, GROUP, tmpIndex, tmpAttr);
+    }
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
+//Wrapper function that creates an attribute through a JSON file
+Attribute* JSONtoAttribute (char* name, char* value) {
+
+    Attribute* tmpAttr;
+
+    if (name == NULL || strcmp(name, "") == 0 || value == NULL || strcmp(value, "") == 0) {
+        return NULL;
+    } else {
+        tmpAttr = (Attribute*)malloc(sizeof(Attribute));
+        tmpAttr->name = (char*)malloc(sizeof(char) * strlen(name) + 1);
+        tmpAttr->value = (char*)malloc(sizeof(char) * strlen(value) + 1);
+        strcpy (tmpAttr->name, name);
+        strcpy (tmpAttr->value, value);
+    }
+
+    return tmpAttr;
+}
+
+//Wrapper function that receives the SVG component, an index num (according to the table), and returns the appropriate JSON attribute string
+char* getSVGComponentAttr (char* filename, char* schema, int indexNum) {
+    
+    List* tmpList;
+    SVGimage* tmpImage;
+
+    tmpImage = createValidSVGimage(filename, schema);
+    tmpList = getSVGAttrList (tmpImage, indexNum);
+    if (tmpList == NULL) {
+        return "[]";
+    } else {
+        return attrListToJSON(tmpList);
+    }
+}
+
+//Wrapper function that receives a request for an attribute list
+char* getSVGAttrType (SVGimage* givenImg, int indexNum) {
+
+    SVGimage* tmpImg;
+
+    tmpImg = givenImg;
+
+    if (tmpImg == NULL) {
+        return NULL;
+    } else {
+        if (indexNum < getLength(tmpImg->rectangles)) { //Check for rect 
+            return "RECT";
+        } else if (indexNum < (getLength(tmpImg->circles) + getLength(tmpImg->rectangles))) { //Check for circ num
+            return "CIRC";
+        } else if (indexNum < (getLength(tmpImg->paths) + getLength(tmpImg->circles) + getLength(tmpImg->rectangles))) {//Check for path num
+            return "PATH";
+        } else { //Index must be within groups
+            return "GROUP";
+        }
+    }
+
+}
+
+//Wrapper function that receives a request for an attribute list
+List* getSVGAttrList (SVGimage* givenImg, int indexNum) {
+
+    SVGimage* tmpImg;
+    ListIterator tmpIterator;
+    int i = 0;
+    int tmpIndex;
+    void* elem;
+
+    tmpImg = givenImg;
+
+    if (tmpImg == NULL) {
+        return NULL;
+    } else {
+        if (indexNum < getLength(tmpImg->rectangles)) { //Check for rect 
+            Rectangle* tmpRect;
+            tmpIndex = indexNum;
+            tmpIterator = createIterator(tmpImg->rectangles);
+            while ((elem = nextElement(&tmpIterator)) != NULL) {
+                if (i == tmpIndex) { //Find specified index
+                    tmpRect = (Rectangle*)elem;
+                }
+                i++;
+            }   
+            return tmpRect->otherAttributes;
+        } else if (indexNum < (getLength(tmpImg->circles) + getLength(tmpImg->rectangles))) { //Check for circ num
+            Circle* tmpCirc;
+            tmpIndex = indexNum - getLength(tmpImg->rectangles);
+            tmpIterator = createIterator(tmpImg->circles);
+            while ((elem = nextElement(&tmpIterator)) != NULL) {
+                if (i == tmpIndex) { //Find specified index
+                    tmpCirc = (Circle*)elem;
+                }
+                i++;
+            }   
+            return tmpCirc->otherAttributes;
+        } else if (indexNum < (getLength(tmpImg->paths) + getLength(tmpImg->circles) + getLength(tmpImg->rectangles))) {//Check for path num
+            Path* tmpPath;
+            tmpIndex = indexNum - (getLength(tmpImg->rectangles) + getLength(tmpImg->circles));
+            tmpIterator = createIterator(tmpImg->paths);
+            while ((elem = nextElement(&tmpIterator)) != NULL) {
+                if (i == tmpIndex) { //Find specified index
+                    tmpPath = (Path*)elem;
+                }
+                i++;
+            }   
+            return tmpPath->otherAttributes;
+        } else { //Index must be within groups
+            Group* tmpGroup;
+            tmpIndex = indexNum - (getLength(tmpImg->rectangles) + getLength(tmpImg->circles) + getLength(tmpImg->paths));
+            tmpIterator = createIterator(tmpImg->groups);
+            while ((elem = nextElement(&tmpIterator)) != NULL) {
+                if (i == tmpIndex) { //Find specified index
+                    printf ("found group\n");
+                    tmpGroup = (Group*)elem;
+                }
+                i++;
+            }
+            return tmpGroup->otherAttributes;
+        }
+    }
+
+}
+
 
 
 //Function that checks string and assures no JSON fails

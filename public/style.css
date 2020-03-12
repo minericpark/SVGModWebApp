@@ -35,7 +35,12 @@ table.center {
 td.noFiles {
     margin-left: auto;
     margin-right: auto;
-    height:50px;
+    height:10px;
+    width:300px;
+}
+th.popup {
+    margin-left: auto;
+    margin-right: auto;
     width:200px;
 }
 th, td {
@@ -78,12 +83,13 @@ input[type=submit], button {
     visibility: hidden;
 }
 .popup-overlay {
+    margin-left: auto;
+    margin-right: auto;
     visibility:hidden;
-    position: absolute;
     background: #ffffff;
     border: 1px solid #dddddd;
-    width: 60%;
-    height: 30%;
+    width: auto;
+    height: auto;
 }
 .popup-content {
     visibility:hidden;

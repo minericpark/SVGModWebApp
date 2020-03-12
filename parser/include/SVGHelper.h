@@ -45,6 +45,11 @@ char* SVGrectToJSON (char* filename, char* schema);
 char* SVGcircToJSON (char* filename, char* schema);
 char* SVGpathToJSON (char* filename, char* schema);
 char* SVGgroupToJSON (char* filename, char* schema);
+char* modifyAttr (char* filename, char* schema, int indexNum, char* name, char* value);
+Attribute* JSONtoAttribute (char* name, char* value);
+char* getSVGComponentAttr (char* filename, char* schema, int indexNum);
+List* getSVGAttrList (SVGimage* givenImg, int indexNum);
+char* getSVGAttrType (SVGimage* givenImg, int indexNum);
 
 char* passJSON (char* givenString);
 char* removeNL (char* givenString);

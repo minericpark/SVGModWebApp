@@ -2,33 +2,6 @@
 $(document).ready(function() {
 
     var currFile = null;
-    // On page-load AJAX Example
-    $.ajax({
-        type: 'get',            //Request type
-        dataType: 'json',       //Data type - we will use JSON for almost everything 
-        url: '/someendpoint',   //The server endpoint we are connecting to
-        data: {
-            name1: "Value 1",
-            name2: "Value 2"
-        },
-        success: function (data) {
-            /*  Do something with returned object
-                Note that what we get is an object, not a string, 
-                so we do not need to parse it on the server.
-                JavaScript really does handle JSONs seamlessly
-            */
-            $('#blah').html("On page load, received string '"+data.foo+"' from server");
-            //We write the object to the console to show that the request was successful
-            console.log(data); 
-
-        },
-        fail: function(error) {
-            // Non-200 return, do something with error
-            $('#blah').html("On page load, received error from server");
-            console.log(error); 
-        }
-    });
-
     //Ajax call that loads the initial SVG viewing table (calls loadTable)
     $.ajax({
         type: 'get',
@@ -425,6 +398,8 @@ $(document).ready(function() {
                 //Update the SVG table 
                 $('#svgview').html(svgtable);
                 $('#svgview').trigger("load", []);
+                //Hide popup if it is already visible, prevents semantic bug
+                $(".popup-overlay, .popup-content").removeClass("active");
             },
             error: function(error) {
                 console.log("SVG view failed to load"); //Error message for debugging
@@ -475,12 +450,102 @@ $(document).ready(function() {
     $('#svgview').on("load", function() {
         //Event handles a view attribute press
         $('.viewAttr').on("click", function(e) {
+            var indexNum = $(this).val();
             console.log("view attribute");
-            console.log($(this).val());
             console.log(currFile);
+
+            //Ajax call to retrieve attribute data from server
+            $.ajax({
+                type: "get",
+                datatype: 'json',
+                data: {
+                    filename: currFile,
+                    index: indexNum,
+                },
+                url: '/loadAttribute',
+                success: function(attrStruct) {
+                    console.log(attrStruct.attributes);
+                    console.log("attr view successfully loaded"); //Error message for console
+                    var popup = 'Viewing Attributes of Selected Component';
+                    if (attrStruct.attributes.length == 0) { //If there exists no attributes
+                        popup += '<table class="center">';
+                        popup += '<tr><td class="noFiles">No attributes</td></tr></table>' ;
+                    } else { //Otherwise, display attributes
+                        popup += '<table class="center">';
+                        popup += '<tr><th class="popup">Name</th><th class="popup">Value</th></tr>';
+    
+                        for (i = 0; i < attrStruct.attributes.length; i++) {
+                            popup += '<tr><td>' + attrStruct.attributes[i].name + '</td>';
+                            popup += '<td>' + attrStruct.attributes[i].value + '</td></tr>';
+                        }
+                        popup += '</table>';
+                    }
+
+                    popup += '<label for="editAttrName">Name</label>';
+                    popup += '<input type="text" id="editAttrName"><br>';
+                    popup += '<label for="editAttrValue">Value</label>';
+                    popup += '<input type="text" id="editAttrValue"><br>';
+                    popup += '<button id="editAttr" class="btn btn-outline-secondary btn-sm" type="submit">Edit/Add Attribute</button>';
+
+                    $("#cus-popup-content").html(popup); //Change popup
+
+                    //Register editAttr button click
+                    $('#editAttr').on("click", function() {
+                        console.log("clicked");
+                        console.log(currFile);
+                        console.log(indexNum);
+                        var newName = $("#editAttrName").val();
+                        var newValue = $("#editAttrValue").val();
+                        //Check name + value
+                        if (newName != "" && newValue != "") {
+                            //Send ajax post ()
+                            $.ajax({
+                                type: "get",
+                                datatype: 'json',
+                                url: '/upAttribute',
+                                data: {
+                                    filename: currFile,
+                                    index: indexNum,
+                                    name: newName,
+                                    value: newValue,
+                                },
+                                success: function(data) {
+                                    console.log(data);
+                                    console.log("Attr successfully edited"); //Error message for console
+                                    //Print success message
+                                    //Trigger the SVG viewing image to reload
+                                    if (data.boolean.value == "false") {
+                                        console.log("failed to change attribute for SVG");
+                                        alert("SVG changes invalid, changes no saved");
+                                    } else {
+                                        console.log("succeed to change attribute for SVG");
+                                    }
+                                    //Update SVG panel
+                                    $('#svgdropdown').trigger("load", []);
+                                    //Hide panel
+                                    $('.popup-content, .popup-layout').removeClass("active");
+                                },
+                                error: function(error) {
+                                    //Print error message
+                                }
+                            });
+                        } else {
+                            alert("Both fields cannot be left empty");
+                        }
+                    });
+
+                },
+                error: function(error) {
+                    console.log("attr view failed to load"); //Error message for debugging
+                    console.log(error);
+                }
+            });
+            //Utilize new parser function
+            //If parser function fails, return NULL (signify fail) and send alert
+
             //Open popup
             $(".popup-overlay, .popup-content").addClass("active");
-
+            
         });
     });
 

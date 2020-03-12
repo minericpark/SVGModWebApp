@@ -400,6 +400,8 @@ $(document).ready(function() {
                 $('#svgview').trigger("load", []);
                 //Hide popup if it is already visible, prevents semantic bug
                 $(".popup-overlay, .popup-content").removeClass("active");
+                //Clear popup
+                $('#cus-popup-content').html("");
             },
             error: function(error) {
                 console.log("SVG view failed to load"); //Error message for debugging
@@ -410,22 +412,130 @@ $(document).ready(function() {
 
     //Event handles an edit title press
     $('#editTitle').on("click", function(e) {
+        $('.popup-content, .popup-layout').removeClass("active");
+        //Clear panel
+        $('#cus-popup-content').html("");
         console.log("Edit title");
         console.log(currFile);
+        var titlePanel = 'Edit Popup<br>';
+        titlePanel += '<label for="editTitleSub">Title</label>';
+        titlePanel += '<input type="text" id="editTitleSub"><br>';
+        titlePanel += '<button id="submitTitle" class="btn btn-outline-secondary btn-sm" type="submit">Submit</button>';
+        $('#cus-popup-content').html(titlePanel);
+
+        //Register submitDescription button click
+        $('#submitTitle').on("click", function() {
+            //console.log("clicked");
+            //console.log(currFile);
+            var newTitle = $("#editTitleSub").val();
+            //console.log(newTitle);
+            //Assure that null/empty is covered
+            if (newTitle == "") {
+                newTitle = " ";
+            }
+            //Check name + value
+            $.ajax({
+                type: "get",
+                datatype: 'json',
+                url: '/upTitle',
+                data: {
+                    filename: currFile,
+                    title: newTitle,
+                },
+                success: function(data) {
+                    console.log(data);
+                    console.log("title successfully edited"); //Error message for console
+                    //Print success message
+                    //Trigger the SVG viewing image to reload
+                    if (data.boolean.value == "false") {
+                        console.log("failed to change title for SVG");
+                        alert("SVG changes invalid, changes no saved");
+                    } else {
+                        console.log("succeed to change title for SVG");
+                    }
+                    //Update SVG panel
+                    $('#svgdropdown').trigger("load", []);
+                    //Hide panel
+                    $('.popup-content, .popup-layout').removeClass("active");
+                    //Clear panel
+                    $('#cus-popup-content').html("");
+                },
+                error: function(error) {
+                    //Print error message
+                }
+            });
+        });
+
         //Open popup
         $(".popup-overlay, .popup-content").addClass("active");
     });
 
     //Event handles an edit description press
     $('#editDesc').on("click", function(e) {
+        //Hide panel
+        $('.popup-content, .popup-layout').removeClass("active");
+        //Clear panel
+        $('#cus-popup-content').html("");
         console.log("Edit description");
         console.log(currFile);
+        var descPanel = 'Edit Popup<br>';
+        descPanel += '<label for="editDesc">Description</label>';
+        descPanel += '<input type="text" id="editDescSub"><br>';
+        descPanel += '<button id="submitDesc" class="btn btn-outline-secondary btn-sm" type="submit">Submit</button>';
+        $('#cus-popup-content').html(descPanel);
+
+        //Register submitDescription button click
+        $('#submitDesc').on("click", function() {
+            console.log("clicked");
+            console.log(currFile);
+            var newDesc = $("#editDescSub").val();
+            //Cover empty string case
+            if (newDesc == "") {
+                newDesc = " ";
+            }
+            //Check name + value
+            $.ajax({
+                type: "get",
+                datatype: 'json',
+                url: '/upDesc',
+                data: {
+                    filename: currFile,
+                    desc: newDesc,
+                },
+                success: function(data) {
+                    console.log(data);
+                    console.log("Desc successfully edited"); //Error message for console
+                    //Print success message
+                    //Trigger the SVG viewing image to reload
+                    if (data.boolean.value == "false") {
+                        console.log("failed to change desc for SVG");
+                        alert("SVG changes invalid, changes no saved");
+                    } else {
+                        console.log("succeed to change desc for SVG");
+                    }
+                    //Update SVG panel
+                    $('#svgdropdown').trigger("load", []);
+                    //Hide panel
+                    $('.popup-content, .popup-layout').removeClass("active");
+                    //Clear panel
+                    $('#cus-popup-content').html("");
+                },
+                error: function(error) {
+                    //Print error message
+                }
+            });
+        });
+
         //Open popup
         $(".popup-overlay, .popup-content").addClass("active");
     });
 
     //Event handles a create SVG press
     $('#submitNewSVG').on("click", function(e) {
+        //Hide panel
+        $('.popup-content, .popup-layout').removeClass("active");
+        //Clear panel
+        $('#cus-popup-content').html("");
         console.log("Create new SVG");
         //Open popup
         $(".popup-overlay, .popup-content").addClass("active");
@@ -433,6 +543,10 @@ $(document).ready(function() {
 
     //Event handles a create component press
     $('#submitComponent').on("click", function(e) {
+        //Hide panel
+        $('.popup-content, .popup-layout').removeClass("active");
+        //Clear panel
+        $('#cus-popup-content').html("");
         console.log("Create new component");
         console.log(currFile);
         //Open popup
@@ -441,6 +555,10 @@ $(document).ready(function() {
 
     //Event handles a create shape press
     $('#reshapeComponents').on("click", function(e) {
+        //Hide panel
+        $('.popup-content, .popup-layout').removeClass("active");
+        //Clear panel
+        $('#cus-popup-content').html("");
         console.log("Reshape new component");
         console.log(currFile);
         //Open popup
@@ -452,7 +570,11 @@ $(document).ready(function() {
         $('.viewAttr').on("click", function(e) {
             var indexNum = $(this).val();
             console.log("view attribute");
-            console.log(currFile);
+            console.log(currFile); 
+            //Hide panel
+            $('.popup-content, .popup-layout').removeClass("active");
+            //Clear panel
+            $('#cus-popup-content').html("");
 
             //Ajax call to retrieve attribute data from server
             $.ajax({
@@ -524,6 +646,8 @@ $(document).ready(function() {
                                     $('#svgdropdown').trigger("load", []);
                                     //Hide panel
                                     $('.popup-content, .popup-layout').removeClass("active");
+                                    //Clear panel
+                                    $('#cus-popup-content').html("");
                                 },
                                 error: function(error) {
                                     //Print error message
@@ -552,6 +676,8 @@ $(document).ready(function() {
     //Close button for popup
     $('.close').on("click", function() {//
         $(".popup-overlay, .popup-content").removeClass("active");
+        //Clear popup content
+        $('#cus-popup-content').html("");
     });
 
     // Event listener form example , we can use this instead explicitly listening for events

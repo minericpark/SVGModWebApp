@@ -2924,6 +2924,76 @@ char* SVGgroupToJSON (char* filename, char* schema) {
     }
 }
 
+//Wrapper function that modifies titles dependent on server calls
+char* modifyTitle (char* filename, char* schema, char* title) {
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+    Attribute* tmpAttr;
+
+    tmpAttr = JSONtoAttribute("title", title);
+    selecImage = createValidSVGimage(filename, schema);
+    setAttribute(selecImage, SVG_IMAGE, 0, tmpAttr);
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    //Assure the string length is not too large
+    if (strlen(title) > 255) {
+        valCheck = false;
+    }
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
+//Wrapper function that modifies descriptions dependent on server calls
+char* modifyDescr (char* filename, char* schema, char* desc) {
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+    Attribute* tmpAttr;
+
+    tmpAttr = JSONtoAttribute("description", desc);
+    selecImage = createValidSVGimage(filename, schema);
+    setAttribute(selecImage, SVG_IMAGE, 0, tmpAttr);
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    //Assure the string length is not too large
+    if (strlen(desc) > 255) {
+        valCheck = false;
+    }
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
 //Wrapper function that modifies or adds a new attribute to the given component
 char* modifyAttr (char* filename, char* schema, int indexNum, char* name, char* value) {
 

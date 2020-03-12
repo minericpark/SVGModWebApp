@@ -29,6 +29,8 @@ let parserLib = ffi.Library('./libsvgparse', {
   'SVGgroupToJSON': ['string', ['string', 'string']],
   'getSVGComponentAttr': ['string', ['string', 'string', 'int']],
   'modifyAttr': ['string', ['string', 'string', 'int', 'string', 'string']],
+  'modifyTitle': ['string', ['string', 'string', 'string']],
+  'modifyDescr': ['string', ['string', 'string', 'string']],
 });
 
 // Send HTML at root, do not change
@@ -277,6 +279,76 @@ app.get('/upAttribute', function(req, res) {
         console.log('found');
         //Call parser Lib to run file editing function
         bool = JSON.parse(parserLib.modifyAttr("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpIndex, tmpName, tmpVal));
+      }
+    });
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Update title
+app.get('/upTitle', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var tmpTitle;
+  let bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    tmpTitle = req.query.title;
+    console.log(tmpTitle);
+    files.forEach(function (file) {
+      //Parse specified file into data object required for table
+      if (file == tmpReq) {
+        console.log('found');
+        //Call parser Lib to run file editing function
+        bool = JSON.parse(parserLib.modifyTitle("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpTitle));
+      }
+    });
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Update description
+app.get('/upDesc', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var tmpDesc;
+  let bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    tmpDesc = req.query.desc;
+    console.log(tmpDesc);
+    files.forEach(function (file) {
+      //Parse specified file into data object required for table
+      if (file == tmpReq) {
+        console.log('found');
+        //Call parser Lib to run file editing function
+        bool = JSON.parse(parserLib.modifyDescr("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpDesc));
       }
     });
 

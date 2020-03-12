@@ -1,5 +1,7 @@
 // Put all onload AJAX calls here, and event listeners
 $(document).ready(function() {
+
+    var currFile = null;
     // On page-load AJAX Example
     $.ajax({
         type: 'get',            //Request type
@@ -199,6 +201,7 @@ $(document).ready(function() {
                 } else { //File list is not empty
                     //Set selected value and use ajax call to detect file appropriately
                     selected = $('#images').children("option:selected").val();
+                    currFile = selected;
                     $.ajax({
                         type: "get",
                         datatype: 'json',
@@ -258,8 +261,8 @@ $(document).ready(function() {
                                     svgtable += '<br>Width = ' + fileStruct.SVG.rectListObj[i].w;
                                     svgtable += ' Height = ' + fileStruct.SVG.rectListObj[i].h;
                                     svgtable += '</td>';
-                                }
-                                svgtable += '<td>' + fileStruct.SVG.rectListObj[i].numAttr + '</td>';
+                                }//
+                                svgtable += '<td>' + fileStruct.SVG.rectListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + i + '">View/Edit</button></td>';
                                 svgtable += '</tr>';
                             } //Add all circles
                             for (var i = 0; i < fileStruct.SVG.circListObj.length; i++) {
@@ -277,26 +280,27 @@ $(document).ready(function() {
                                     svgtable += ' radius = ' + fileStruct.SVG.circListObj[i].r;
                                     svgtable += '</td>';
                                 }
-                                svgtable += '<td>' + fileStruct.SVG.circListObj[i].numAttr + '</td>';
+                                svgtable += '<td>' + fileStruct.SVG.circListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + (i + fileStruct.SVG.rectListObj.length) + '">View/Edit</button></td>';
                                 svgtable += '</tr>';
                             } //Add all paths
                             for (var i = 0; i < fileStruct.SVG.pathListObj.length; i++) {
                                 svgtable += '<tr>';
                                 svgtable += '<td>Path ' + (i+1) + '</td>';
                                 svgtable += '<td colspan="4">path data = ' + fileStruct.SVG.pathListObj[i].d + '</td>';
-                                svgtable += '<td>' + fileStruct.SVG.pathListObj[i].numAttr + '</td>';
+                                svgtable += '<td>' + fileStruct.SVG.pathListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + (i + fileStruct.SVG.rectListObj.length + fileStruct.SVG.circListObj.length) + '">View/Edit</button></td>';
                                 svgtable += '</tr>';
                             } //Add all groups
                             for (var i = 0; i < fileStruct.SVG.groupListObj.length; i++) {
                                 svgtable += '<tr>';
                                 svgtable += '<td>Group ' + (i+1) + '</td>';
                                 svgtable += '<td colspan="4">' + fileStruct.SVG.groupListObj[i].children + ' child elements</td>';
-                                svgtable += '<td>' + fileStruct.SVG.groupListObj[i].numAttr + '</td>';
+                                svgtable += '<td>' + fileStruct.SVG.groupListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + (i + fileStruct.SVG.rectListObj.length + fileStruct.SVG.circListObj.length + fileStruct.SVG.pathListObj.length) + '">View/Edit</button></td>';
                                 svgtable += '</tr>';
                             }
                             svgtable += "</table>";
                             //Update the SVG table 
                             $('#svgview').html(svgtable);
+                            $('#svgview').trigger("load", []);
                         },
                         error: function(error) {
                             console.log("SVG view failed to load"); //Error message for debugging
@@ -329,6 +333,7 @@ $(document).ready(function() {
             },
             url: '/loadViewSVG',
             success: function(fileStruct) {
+                currFile = selected;
                 console.log("SVG view successfully loaded"); //Error message for console
                 //console.log(selected);
                 //console.log(fileStruct.SVG.fileName);
@@ -381,7 +386,7 @@ $(document).ready(function() {
                         svgtable += ' Height = ' + fileStruct.SVG.rectListObj[i].h;
                         svgtable += '</td>';
                     }
-                    svgtable += '<td>' + fileStruct.SVG.rectListObj[i].numAttr + '</td>';
+                    svgtable += '<td>' + fileStruct.SVG.rectListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + i + '">View/Edit</button></td>';
                     svgtable += '</tr>';
                 } //Add all circles
                 for (var i = 0; i < fileStruct.SVG.circListObj.length; i++) {
@@ -399,26 +404,27 @@ $(document).ready(function() {
                         svgtable += ' radius = ' + fileStruct.SVG.circListObj[i].r;
                         svgtable += '</td>';
                     }
-                    svgtable += '<td>' + fileStruct.SVG.circListObj[i].numAttr + '</td>';
+                    svgtable += '<td>' + fileStruct.SVG.circListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + (i + fileStruct.SVG.rectListObj.length) + '">View/Edit</button></td>';
                     svgtable += '</tr>';
                 } //Add all paths
                 for (var i = 0; i < fileStruct.SVG.pathListObj.length; i++) {
                     svgtable += '<tr>';
                     svgtable += '<td>Path ' + (i+1) + '</td>';
                     svgtable += '<td colspan="4">path data = ' + fileStruct.SVG.pathListObj[i].d + '</td>';
-                    svgtable += '<td>' + fileStruct.SVG.pathListObj[i].numAttr + '</td>';
+                    svgtable += '<td>' + fileStruct.SVG.pathListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + (i + fileStruct.SVG.rectListObj.length + fileStruct.SVG.circListObj.length) + '">View/Edit</button></td>';
                     svgtable += '</tr>';
                 } //Add all groups
                 for (var i = 0; i < fileStruct.SVG.groupListObj.length; i++) {
                     svgtable += '<tr>';
                     svgtable += '<td>Group ' + (i+1) + '</td>';
                     svgtable += '<td colspan="4">' + fileStruct.SVG.groupListObj[i].children + ' child elements</td>';
-                    svgtable += '<td>' + fileStruct.SVG.groupListObj[i].numAttr + '</td>';
+                    svgtable += '<td>' + fileStruct.SVG.groupListObj[i].numAttr + '<br><button id="viewAttrs" class="btn btn-outline-secondary btn-sm viewAttr" type="submit" value="' + (i + fileStruct.SVG.rectListObj.length + fileStruct.SVG.circListObj.length + fileStruct.SVG.pathListObj.length) + '">View/Edit</button></td>';
                     svgtable += '</tr>';
                 }
                 svgtable += "</table>";
                 //Update the SVG table 
                 $('#svgview').html(svgtable);
+                $('#svgview').trigger("load", []);
             },
             error: function(error) {
                 console.log("SVG view failed to load"); //Error message for debugging
@@ -430,28 +436,58 @@ $(document).ready(function() {
     //Event handles an edit title press
     $('#editTitle').on("click", function(e) {
         console.log("Edit title");
+        console.log(currFile);
+        //Open popup
+        $(".popup-overlay, .popup-content").addClass("active");
     });
 
     //Event handles an edit description press
     $('#editDesc').on("click", function(e) {
         console.log("Edit description");
+        console.log(currFile);
+        //Open popup
+        $(".popup-overlay, .popup-content").addClass("active");
     });
 
     //Event handles a create SVG press
     $('#submitNewSVG').on("click", function(e) {
         console.log("Create new SVG");
+        //Open popup
+        $(".popup-overlay, .popup-content").addClass("active");
     });
 
     //Event handles a create component press
     $('#submitComponent').on("click", function(e) {
         console.log("Create new component");
+        console.log(currFile);
+        //Open popup
+        $(".popup-overlay, .popup-content").addClass("active");
     });
 
     //Event handles a create shape press
     $('#reshapeComponents').on("click", function(e) {
         console.log("Reshape new component");
+        console.log(currFile);
+        //Open popup
+        $(".popup-overlay, .popup-content").addClass("active");
     });
 
+    $('#svgview').on("load", function() {
+        //Event handles a view attribute press
+        $('.viewAttr').on("click", function(e) {
+            console.log("view attribute");
+            console.log($(this).val());
+            console.log(currFile);
+            //Open popup
+            $(".popup-overlay, .popup-content").addClass("active");
+
+        });
+    });
+
+    //Close button for popup
+    $('.close').on("click", function() {//
+        $(".popup-overlay, .popup-content").removeClass("active");
+    });
 
     // Event listener form example , we can use this instead explicitly listening for events
     // No redirects if possible

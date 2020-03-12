@@ -37,31 +37,41 @@
     <hr>
     <div class="filelog" id="filelog">File Log Panel</div>
 
+    <!-- File upload class -->
     <form ref='upload-file' id='upload-file' enctype="multipart/form-data" action="/uploadCustom" method='post'>
         <input type='file' name='uploadFile' id='uploadFile'/>
         <button type='submit' id='submitfile' class="btn btn-secondary btn-sm">Upload File</button>
     </form>
     <hr>
 
+    <!-- Create SVG class -->
     <div class="createsvgbutt" id="createsvgbutt">
         <button id="submitNewSVG" class="btn btn-outline-secondary btn-sm" type="submit">Create SVG</button>
     </div>
-    
+
+    <!-- Dropdown class -->
     <div class="dropdown" id="svgdropdown">Dropdown Menu</div>
 
+    <!-- SVG Panel View -->
     <div id="svgview">SVG View Panel</div>
 
+    <!-- Creates buttons for edit title + edit description -->
     <div class="btn-group" role="group" id="editstringbutt">
         <button id="editTitle" class="btn btn-secondary btn-sm" type="submit">Edit Title</button>
         <button id="editDesc" class="btn btn-secondary btn-sm" type="submit">Edit Description</button>
     </div>
-
+    <!-- Creates buttons for resize components + add component -->
     <div class="btn-group" role="group" id="editcomponentbutt">
         <button id="submitComponent" class="btn btn-secondary btn-sm" type="submit">Add Shapes</button>
         <button id="reshapeComponents" class="btn btn-secondary btn-sm" type="submit">Scale Shapes</button>
     </div>
-
     <hr>
+    <!-- Popup class -->
+    <div class="popup-overlay">
+        <div class="popup-content">
+            <button id="close" class="btn btn-sm close" type="submit">x</button>
+        </div>
+    </div>
 
     <script src="/index.js"></script>
 </body>

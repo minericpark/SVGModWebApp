@@ -74,6 +74,31 @@ input[type=submit], button {
     max-width: 800px;
     height: auto;
 }
+.hidden {
+    visibility: hidden;
+}
+.popup-overlay {
+    visibility:hidden;
+    position: absolute;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    width: 60%;
+    height: 30%;
+}
+.popup-content {
+    visibility:hidden;
+}
+.popup-overlay.active {
+    visibility:visible;
+    text-align: center;
+}
+.popup-content.active {
+    visibility:visible;
+}
+.close {
+    text-align: center !important;
+    margin-right: 7px;
+}
 
 @media(max-width: 900px) {
     html {

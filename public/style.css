@@ -54,6 +54,9 @@ input[type=submit], button {
     cursor: hand;
 }
 .filelog {
+    max-width: 800px;
+    max-height: 1000px;
+    border-collapse: collapse;
     overflow-y:auto;
     text-align: center;
     padding: 6px;
@@ -62,6 +65,9 @@ input[type=submit], button {
     margin: 0 auto;
 }
 .svgview {
+    max-width: 800px;
+    max-height: 1000px;
+    border-collapse: collapse;
     overflow-y:auto;
     overflow-x:auto;
     text-align: center;

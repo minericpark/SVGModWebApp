@@ -1369,7 +1369,11 @@ Rectangle* JSONtoRect(const char* svgString) {
             newRect->height = strtof(tmpString2, &tmpToken);
         } else if (strcmp(tmpString2, "units") == 0) {
             tmpString2 = strtok(NULL, "{},:\"");
-            strcpy(newRect->units, tmpString2);
+            if (strcmp(tmpString2, " ") == 0) {
+                continue;
+            } else {
+                strcpy(newRect->units, tmpString2);
+            }
         }
         tmpString2 = strtok(NULL, "{},:\"");
     }
@@ -1414,8 +1418,10 @@ Circle* JSONtoCircle(const char* svgString) {
             newCirc->r = strtof(tmpString2, &tmpToken);
         } else if (strcmp(tmpString2, "units") == 0) {
             tmpString2 = strtok(NULL, "{},:\"");
-            if (tmpString2 != NULL && strcmp(tmpString2, "") != 0) {
-                strcpy(newCirc->units, tmpString2);   
+            if (strcmp(tmpString2, " ") == 0) {
+                continue;
+            } else {
+                strcpy(newCirc->units, tmpString2);
             }
         }
         tmpString2 = strtok(NULL, "{},:\"");
@@ -2947,23 +2953,31 @@ char* createSVGFile (char* filename, char* schema) {
     //Create some basic shapes
     Rectangle* baseRect = (Rectangle*)malloc(sizeof(Rectangle));
     Circle* baseCirc = (Circle*)malloc(sizeof(Circle));
+    Attribute* baseAttr = (Attribute*)malloc(sizeof(Attribute));
 
-    baseRect->x = 5;
-    baseRect->y = 5;
-    baseRect->width = 10;
-    baseRect->height = 10;
+    baseRect->x = 0;
+    baseRect->y = 0;
+    baseRect->width = 4;
+    baseRect->height = 4;
     strcpy(baseRect->units, "cm");
     baseRect->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
     
-    baseCirc->cx = 5;
-    baseCirc->cy = 5;
-    baseCirc->r = 10;
+    baseCirc->cx = 0;
+    baseCirc->cy = 0;
+    baseCirc->r = 3;
     strcpy(baseCirc->units, "cm");
     baseCirc->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+
+    //Create a viewbox attribute
+    baseAttr->name = (char*)malloc(sizeof(char) * 8);
+    baseAttr->value = (char*)malloc(sizeof(char) * 13);
+    strcpy(baseAttr->name, "viewBox");
+    strcpy(baseAttr->value, "0 0 1200 600");
 
     //Insert basic shapes
     insertBack(selecImage->circles, baseCirc);
     insertBack(selecImage->rectangles, baseRect);
+    insertBack(selecImage->otherAttributes, baseAttr);
 
     //Temporarily check if img is valid
     valCheck = validateSVGimage(selecImage, schema);
@@ -3085,6 +3099,68 @@ char* modifyAttr (char* filename, char* schema, int indexNum, char* name, char* 
         tmpIndex = tmpIndex - (getLength(selecImage->rectangles) + getLength(selecImage->circles) + getLength(selecImage->paths));
         setAttribute(selecImage, GROUP, tmpIndex, tmpAttr);
     }
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
+//Wrapper function that adds in a new shape
+char* addSVGRect (char* filename, char* schema, char* JSONstring) {
+
+    Rectangle* tmpRect;
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+
+    tmpRect = JSONtoRect(JSONstring);
+    selecImage = createValidSVGimage(filename, schema);
+    addComponent(selecImage, RECT, tmpRect);
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
+//Wrapper function that adds in a new shape
+char* addSVGCirc (char* filename, char* schema, char* JSONstring) {
+
+    Circle* tmpCirc;
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+
+    tmpCirc = JSONtoCircle(JSONstring);
+    selecImage = createValidSVGimage(filename, schema);
+    addComponent(selecImage, CIRC, tmpCirc);
 
     //Temporarily check if img is valid
     valCheck = validateSVGimage(selecImage, schema);

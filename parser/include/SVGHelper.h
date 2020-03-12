@@ -48,6 +48,8 @@ char* SVGgroupToJSON (char* filename, char* schema);
 char* modifyTitle (char* filename, char* schema, char* title);
 char* modifyDescr (char* filename, char* schema, char* desc);
 char* modifyAttr (char* filename, char* schema, int indexNum, char* name, char* value);
+char* addSVGRect (char* filename, char* schema, char* JSONstring);
+char* addSVGCirc (char* filename, char* schema, char* JSONstring);
 Attribute* JSONtoAttribute (char* name, char* value);
 char* getSVGComponentAttr (char* filename, char* schema, int indexNum);
 List* getSVGAttrList (SVGimage* givenImg, int indexNum);

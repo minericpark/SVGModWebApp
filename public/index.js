@@ -216,6 +216,7 @@ $(document).ready(function() {
                     $('#svgview').html(svgtable);
                 } else { //File list is not empty
                     //Set selected value and use ajax call to detect file appropriately
+                    console.log('entered selected');
                     selected = $('#images').children("option:selected").val();
                     currFile = selected;
                     $.ajax({
@@ -226,13 +227,14 @@ $(document).ready(function() {
                         },
                         url: '/loadViewSVG',
                         success: function(fileStruct) {
-                            //console.log("SVG view successfully loaded"); //Error message for console
+                            console.log("SVG view successfully loaded"); //Error message for console
                             //console.log(selected);
                             //console.log(fileStruct.SVG.fileName);
                             //console.log(fileStruct.SVG.titleDescObj);
                             //console.log(fileStruct.SVG.titleDescObj.title);
                             //console.log(fileStruct.SVG.titleDescObj.desc);
-            
+                            //Reset SVG
+                            $('#svgview').html("");
                             //Create picture
                             svgtable += '<tr><th colspan="10"><img src="' + 'uploads/' + fileStruct.SVG.fileName + '" class="svgpanelimage"></th></tr>';
             
@@ -350,7 +352,10 @@ $(document).ready(function() {
             url: '/loadViewSVG',
             success: function(fileStruct) {
                 currFile = selected;
-                console.log("SVG view successfully loaded"); //Error message for console
+                console.log("SVG view change successfully loaded"); //Error message for console
+                
+                //Clear SVG view
+                $('#svgview').html("");
                 //console.log(selected);
                 //console.log(fileStruct.SVG.fileName);
                 //console.log(fileStruct.SVG.titleDescObj);
@@ -633,8 +638,6 @@ $(document).ready(function() {
                             }
                        });
                    }
-                   //Update SVG panel
-                   $('#svgdropdown').trigger("load", []);
                    //Update dropdown
                    $('#newfile').trigger("load", []);
                    //Hide panel
@@ -663,11 +666,186 @@ $(document).ready(function() {
         $('#cus-popup-content').html("");
         console.log("Create new component");
         console.log(currFile);
+
+        var totalPanel = 'New Shape Popup<br>';
+        var addMenu;
+
+        var shapeDropDown = '<select id="shapeSelec">';
+        shapeDropDown += '<option selected value="rect">Rectangle</label>';
+        shapeDropDown += '<option value="circ">Circle</label></select>';
+
+        addMenu = '<div id="shapeMen">Select a shape to get started';
+        addMenu += '</div>';
+
+        //If dropdown changes, change panel
+        totalPanel += shapeDropDown;
+        totalPanel += addMenu;
+
+        $('#cus-popup-content').html(totalPanel);
+
+        //Register event changes when dropdown item changes
+        $('#shapeSelec').change(function() {
+            var selected = $('#shapeSelec').children("option:selected").val();
+            console.log(selected);
+
+            //Change menu to rectangle
+            if (selected === "rect") {
+                console.log('changed to rect');
+                addMenu = "";
+
+                //Create new menu
+                addMenu = '<br><label for="newRectX">x</label>';
+                addMenu += '<input type="text" id="newRectX"><br>';
+                addMenu += '<label for="newRectY">y</label>';
+                addMenu += '<input type="text" id="newRectY"><br>';
+                addMenu += '<label for="newRectH">height</label>';
+                addMenu += '<input type="text" id="newRectH"><br>';
+                addMenu += '<label for="newRectW">width</label>';
+                addMenu += '<input type="text" id="newRectW"><br>';
+                addMenu += '<label for="newRectU">units</label>';
+                addMenu += '<input type="text" id="newRectU"><br>';
+                addMenu += '<br><button id="submitNewShape" class="btn btn-outline-secondary btn-sm" type="submit">Submit</button>';
+
+                $('#shapeMen').html(addMenu);
+                //If submit pressed, register new rectangle
+                $('#submitNewShape').on("click", function(e) {
+                    console.log('pressed submit in rect');
+                    var newX = $("#newRectX").val();
+                    var newY = $("#newRectY").val();
+                    var newH = $("#newRectH").val();
+                    var newW = $("#newRectW").val();
+                    var newU = $("#newRectU").val();
+                    //Assure all field values are not empty and they are all numbers
+                    if (newX != "" && newY != "" && newH != "" && newW != "" && !isNaN(newX) && !isNaN(newY) && !isNaN(newH) && !isNaN(newW)) {
+                        if (newH < 0 || newW < 0) {
+                            alert ('Cannot set width and height below 0, please try again');
+                        } else {
+                            //all clear
+                            if (newU == "") {
+                                newU = " ";
+                            }//
+
+                            var newObj = {
+                                x: newX,
+                                y: newY,
+                                w: newW,
+                                h: newH,
+                                units: newU,
+                            };
+                            $.ajax({
+                                type: "get",
+                                datatype: 'json',
+                                url: '/addNewRect',
+                                data: {
+                                    filename: currFile,
+                                    jsonstring: newObj,
+                                },
+                                success: function(valid) {
+                                    console.log(valid);
+                                    console.log("New shape created"); //Error message for console
+                                    //Print success message
+                                    if (valid.boolean.value == false) {
+                                        console.log("failed to add new shape");
+                                        alert("SVG file invalided, file not saved");
+                                    } else {
+                                        console.log("succeed to add new shape");
+                                    }
+                                    location.reload(true);
+                                },
+                                error: function(error) {
+                                    console.log(error);
+                                }
+                           });
+                        }
+                    } else {
+                        alert('Not all required values filled or invalid entry, please try again');                        
+                    }
+                    //Hide panel
+                   $('.popup-content, .popup-overlay').removeClass("active");
+                   //Clear panel
+                   $('#cus-popup-content').html("");
+                });
+            } else {
+                console.log('changed to circ');
+                addMenu = "";
+                
+                //Create new menu
+                addMenu = '<br><label for="newCircX">x</label>';
+                addMenu += '<input type="text" id="newCircX"><br>';
+                addMenu += '<label for="newCircY">y</label>';
+                addMenu += '<input type="text" id="newCircY"><br>';
+                addMenu += '<label for="newCircR">radius</label>';
+                addMenu += '<input type="text" id="newCircR"><br>';
+                addMenu += '<label for="newCircU">units</label>';
+                addMenu += '<input type="text" id="newCircU"><br>';
+                addMenu += '<br><button id="submitNewShape" class="btn btn-outline-secondary btn-sm" type="submit">Submit</button>';
+
+                $('#shapeMen').html(addMenu);
+                //If submit pressed, register new circle
+                $('#submitNewShape').on("click", function(e) {
+                    console.log('pressed submit in circ');
+                    var newX = $("#newCircX").val();
+                    var newY = $("#newCircY").val();
+                    var newR = $("#newCircR").val();
+                    var newU = $("#newCircU").val();
+                    //Assure all field values are not empty
+                    if (newX != "" && newY != "" && newR != "" && !isNaN(newX) && !isNaN(newY) && !isNaN(newR)) {
+                        if (newR < 0) {
+                            alert ('Cannot set radius below 0, please try again');
+                        } else {
+                            //all clear
+                            if (newU == "") {
+                                newU = " ";
+                            }
+
+                            var newObj = {
+                                cx: newX,
+                                cy: newY,
+                                r: newR,
+                                units: newU,
+                            };
+                            $.ajax({
+                                type: "get",
+                                datatype: 'json',
+                                url: '/addNewCirc',
+                                data: {
+                                    filename: currFile,
+                                    jsonstring: newObj,
+                                },
+                                success: function(valid) {
+                                    console.log(valid);
+                                    console.log("New shape created"); //Error message for console
+                                    //Print success message
+                                    if (valid.boolean.value == false) {
+                                        console.log("failed to add new shape");
+                                        alert("SVG file invalided, file not saved");
+                                    } else {
+                                        console.log("succeed to add new shape");
+                                    }
+                                    location.reload(true);
+                                },
+                                error: function(error) {
+                                    console.log(error);
+                                }
+                           });
+                        }
+                    } else {
+                        alert('Not all required values filled or invalid entry, please try again');                        
+                    }
+                    //Hide panel
+                   $('.popup-content, .popup-overlay').removeClass("active");
+                   //Clear panel
+                   $('#cus-popup-content').html("");
+                });
+            }
+            //Change html panel 
+        });
+
         //Open popup
         $(".popup-overlay, .popup-content").addClass("active");
     });
 
-    //Event handles a create shape press
+    //Event handles a reshape shapes press
     $('#reshapeComponents').on("click", function(e) {
         //Hide panel
         $('.popup-content, .popup-overlay').removeClass("active");
@@ -675,10 +853,21 @@ $(document).ready(function() {
         $('#cus-popup-content').html("");
         console.log("Reshape new component");
         console.log(currFile);
+
+        var totalPanel = 'Shape Resize Popup<br>';
+
+        var shapeDropDown = '<select id="shapeSelec">';
+        shapeDropDown += '<option selected value="rect">Rectangle</label>';
+        shapeDropDown += '<option value="circ">Circle</label>';
+
+        totalPanel += shapeDropDown;
+
+        $('#cus-popup-content').html(totalPanel);
         //Open popup
         $(".popup-overlay, .popup-content").addClass("active");
     });
 
+    //Creates all buttons for 'view/edit elements/
     $('#svgview').on("load", function() {
         //Event handles a view attribute press
         $('.viewAttr').on("click", function(e) {
@@ -747,7 +936,6 @@ $(document).ready(function() {
                                 },
                                 success: function(data) {
                                     console.log(data);
-                                    console.log("Attr successfully edited"); //Error message for console
                                     //Print success message
                                     //Trigger the SVG viewing image to reload
                                     if (data.boolean.value == "false") {
@@ -758,6 +946,10 @@ $(document).ready(function() {
                                     }
                                     //Update SVG panel
                                     $('#svgdropdown').trigger("load", []);
+                                    //Update SVG panel
+                                    $('#svgview').trigger("load", []);
+                                    //Refresh the page after attribute changes
+                                    location.reload(true);
                                     //Hide panel
                                     $('.popup-content, .popup-overlay').removeClass("active");
                                     //Clear panel
@@ -792,17 +984,6 @@ $(document).ready(function() {
         $(".popup-overlay, .popup-content").removeClass("active");
         //Clear popup content
         $('#cus-popup-content').html("");
-    });
-
-    // Event listener form example , we can use this instead explicitly listening for events
-    // No redirects if possible
-    $('#someform').submit(function(e){
-        $('#blah').html("Form has data: "+$('#entryBox').val());
-        e.preventDefault();
-        //Pass data to the Ajax call, so it gets passed to the server
-        $.ajax({
-            //Create an object for connecting to another waypoint
-        });
     });
 
 });

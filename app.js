@@ -32,6 +32,8 @@ let parserLib = ffi.Library('./libsvgparse', {
   'modifyTitle': ['string', ['string', 'string', 'string']],
   'modifyDescr': ['string', ['string', 'string', 'string']],
   'createSVGFile': ['string', ['string', 'string']],
+  'addSVGCirc': ['string', ['string', 'string', 'string']],
+  'addSVGRect': ['string', ['string', 'string', 'string']],
 });
 
 // Send HTML at root, do not change
@@ -428,6 +430,66 @@ app.get('/createNewSVG', function(req, res) {
     console.log(tmpReq);
 
     bool = JSON.parse(parserLib.createSVGFile("uploads/" + tmpReq, "parser/" + "svg.xsd"));
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Add new rectangle to SVG
+app.get('/addNewRect', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var tmpJSON;
+  var bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    tmpJSON = req.query.jsonstring;
+    console.log(tmpReq);
+    console.log(tmpJSON);
+
+    bool = JSON.parse(parserLib.addSVGRect("uploads/" + tmpReq, "parser/" + "svg.xsd", JSON.stringify(tmpJSON)));
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Add new rectangle to SVG
+app.get('/addNewCirc', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var tmpJSON;
+  var bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    tmpJSON = req.query.jsonstring;
+    console.log(tmpReq);
+    console.log(tmpJSON);
+
+    bool = JSON.parse(parserLib.addSVGCirc("uploads/" + tmpReq, "parser/" + "svg.xsd", JSON.stringify(tmpJSON)));
 
     res.send({
       //Return the array

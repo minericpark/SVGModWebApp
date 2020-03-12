@@ -31,6 +31,7 @@ let parserLib = ffi.Library('./libsvgparse', {
   'modifyAttr': ['string', ['string', 'string', 'int', 'string', 'string']],
   'modifyTitle': ['string', ['string', 'string', 'string']],
   'modifyDescr': ['string', ['string', 'string', 'string']],
+  'createSVGFile': ['string', ['string', 'string']],
 });
 
 // Send HTML at root, do not change
@@ -351,6 +352,82 @@ app.get('/upDesc', function(req, res) {
         bool = JSON.parse(parserLib.modifyDescr("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpDesc));
       }
     });
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Check if SVG filename is valid
+app.get('/checkNewSVG', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    console.log(tmpReq);
+    files.forEach(function (file) {
+      //Parse specified file into data object required for table
+      if (file == tmpReq) {
+        console.log('found');
+        //Call parser Lib to run file editing function
+        bool = false;
+      }
+    });
+
+    if (tmpReq == "") {
+      console.log('file empty');
+      bool = false;
+    }
+
+    //If filename does not have a .svg property, fail
+    if (!tmpReq.includes('.svg')) {
+      bool = false;
+    }
+
+    //If file not detected or no errors, return true
+    if (bool != false) {
+      bool = true;
+    }
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+
+//Create new SVG
+app.get('/createNewSVG', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    console.log(tmpReq);
+
+    bool = JSON.parse(parserLib.createSVGFile("uploads/" + tmpReq, "parser/" + "svg.xsd"));
 
     res.send({
       //Return the array

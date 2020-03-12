@@ -82,6 +82,7 @@ input[type=submit], button {
 .hidden {
     visibility: hidden;
 }
+
 .popup-overlay {
     margin-left: auto;
     margin-right: auto;
@@ -102,7 +103,31 @@ input[type=submit], button {
     visibility:visible;
 }
 .close {
-    text-align: center !important;
+    text-align: center;
+    margin-right: 7px;
+}
+
+.popup-overlay-mini {
+    margin-left: auto;
+    margin-right: auto;
+    visibility:hidden;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    width: auto;
+    height: auto;
+}
+.popup-content-mini {
+    visibility:hidden;
+}
+.popup-overlay-mini.active {
+    visibility:visible;
+    text-align: center;
+}
+.popup-content-mini.active {
+    visibility:visible;
+}
+.close-mini {
+    text-align: center;
     margin-right: 7px;
 }
 

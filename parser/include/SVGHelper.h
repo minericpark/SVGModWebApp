@@ -52,6 +52,7 @@ Attribute* JSONtoAttribute (char* name, char* value);
 char* getSVGComponentAttr (char* filename, char* schema, int indexNum);
 List* getSVGAttrList (SVGimage* givenImg, int indexNum);
 char* getSVGAttrType (SVGimage* givenImg, int indexNum);
+char* createSVGFile (char* filename, char* schema);
 
 char* passJSON (char* givenString);
 char* removeNL (char* givenString);

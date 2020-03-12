@@ -2924,6 +2924,67 @@ char* SVGgroupToJSON (char* filename, char* schema) {
     }
 }
 
+//Wrapper function that Creates and writes a new SVG dependent on server calls
+char* createSVGFile (char* filename, char* schema) {
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+
+    selecImage = (SVGimage*)calloc(1, sizeof(SVGimage));
+    selecImage->namespace[0] = '\0';
+    selecImage->title[0] = '\0';
+    selecImage->description[0] = '\0';
+    selecImage->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    selecImage->circles = initializeList(&circleToString, &deleteCircle, &compareCircles);
+    selecImage->rectangles = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+    selecImage->paths = initializeList(&pathToString, &deletePath, &comparePaths);
+    selecImage->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
+
+    strcpy(selecImage->namespace, "http://www.w3.org/2000/svg");
+    strcpy(selecImage->title, "");
+    strcpy(selecImage->description, "");
+
+    //Create some basic shapes
+    Rectangle* baseRect = (Rectangle*)malloc(sizeof(Rectangle));
+    Circle* baseCirc = (Circle*)malloc(sizeof(Circle));
+
+    baseRect->x = 5;
+    baseRect->y = 5;
+    baseRect->width = 10;
+    baseRect->height = 10;
+    strcpy(baseRect->units, "cm");
+    baseRect->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+    
+    baseCirc->cx = 5;
+    baseCirc->cy = 5;
+    baseCirc->r = 10;
+    strcpy(baseCirc->units, "cm");
+    baseCirc->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
+
+    //Insert basic shapes
+    insertBack(selecImage->circles, baseCirc);
+    insertBack(selecImage->rectangles, baseRect);
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        printf ("valid");
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
 //Wrapper function that modifies titles dependent on server calls
 char* modifyTitle (char* filename, char* schema, char* title) {
     SVGimage* selecImage;

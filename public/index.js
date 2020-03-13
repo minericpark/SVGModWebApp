@@ -465,10 +465,12 @@ $(document).ready(function() {
         $('#cus-popup-content').html("");
         console.log("Edit title");
         console.log(currFile);
+
         var titlePanel = 'Edit Popup<br>';
         titlePanel += '<label for="editTitleSub">Title</label>';
         titlePanel += '<input type="text" id="editTitleSub"><br>';
         titlePanel += '<button id="submitTitle" class="btn btn-outline-secondary btn-sm" type="submit">Submit</button>';
+        
         $('#cus-popup-content').html(titlePanel);
 
         //Register submitDescription button click
@@ -514,8 +516,10 @@ $(document).ready(function() {
             });
         });
 
-        //Open popup
-        $(".popup-overlay, .popup-content").addClass("active");
+        //Open popup if currfile not null
+        if (currFile != null) {
+            $(".popup-overlay, .popup-content").addClass("active");
+        }
     });
 
     //Event handles an edit description press
@@ -575,7 +579,9 @@ $(document).ready(function() {
         });
 
         //Open popup
-        $(".popup-overlay, .popup-content").addClass("active");
+        if (currFile != null) {
+            $(".popup-overlay, .popup-content").addClass("active");
+        }
     });
 
     //Event handles a create SVG press
@@ -842,7 +848,9 @@ $(document).ready(function() {
         });
 
         //Open popup
-        $(".popup-overlay, .popup-content").addClass("active");
+        if (currFile != null) {
+            $(".popup-overlay, .popup-content").addClass("active");
+        }
     });
 
     //Event handles a reshape shapes press
@@ -854,17 +862,92 @@ $(document).ready(function() {
         console.log("Reshape new component");
         console.log(currFile);
 
-        var totalPanel = 'Shape Resize Popup<br>';
+        var totalPanel = 'All Shape Resize Popup<br>';
 
         var shapeDropDown = '<select id="shapeSelec">';
+        var shapeScalePan = '<br><label for="newShapeScale">Scaling Factor</label>';
         shapeDropDown += '<option selected value="rect">Rectangle</label>';
-        shapeDropDown += '<option value="circ">Circle</label>';
+        shapeDropDown += '<option value="circ">Circle</label></select>';
+
+        shapeScalePan += '<input type="text" id="newShapeScale"><br>';
+        shapeScalePan += '<button id="submitScale" class="btn btn-outline-secondary btn-sm" type="submit">Scale</button>';
 
         totalPanel += shapeDropDown;
+        totalPanel += shapeScalePan;
 
         $('#cus-popup-content').html(totalPanel);
+
+        //Register shape scale
+        $('#submitScale').on("click", function(e) {
+            var selected = $('#shapeSelec').children("option:selected").val();
+            var tmpScale = $('#newShapeScale').val();
+            console.log(currFile);
+            console.log(selected);
+            //Determine if values are valid or not
+            if (!isNaN(tmpScale) && tmpScale >= 0 && tmpScale != "") { //
+                if (selected == 'circ') {
+                    console.log ('circle selected');
+                    $.ajax({
+                        type: "get",
+                        datatype: 'json',
+                        url: '/scaleAllCircs',
+                        data: {
+                            filename: currFile,
+                            scaleFac: tmpScale,
+                        },
+                        success: function(valid) {
+                            console.log(valid);
+                            console.log("New shape created"); //Error message for console
+                            //Print success message
+                            if (valid.boolean.value == false) {
+                                console.log("failed to add new shape");
+                                alert("SVG file invalided, file not saved");
+                            } else {
+                                console.log("succeed to add new shape");
+                            }
+                            location.reload(true);
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                   });
+                } else {
+                    console.log ('rectangle selected');
+                    $.ajax({
+                        type: "get",
+                        datatype: 'json',
+                        url: '/scaleAllRects',
+                        data: {
+                            filename: currFile,
+                            scaleFac: tmpScale,
+                        },
+                        success: function(valid) {
+                            console.log(valid);
+                            console.log("New shape created"); //Error message for console
+                            //Print success message
+                            if (valid.boolean.value == false) {
+                                console.log("failed to add new shape");
+                                alert("SVG file invalided, file not saved");
+                            } else {
+                                console.log("succeed to add new shape");
+                            }
+                            location.reload(true);
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                   });
+                }
+            } else {
+                alert ('Given scaling factor is not a number or invalid. Please try again');
+            }
+            
+        });
+
         //Open popup
-        $(".popup-overlay, .popup-content").addClass("active");
+        if (currFile != null) {
+            $(".popup-overlay, .popup-content").addClass("active");
+        }
     });
 
     //Creates all buttons for 'view/edit elements/

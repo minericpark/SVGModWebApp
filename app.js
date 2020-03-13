@@ -34,6 +34,8 @@ let parserLib = ffi.Library('./libsvgparse', {
   'createSVGFile': ['string', ['string', 'string']],
   'addSVGCirc': ['string', ['string', 'string', 'string']],
   'addSVGRect': ['string', ['string', 'string', 'string']],
+  'scaleSVGCircs': ['string', ['string', 'string', 'double']],
+  'scaleSVGRects': ['string', ['string', 'string', 'double']],
 });
 
 // Send HTML at root, do not change
@@ -490,6 +492,66 @@ app.get('/addNewCirc', function(req, res) {
     console.log(tmpJSON);
 
     bool = JSON.parse(parserLib.addSVGCirc("uploads/" + tmpReq, "parser/" + "svg.xsd", JSON.stringify(tmpJSON)));
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Scale all SVG rectangles
+app.get('/scaleAllRects', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var tmpScale;
+  var bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    tmpScale = req.query.scaleFac;
+    console.log(tmpReq);
+    console.log(tmpScale);
+
+    bool = JSON.parse(parserLib.scaleSVGRects("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpScale));
+
+    res.send({
+      //Return the array
+      boolean: bool
+    });
+  });
+});
+
+//Scale all SVG circles
+app.get('/scaleAllCircs', function(req, res) {
+  const directoryPath = 'uploads/';
+  var tmpReq;
+  var tmpScale;
+  var bool;
+
+  //Look for file name within directory, grab file, turn into object, return data
+  console.log("entered");
+
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      return console.log ('Unable to scan directory');
+    }
+
+    //Parse the query filename appropriately
+    tmpReq = req.query.filename;
+    tmpScale = req.query.scaleFac;
+    console.log(tmpReq);
+    console.log(tmpScale);
+
+    bool = JSON.parse(parserLib.scaleSVGCircs("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpScale));
 
     res.send({
       //Return the array

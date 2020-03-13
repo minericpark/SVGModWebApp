@@ -3181,6 +3181,84 @@ char* addSVGCirc (char* filename, char* schema, char* JSONstring) {
     return tmpJSON;
 }
 
+//Wrapper function that scales all circles
+char* scaleSVGCircs (char* filename, char* schema, double scalingFactor) {
+
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+    List* allCircs;
+    ListIterator tmpIterator;
+    void* elem;
+
+    selecImage = createValidSVGimage(filename, schema);
+    allCircs = getCircles(selecImage);
+
+    //Iterate through all elements
+    tmpIterator = createIterator(allCircs);
+    while ((elem = nextElement(&tmpIterator)) != NULL) {
+        //Scale all circles
+        ((Circle*)elem)->r = ((Circle*)elem)->r * scalingFactor;
+    }
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
+//Wrapper function that scales all rectangles
+char* scaleSVGRects (char* filename, char* schema, double scalingFactor) {
+
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+    List* allRects;
+    ListIterator tmpIterator;
+    void* elem;
+
+    selecImage = createValidSVGimage(filename, schema);
+    allRects = getRects(selecImage);
+
+    //Iterate through all elements
+    tmpIterator = createIterator(allRects);
+    while ((elem = nextElement(&tmpIterator)) != NULL) {
+        ((Rectangle*)elem)->width = ((Rectangle*)elem)->width * scalingFactor;
+        ((Rectangle*)elem)->height = ((Rectangle*)elem)->height * scalingFactor;
+    }
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
 //Wrapper function that creates an attribute through a JSON file
 Attribute* JSONtoAttribute (char* name, char* value) {
 

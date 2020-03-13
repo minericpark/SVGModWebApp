@@ -6,6 +6,10 @@ html {
     font-size: 16px;
     background-color: #FFFFFF;
 }
+h3 {
+    margin-left: auto;
+    margin-right: auto;
+}
 body {
     height: 100%;
     min-height: 100%;
@@ -55,7 +59,7 @@ input[type=submit], button {
 }
 .filelog {
     max-width: 800px;
-    max-height: 1000px;
+    max-height: 700px;
     border-collapse: collapse;
     overflow-y:auto;
     text-align: center;
@@ -66,12 +70,25 @@ input[type=submit], button {
 }
 .svgview {
     max-width: 800px;
-    max-height: 1000px;
     border-collapse: collapse;
     overflow-y:auto;
-    overflow-x:auto;
+    overflow-x: auto;
     text-align: center;
     padding: 10px;
+}
+.svgtablecss {
+    max-width: 600px;
+    border-collapse: collapse;
+    overflow-y:auto;
+    overflow-x: auto;
+    text-align: center;
+    padding: 10px;
+}
+.svgtablecss tr, th, td {
+    overflow-y:auto;
+    overflow-x: auto;
+    border-collapse: collapse;
+    max-width: 800px;
 }
 .svgdropdown {
     margin: 0 auto;

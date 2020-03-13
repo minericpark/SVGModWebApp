@@ -9,18 +9,18 @@ $(document).ready(function() {
             dataType: 'json',
             url: '/loadTable',
             success: function(filelog) {
-                console.log ("file log successfully loaded"); //Error message for console
+                console.log ("filelog: successfully loaded"); //Error message for console
                 var filetable = '<table class="center">';
                 var fileHeader = ["Image (click to download)", "File name (click to download)", "File size", "Number of rectangles", "Number of circles", "Number of paths", "Number of groups"];
                 //If returned array length is 0, display alt message
                 if (filelog.SVGLog.length == 0) {
-                    console.log("empty");
+                    console.log("filelog: no files in server");
                     filetable += '<tr>';
                     filetable += '<td class="noFiles">' + 'No files';
                     filetable += '</td></tr>';
                     
                 } else { //Otherwise, run for loop that creates the table,
-                    console.log("there exists files");
+                    console.log("filelog: there exists files in server");
                     //Set up header of table
                     filetable += '<tr>';
                     for (var i = 0; i < fileHeader.length; i++) {
@@ -29,7 +29,7 @@ $(document).ready(function() {
                     filetable += '</tr>';
     
                     //Create cells for each files that exists within uploads
-                    console.log(filelog.SVGLog.length);
+                    //console.log(filelog.SVGLog.length);
                     for (var i = 0; i < filelog.SVGLog.length; i++) {
                         filetable += '<tr>';
                         //Use get??
@@ -40,7 +40,7 @@ $(document).ready(function() {
                         filetable += '<td>' + filelog.SVGLog[i].fileDetails.numCirc + '</td>';
                         filetable += '<td>' + filelog.SVGLog[i].fileDetails.numPaths + '</td>';
                         filetable += '<td>' + filelog.SVGLog[i].fileDetails.numGroups + '</td>';
-                        console.log(i);
+                        //console.log(i);
                         filetable += '</tr>';
                     }
                 }
@@ -59,7 +59,7 @@ $(document).ready(function() {
         var formData = new FormData();
         formData.append ('file', $('input[type=file]')[0].files[0]);
         
-        $('#submitfile').submit(function(e) {
+        $('#submitfile').on("click", function(e) {
             $.ajax({
                 type: "post",
                 url: '/uploadCustom',
@@ -72,12 +72,12 @@ $(document).ready(function() {
                     console.log(data);
                     console.log("file successfully uploaded"); //Error message for console
                     //Print success message
-                    alert("Successfully submitted SVG");
+                    //alert("Successfully submitted SVG");
                 },
                 error: function(error) {
                     //Print error message
-                    console.log("file failed to upload"); //Error message for console
-                    alert("Invalid SVG or file");
+                    //console.log("file failed to upload"); //Error message for console
+                    //alert("Invalid SVG or file");
                 }
             });
         });
@@ -92,13 +92,13 @@ $(document).ready(function() {
             var filedropdown = '<select id="images" class="svgdropdown">';
             //If returned array length is 0, disable dropdown list
             if (filelog.SVGLog.length == 0) {
-                console.log("empty");
+                console.log("dropdown: server is empty, no files");
                 filedropdown = '<select id="images" disabled>';
                 filedropdown += '<option value="No files in server">No files in server</label>';
             } else { //Otherwise, run for loop that creates the dropdown,
-                console.log("there exists files");
+                console.log("dropdown: there exists files within the server");
                 //Set up all SVG options
-                console.log(filelog.SVGLog.length);
+                //console.log(filelog.SVGLog.length);
                 for (i = 0; i < filelog.SVGLog.length; i++) {
                     if (i === 0) { //Ensure first element of dropdown is selected
                         filedropdown += '<option selected value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
@@ -121,7 +121,7 @@ $(document).ready(function() {
 
     //Update dropdown when a new file enters into the actual console
     $('#newfile').on("load", function() {
-        console.log('new file!');
+        //console.log('new file!');
         
         //Ajax call that loads the dropdown menu
         $.ajax({
@@ -129,17 +129,17 @@ $(document).ready(function() {
             datatype: 'json',
             url: '/loadDropDown',
             success: function(filelog) {
-                console.log("dropdown successfully loaded"); //Error message for console debugging
+                console.log("dropdown successfully re-loaded"); //Error message for console debugging
                 var filedropdown = '<select id="images" class="svgdropdown">';
                 //If returned array length is 0, disable dropdown list
                 if (filelog.SVGLog.length == 0) {
-                    console.log("empty");
+                    console.log("dropdown reload: server is empty");
                     filedropdown = '<select id="images" disabled>';
                     filedropdown += '<option value="No files in server">No files in server</label>';
                 } else { //Otherwise, run for loop that creates the dropdown,
-                    console.log("there exists files");
+                    console.log("dropdown reload: there exists files within server");
                     //Set up all SVG options
-                    console.log(filelog.SVGLog.length);
+                    //console.log(filelog.SVGLog.length);
                     for (i = 0; i < filelog.SVGLog.length; i++) {
                         if (i === 0) { //Ensure first element of dropdown is selected
                             filedropdown += '<option selected value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
@@ -165,7 +165,7 @@ $(document).ready(function() {
     $('#svgdropdown').on("load", function() {
         var detectFiles = null;
         var selected = null;
-        var svgtable = "<table>";
+        var svgtable = '<table class="svgtablecss">';
             var svgHeader = ["Title", "Description", "Component", "Summary", "Other Attributes"];
 
         $.ajax({
@@ -173,10 +173,10 @@ $(document).ready(function() {
             datatype: 'json',
             url: '/loadDropDown',
             success: function(filelog) {
-                console.log("server scanned");
+                console.log("svgpanel: server checked");
                 detectFiles = filelog.SVGLog.length;
                 if (detectFiles == 0) { //File is empty, do not ajax call, just set svgtable to empty
-                    //console.log("empty svg view");
+                    console.log("svgpanel: server is empty");
                     //Create empty base table
                     svgtable += '<tr><th colspan="10" class="svgpanelimage"></th></tr>';
             
@@ -216,7 +216,7 @@ $(document).ready(function() {
                     $('#svgview').html(svgtable);
                 } else { //File list is not empty
                     //Set selected value and use ajax call to detect file appropriately
-                    console.log('entered selected');
+                    console.log('svgpanel: server not empty');
                     selected = $('#images').children("option:selected").val();
                     currFile = selected;
                     $.ajax({
@@ -227,7 +227,7 @@ $(document).ready(function() {
                         },
                         url: '/loadViewSVG',
                         success: function(fileStruct) {
-                            console.log("SVG view successfully loaded"); //Error message for console
+                            console.log("svgpanel successfully loaded with given file"); //Error message for console
                             //console.log(selected);
                             //console.log(fileStruct.SVG.fileName);
                             //console.log(fileStruct.SVG.titleDescObj);
@@ -338,10 +338,10 @@ $(document).ready(function() {
     //When dropdown changes, adjust SVG view panel
     $('#svgdropdown').change(function() {
         var selected = $('#images').children("option:selected").val();
-        var svgtable = "<table>";
+        var svgtable = '<table class="svgtablecss">';
             var svgHeader = ["Title", "Description", "Component", "Summary", "Other Attributes"];
 
-        //console.log(selected);
+        console.log("dropdown: selected an element");
         //Ajax call that loads the SVG View Panel
         $.ajax({
             type: "get",
@@ -352,7 +352,7 @@ $(document).ready(function() {
             url: '/loadViewSVG',
             success: function(fileStruct) {
                 currFile = selected;
-                console.log("SVG view change successfully loaded"); //Error message for console
+                console.log("svgpanel: changed successfully"); //Error message for console
                 
                 //Clear SVG view
                 $('#svgview').html("");
@@ -463,8 +463,8 @@ $(document).ready(function() {
         $('.popup-content, .popup-overlay').removeClass("active");
         //Clear panel
         $('#cus-popup-content').html("");
-        console.log("Edit title");
-        console.log(currFile);
+        //console.log("Edit title");
+        console.log('edit title: pressed');
 
         var titlePanel = 'Edit Popup<br>';
         titlePanel += '<label for="editTitleSub">Title</label>';
@@ -475,7 +475,7 @@ $(document).ready(function() {
 
         //Register submitDescription button click
         $('#submitTitle').on("click", function() {
-            //console.log("clicked");
+            console.log('edit title: submit pressed');
             //console.log(currFile);
             var newTitle = $("#editTitleSub").val();
             //console.log(newTitle);
@@ -493,15 +493,15 @@ $(document).ready(function() {
                     title: newTitle,
                 },
                 success: function(data) {
-                    console.log(data);
-                    console.log("title successfully edited"); //Error message for console
+                    //console.log(data);
+                    console.log("edit title: successfully edited"); //Error message for console
                     //Print success message
                     //Trigger the SVG viewing image to reload
                     if (data.boolean.value == "false") {
-                        console.log("failed to change title for SVG");
+                        console.log("ERROR: failed to change title for SVG");
                         alert("SVG changes invalid, changes no saved");
                     } else {
-                        console.log("succeed to change title for SVG");
+                        //console.log("succeed to change title for SVG");
                     }
                     //Update SVG panel
                     $('#svgdropdown').trigger("load", []);
@@ -528,8 +528,8 @@ $(document).ready(function() {
         $('.popup-content, .popup-overlay').removeClass("active");
         //Clear panel
         $('#cus-popup-content').html("");
-        console.log("Edit description");
-        console.log(currFile);
+        console.log('edit description: pressed');
+        //console.log(currFile);
         var descPanel = 'Edit Popup<br>';
         descPanel += '<label for="editDesc">Description</label>';
         descPanel += '<input type="text" id="editDescSub"><br>';
@@ -538,8 +538,8 @@ $(document).ready(function() {
 
         //Register submitDescription button click
         $('#submitDesc').on("click", function() {
-            console.log("clicked");
-            console.log(currFile);
+            console.log('edit description: submit pressed');
+            //console.log(currFile);
             var newDesc = $("#editDescSub").val();
             //Cover empty string case
             if (newDesc == "") {
@@ -555,15 +555,15 @@ $(document).ready(function() {
                     desc: newDesc,
                 },
                 success: function(data) {
-                    console.log(data);
-                    console.log("Desc successfully edited"); //Error message for console
+                    //console.log(data);
+                    console.log("edit description: successfully edited"); //Error message for console
                     //Print success message
                     //Trigger the SVG viewing image to reload
                     if (data.boolean.value == "false") {
-                        console.log("failed to change desc for SVG");
+                        console.log("ERROR: failed to change desc for SVG");
                         alert("SVG changes invalid, changes no saved");
                     } else {
-                        console.log("succeed to change desc for SVG");
+                        //console.log("succeed to change desc for SVG");
                     }
                     //Update SVG panel
                     $('#svgdropdown').trigger("load", []);
@@ -586,6 +586,7 @@ $(document).ready(function() {
 
     //Event handles a create SVG press
     $('#submitNewSVG').on("click", function(e) {
+        console.log('new svg: pressed');
        //Hide panel
        $('.popup-content-mini, .popup-overlay-mini').removeClass("active");
        //Clear panel
@@ -599,8 +600,8 @@ $(document).ready(function() {
 
        //Register submitDescription button click
        $('#submitNewP2').on("click", function() {
-           console.log("clicked");
-           console.log(currFile);
+           console.log("newsvg: submit pressed");
+           //console.log(currFile);
            var newSVG = $("#newSVGSub").val();
 
            //Check name + value
@@ -612,14 +613,14 @@ $(document).ready(function() {
                    filename: newSVG,
                },
                success: function(data) {
-                   console.log(data);
+                   //console.log(data);
                    //Print success message
                    //Trigger the SVG viewing image to reload
                    if (data.boolean == false) {
-                       console.log("file exists within server");
+                       console.log("ERROR: file exists within server");
                        alert("SVG with filename " + newSVG + " is either invalid or already exists, please enter a different filename");
                    } else {
-                       console.log("file does not exist within server");
+                       console.log("newsvg: file does not exist within server");
                        //Call ajax command to add it
                        $.ajax({
                             type: "get",
@@ -629,14 +630,14 @@ $(document).ready(function() {
                                 filename: newSVG,
                             },
                             success: function(valid) {
-                                console.log(valid);
-                                console.log("New SVG successfully sent"); //Error message for console
+                                //console.log(valid);
+                                console.log("newsvg: successfully sent"); //Error message for console
                                 //Print success message
                                 if (valid.boolean.value == false) {
-                                    console.log("failed to add new SVG");
+                                    console.log("ERROR: failed to add new SVG");
                                     alert("SVG file invalid, file not saved");
                                 } else {
-                                    console.log("succeed to add new SVG");
+                                    //console.log("succeed to add new SVG");
                                 }
                             },
                             error: function(error) {
@@ -658,7 +659,7 @@ $(document).ready(function() {
            });
        });
 
-       console.log("Add new SVG");
+       //console.log("Add new SVG");
     
        //Open popup
        $(".popup-overlay-mini, .popup-content-mini").addClass("active");
@@ -670,8 +671,8 @@ $(document).ready(function() {
         $('.popup-content, .popup-overlay').removeClass("active");
         //Clear panel
         $('#cus-popup-content').html("");
-        console.log("Create new component");
-        console.log(currFile);
+        console.log("new shape: pressed");
+        //console.log(currFile);
 
         var totalPanel = 'New Shape Popup<br>';
         var addMenu;
@@ -692,11 +693,11 @@ $(document).ready(function() {
         //Register event changes when dropdown item changes
         $('#shapeSelec').change(function() {
             var selected = $('#shapeSelec').children("option:selected").val();
-            console.log(selected);
+            console.log('new shape: select changed');
 
             //Change menu to rectangle
             if (selected === "rect") {
-                console.log('changed to rect');
+                //console.log('changed to rect');
                 addMenu = "";
 
                 //Create new menu
@@ -715,7 +716,7 @@ $(document).ready(function() {
                 $('#shapeMen').html(addMenu);
                 //If submit pressed, register new rectangle
                 $('#submitNewShape').on("click", function(e) {
-                    console.log('pressed submit in rect');
+                    console.log('new shape: pressed submit');
                     var newX = $("#newRectX").val();
                     var newY = $("#newRectY").val();
                     var newH = $("#newRectH").val();
@@ -725,6 +726,7 @@ $(document).ready(function() {
                     if (newX != "" && newY != "" && newH != "" && newW != "" && !isNaN(newX) && !isNaN(newY) && !isNaN(newH) && !isNaN(newW)) {
                         if (newH < 0 || newW < 0) {
                             alert ('Cannot set width and height below 0, please try again');
+                            console.log('ERROR: width and height invalid');
                         } else {
                             //all clear
                             if (newU == "") {
@@ -747,14 +749,14 @@ $(document).ready(function() {
                                     jsonstring: newObj,
                                 },
                                 success: function(valid) {
-                                    console.log(valid);
-                                    console.log("New shape created"); //Error message for console
+                                    //console.log(valid);
+                                    console.log("newshape: created and added"); //Error message for console
                                     //Print success message
                                     if (valid.boolean.value == false) {
-                                        console.log("failed to add new shape");
-                                        alert("SVG file invalided, file not saved");
+                                        console.log("ERROR: failed to add new shape");
+                                        alert("SVG file invalid, file not saved");
                                     } else {
-                                        console.log("succeed to add new shape");
+                                        //console.log("succeed to add new shape");
                                     }
                                     location.reload(true);
                                 },
@@ -764,7 +766,8 @@ $(document).ready(function() {
                            });
                         }
                     } else {
-                        alert('Not all required values filled or invalid entry, please try again');                        
+                        alert('Not all required values filled or invalid entry, please try again');  
+                        console.log('ERROR: values empty, failed to add');                      
                     }
                     //Hide panel
                    $('.popup-content, .popup-overlay').removeClass("active");
@@ -772,7 +775,7 @@ $(document).ready(function() {
                    $('#cus-popup-content').html("");
                 });
             } else {
-                console.log('changed to circ');
+                //console.log('changed to circ');
                 addMenu = "";
                 
                 //Create new menu
@@ -789,7 +792,7 @@ $(document).ready(function() {
                 $('#shapeMen').html(addMenu);
                 //If submit pressed, register new circle
                 $('#submitNewShape').on("click", function(e) {
-                    console.log('pressed submit in circ');
+                    console.log('new shape: pressed submit');
                     var newX = $("#newCircX").val();
                     var newY = $("#newCircY").val();
                     var newR = $("#newCircR").val();
@@ -798,6 +801,7 @@ $(document).ready(function() {
                     if (newX != "" && newY != "" && newR != "" && !isNaN(newX) && !isNaN(newY) && !isNaN(newR)) {
                         if (newR < 0) {
                             alert ('Cannot set radius below 0, please try again');
+                            console.log('ERROR: r value invalid, failed to add');
                         } else {
                             //all clear
                             if (newU == "") {
@@ -819,14 +823,14 @@ $(document).ready(function() {
                                     jsonstring: newObj,
                                 },
                                 success: function(valid) {
-                                    console.log(valid);
-                                    console.log("New shape created"); //Error message for console
+                                    //console.log(valid);
+                                    console.log("new shape: created and added"); //Error message for console
                                     //Print success message
                                     if (valid.boolean.value == false) {
-                                        console.log("failed to add new shape");
+                                        console.log("ERROR: failed to add new shape");
                                         alert("SVG file invalided, file not saved");
                                     } else {
-                                        console.log("succeed to add new shape");
+                                        //console.log("succeed to add new shape");
                                     }
                                     location.reload(true);
                                 },
@@ -836,7 +840,8 @@ $(document).ready(function() {
                            });
                         }
                     } else {
-                        alert('Not all required values filled or invalid entry, please try again');                        
+                        alert('Not all required values filled or invalid entry, please try again');   
+                        console.log('ERROR: some fields empty');                     
                     }
                     //Hide panel
                    $('.popup-content, .popup-overlay').removeClass("active");
@@ -859,8 +864,8 @@ $(document).ready(function() {
         $('.popup-content, .popup-overlay').removeClass("active");
         //Clear panel
         $('#cus-popup-content').html("");
-        console.log("Reshape new component");
-        console.log(currFile);
+        console.log("scale shape: pressed");
+        //console.log(currFile);
 
         var totalPanel = 'All Shape Resize Popup<br>';
 
@@ -881,12 +886,12 @@ $(document).ready(function() {
         $('#submitScale').on("click", function(e) {
             var selected = $('#shapeSelec').children("option:selected").val();
             var tmpScale = $('#newShapeScale').val();
-            console.log(currFile);
-            console.log(selected);
+            console.log('scaleshape: submit pressed');
+            //console.log(selected);
             //Determine if values are valid or not
             if (!isNaN(tmpScale) && tmpScale >= 0 && tmpScale != "") { //
                 if (selected == 'circ') {
-                    console.log ('circle selected');
+                    //console.log ('circle selected');
                     $.ajax({
                         type: "get",
                         datatype: 'json',
@@ -896,14 +901,14 @@ $(document).ready(function() {
                             scaleFac: tmpScale,
                         },
                         success: function(valid) {
-                            console.log(valid);
-                            console.log("New shape created"); //Error message for console
+                            //console.log(valid);
+                            //console.log("New shape created"); //Error message for console
                             //Print success message
                             if (valid.boolean.value == false) {
-                                console.log("failed to add new shape");
-                                alert("SVG file invalided, file not saved");
+                                console.log("ERROR: failed to scale shapes");
+                                alert("SVG file invalid, file not saved");
                             } else {
-                                console.log("succeed to add new shape");
+                                console.log("scaleshape: succeed in scaling");
                             }
                             location.reload(true);
                         },
@@ -922,14 +927,14 @@ $(document).ready(function() {
                             scaleFac: tmpScale,
                         },
                         success: function(valid) {
-                            console.log(valid);
-                            console.log("New shape created"); //Error message for console
+                            //console.log(valid);
+                            //console.log("New shape created"); //Error message for console
                             //Print success message
                             if (valid.boolean.value == false) {
-                                console.log("failed to add new shape");
+                                console.log("ERROR: failed to scale shapes");
                                 alert("SVG file invalided, file not saved");
                             } else {
-                                console.log("succeed to add new shape");
+                                console.log("scaleshape: success scaling shapes");
                             }
                             location.reload(true);
                         },
@@ -940,6 +945,7 @@ $(document).ready(function() {
                 }
             } else {
                 alert ('Given scaling factor is not a number or invalid. Please try again');
+                console.log('ERROR: Scaling factor invalid');
             }
             
         });
@@ -952,11 +958,12 @@ $(document).ready(function() {
 
     //Creates all buttons for 'view/edit elements/
     $('#svgview').on("load", function() {
+        console.load('svgpanel: loaded');
         //Event handles a view attribute press
         $('.viewAttr').on("click", function(e) {
             var indexNum = $(this).val();
-            console.log("view attribute");
-            console.log(currFile); 
+            console.log("svgpanel: view attribute pressed");
+            //console.log(currFile); 
             //Hide panel
             $('.popup-content, .popup-overlay').removeClass("active");
             //Clear panel
@@ -972,8 +979,8 @@ $(document).ready(function() {
                 },
                 url: '/loadAttribute',
                 success: function(attrStruct) {
-                    console.log(attrStruct.attributes);
-                    console.log("attr view successfully loaded"); //Error message for console
+                    //console.log(attrStruct.attributes);
+                    console.log("svgpanel: attr view successfully loaded"); //Error message for console
                     var popup = 'Viewing Attributes of Selected Component';
                     if (attrStruct.attributes.length == 0) { //If there exists no attributes
                         popup += '<table class="center">';
@@ -999,9 +1006,9 @@ $(document).ready(function() {
 
                     //Register editAttr button click
                     $('#editAttr').on("click", function() {
-                        console.log("clicked");
-                        console.log(currFile);
-                        console.log(indexNum);
+                        console.log("svgpanel: edit attr clicked");
+                        //console.log(currFile);
+                        //console.log(indexNum);
                         var newName = $("#editAttrName").val();
                         var newValue = $("#editAttrValue").val();
                         //Check name + value
@@ -1018,14 +1025,14 @@ $(document).ready(function() {
                                     value: newValue,
                                 },
                                 success: function(data) {
-                                    console.log(data);
+                                    //console.log(data);
                                     //Print success message
                                     //Trigger the SVG viewing image to reload
                                     if (data.boolean.value == "false") {
-                                        console.log("failed to change attribute for SVG");
+                                        console.log("ERROR: failed to change attribute for SVG");
                                         alert("SVG changes invalid, changes no saved");
                                     } else {
-                                        console.log("succeed to change attribute for SVG");
+                                        console.log("svgpanel: succeed to change attribute for SVG");
                                     }
                                     //Update SVG panel
                                     $('#svgdropdown').trigger("load", []);
@@ -1044,12 +1051,13 @@ $(document).ready(function() {
                             });
                         } else {
                             alert("Both fields cannot be left empty");
+                            console.log('ERROR: Fields left empty');
                         }
                     });
 
                 },
                 error: function(error) {
-                    console.log("attr view failed to load"); //Error message for debugging
+                    //console.log("attr view failed to load"); //Error message for debugging
                     console.log(error);
                 }
             });
@@ -1064,6 +1072,7 @@ $(document).ready(function() {
 
     //Close button for popup
     $('.close').on("click", function() {//
+        console.log('pressed close on popup');
         $(".popup-overlay, .popup-content").removeClass("active");
         //Clear popup content
         $('#cus-popup-content').html("");

@@ -90,14 +90,6 @@ app.get('/uploads/:name', function(req , res){
 
 //******************** Your code goes here ******************** 
 
-//Sample endpoint
-app.get('/someendpoint', function(req , res){
-  let retStr = req.query.name1 + " " + req.query.name2;
-  res.send({
-    foo: retStr
-  });
-});
-
 app.listen(portNum);
 console.log('Running app at localhost: ' + portNum);
 
@@ -110,19 +102,23 @@ app.post('/uploadCustom', function(req, res) {
   let uploadFile = req.files.uploadFile;
   let result;
 
-  // Use the mv() method to place the file somewhere on your server
-  uploadFile.mv('uploads/' + uploadFile.name, function(err) {
-    if(err) {
-      return res.status(500).send('Failed to upload file');
-    }
+  if (uploadFile != null) {
+    // Use the mv() method to place the file somewhere on your server
+    uploadFile.mv('uploads/' + uploadFile.name, function(err) {
+      if(err) {
+        return res.status(500).send('Failed to upload file');
+      }
 
-    result = parserLib.verifyFile("uploads/" + uploadFile.name, "parser/" + "svg.xsd");
-    if (result != true) {
-      fs.unlinkSync ('uploads/' + uploadFile.name);
-      req.method = 'get';
-    } 
+      result = parserLib.verifyFile("uploads/" + uploadFile.name, "parser/" + "svg.xsd");
+      if (result != true) {
+        fs.unlinkSync ('uploads/' + uploadFile.name);
+        req.method = 'get';
+      }  
+      res.redirect('/');
+    });
+  } else {
     res.redirect('/');
-  });
+  }
 });
 
 //Load table here
@@ -201,7 +197,7 @@ app.get('/loadViewSVG', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into data object required for table
       if (file == tmpReq) {
-        console.log('found');
+        //console.log('found');
         let fileName = file;
         var titleDescObj = JSON.parse(parserLib.titleDescToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
         var rectListObj = JSON.parse(parserLib.SVGrectToJSON("uploads/" + fileName, "parser/" + "svg.xsd"));
@@ -228,7 +224,7 @@ app.get('/loadAttribute', function(req, res) {
   let attrList;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -243,7 +239,7 @@ app.get('/loadAttribute', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into data object required for table
       if (file == tmpReq) {
-        console.log('found');
+        //console.log('found');
         let fileName = file;
         attrList = JSON.parse(parserLib.getSVGComponentAttr("uploads/" + fileName, "parser/" + "svg.xsd", tmpIndex));
       }
@@ -266,7 +262,7 @@ app.get('/upAttribute', function(req, res) {
   let bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -281,7 +277,7 @@ app.get('/upAttribute', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into data object required for table
       if (file == tmpReq) {
-        console.log('found');
+        //console.log('found');
         //Call parser Lib to run file editing function
         bool = JSON.parse(parserLib.modifyAttr("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpIndex, tmpName, tmpVal));
       }
@@ -302,7 +298,7 @@ app.get('/upTitle', function(req, res) {
   let bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -316,7 +312,7 @@ app.get('/upTitle', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into data object required for table
       if (file == tmpReq) {
-        console.log('found');
+        //console.log('found');
         //Call parser Lib to run file editing function
         bool = JSON.parse(parserLib.modifyTitle("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpTitle));
       }
@@ -337,7 +333,7 @@ app.get('/upDesc', function(req, res) {
   let bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -351,7 +347,7 @@ app.get('/upDesc', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into data object required for table
       if (file == tmpReq) {
-        console.log('found');
+        //console.log('found');
         //Call parser Lib to run file editing function
         bool = JSON.parse(parserLib.modifyDescr("uploads/" + tmpReq, "parser/" + "svg.xsd", tmpDesc));
       }
@@ -371,7 +367,7 @@ app.get('/checkNewSVG', function(req, res) {
   var bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -384,14 +380,14 @@ app.get('/checkNewSVG', function(req, res) {
     files.forEach(function (file) {
       //Parse specified file into data object required for table
       if (file == tmpReq) {
-        console.log('found');
+        //console.log('found');
         //Call parser Lib to run file editing function
         bool = false;
       }
     });
 
     if (tmpReq == "") {
-      console.log('file empty');
+      //console.log('file empty');
       bool = false;
     }
 
@@ -420,7 +416,7 @@ app.get('/createNewSVG', function(req, res) {
   var bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -448,7 +444,7 @@ app.get('/addNewRect', function(req, res) {
   var bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -478,7 +474,7 @@ app.get('/addNewCirc', function(req, res) {
   var bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -508,7 +504,7 @@ app.get('/scaleAllRects', function(req, res) {
   var bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -538,7 +534,7 @@ app.get('/scaleAllCircs', function(req, res) {
   var bool;
 
   //Look for file name within directory, grab file, turn into object, return data
-  console.log("entered");
+  //console.log("entered");
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {

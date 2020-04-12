@@ -227,7 +227,7 @@ $(document).ready(function() {
                         },
                         url: '/loadViewSVG',
                         success: function(fileStruct) {
-                            console.log("svgpanel successfully loaded with given file"); //Error message for console
+                            console.log("svgpanel: successfully loaded with given file");
                             //console.log(selected);
                             //console.log(fileStruct.SVG.fileName);
                             //console.log(fileStruct.SVG.titleDescObj);
@@ -333,7 +333,6 @@ $(document).ready(function() {
             }
         });
     });
-        //console.log(selected);
 
     //When dropdown changes, adjust SVG view panel
     $('#svgdropdown').change(function() {
@@ -958,7 +957,7 @@ $(document).ready(function() {
 
     //Creates all buttons for 'view/edit elements/
     $('#svgview').on("load", function() {
-        console.load('svgpanel: loaded');
+        console.log("svgpanel: loaded");
         //Event handles a view attribute press
         $('.viewAttr').on("click", function(e) {
             var indexNum = $(this).val();

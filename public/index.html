@@ -54,11 +54,7 @@
         <button id="editTitle" class="btn btn-secondary btn-sm" type="submit">Edit Title</button>
         <button id="editDesc" class="btn btn-secondary btn-sm" type="submit">Edit Description</button>
     </div>
-    <!-- Creates buttons for resize components + add component -->
-    <div class="btn-group" role="group" id="editcomponentbutt">
-        <button id="submitComponent" class="btn btn-secondary btn-sm" type="submit">Add Shapes</button>
-        <button id="reshapeComponents" class="btn btn-secondary btn-sm" type="submit">Scale Shapes</button>
-    </div>
+    <button id="viewEditSVG" class="btn btn-secondary btn-sm" type="submit">View/Edit Attributes</button>
     <hr>
     <!-- Popup class -->
     <div class="popup-overlay">
@@ -68,9 +64,18 @@
         </div>
     </div>
 
+    <!-- Creates buttons for resize components + add component -->
+    <div class="dropdown" id="shapedropdown">Shape Dropdown Menu</div>
+    <div class="btn-group" role="group" id="editcomponentbutt">
+        <button id="submitComponent" class="btn btn-secondary btn-sm" type="submit">Add Shapes</button>
+        <button id="reshapeComponents" class="btn btn-secondary btn-sm" type="submit">Scale Shapes</button>
+    </div>
+    <hr>
+
     <!-- Dummy Div -->
     <div id="newfile"></div>
 
+    <footer>CIS2750 A3 Academic Assignment - Eric Minseo Park (1001018)</footer>
     <script src="/index.js"></script>
 </body>
 </html>

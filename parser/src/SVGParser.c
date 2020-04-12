@@ -3119,6 +3119,37 @@ char* modifyAttr (char* filename, char* schema, int indexNum, char* name, char* 
     return tmpJSON;
 }
 
+//Wrapper function that modifies or adds a new attribute to the given component
+char* modifySVGAttr (char* filename, char* schema, char* name, char* value) {
+
+    Attribute* tmpAttr;
+    SVGimage* selecImage;
+    bool valCheck;
+    char* tmpJSON;
+
+    tmpAttr = JSONtoAttribute(name, value);
+    selecImage = createValidSVGimage(filename, schema);
+    setAttribute(selecImage, SVG_IMAGE, 0, tmpAttr);
+
+    //Temporarily check if img is valid
+    valCheck = validateSVGimage(selecImage, schema);
+
+    if (valCheck) { //Succeeds to validate
+        //Rewrite file
+        writeSVGimage(selecImage, filename);
+
+        //Return true
+        tmpJSON = (char*)malloc(sizeof(char) * 18);
+        strcpy(tmpJSON, "{\"value\":\"true\"}");
+    } else {
+        //Return false
+        tmpJSON = (char*)malloc(sizeof(char) * 19);
+        strcpy(tmpJSON, "{\"value\":\"false\"}");
+    }
+
+    return tmpJSON;
+}
+
 //Wrapper function that adds in a new shape
 char* addSVGRect (char* filename, char* schema, char* JSONstring) {
 
@@ -3288,6 +3319,20 @@ char* getSVGComponentAttr (char* filename, char* schema, int indexNum) {
     if (tmpList == NULL) {
         return "[]";
     } else {
+        return attrListToJSON(tmpList);
+    }
+}
+
+//Wrapper function that receives attributes of svg
+char* getSVGAttr (char* filename, char* schema) {
+    List* tmpList;
+    SVGimage* tmpImage;
+
+    tmpImage = createValidSVGimage(filename, schema);
+    if (tmpImage == NULL) {
+        return "[]";
+    } else {
+        tmpList = tmpImage->otherAttributes;
         return attrListToJSON(tmpList);
     }
 }

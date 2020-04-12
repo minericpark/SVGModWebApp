@@ -2,6 +2,7 @@
 $(document).ready(function() {
 
     var currFile = null;
+    var currFile2 = null;
     //Ajax call that loads the initial SVG viewing table (calls loadTable), relies on dropdown to load
     $('#svgdropdown').on("load", function() {
         $.ajax({
@@ -90,11 +91,15 @@ $(document).ready(function() {
         success: function(filelog) {
             console.log("dropdown successfully loaded"); //Error message for console debugging
             var filedropdown = '<select id="images" class="svgdropdown">';
+            var filedropdown2 = '<select id="images2" class="svgdropdown">';
             //If returned array length is 0, disable dropdown list
             if (filelog.SVGLog.length == 0) {
                 console.log("dropdown: server is empty, no files");
                 filedropdown = '<select id="images" disabled>';
                 filedropdown += '<option value="No files in server">No files in server</label>';
+
+                filedropdown2 = '<select id="images" disabled>';
+                filedropdown2 += '<option value="No files in server">No files in server</label>';
             } else { //Otherwise, run for loop that creates the dropdown,
                 console.log("dropdown: there exists files within the server");
                 //Set up all SVG options
@@ -102,14 +107,18 @@ $(document).ready(function() {
                 for (i = 0; i < filelog.SVGLog.length; i++) {
                     if (i === 0) { //Ensure first element of dropdown is selected
                         filedropdown += '<option selected value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
+                        filedropdown2 += '<option selected value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
                     } else {
                         filedropdown += '<option value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
+                        filedropdown2 += '<option value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
                     }
                     //Use get??
                 }
             }
             filedropdown += '</select>';
+            filedropdown2 += '</select>';
             $('#svgdropdown').html(filedropdown);
+            $('#shapedropdown').html(filedropdown2);
             //Trigger the svg view to load
             $('#svgdropdown').trigger("load", []);
         },
@@ -131,11 +140,15 @@ $(document).ready(function() {
             success: function(filelog) {
                 console.log("dropdown successfully re-loaded"); //Error message for console debugging
                 var filedropdown = '<select id="images" class="svgdropdown">';
+                var filedropdown2 = '<select id="images2" class="svgdropdown">';
                 //If returned array length is 0, disable dropdown list
                 if (filelog.SVGLog.length == 0) {
                     console.log("dropdown reload: server is empty");
                     filedropdown = '<select id="images" disabled>';
                     filedropdown += '<option value="No files in server">No files in server</label>';
+                    
+                    filedropdown2 = '<select id="images" disabled>';
+                    filedropdown2 += '<option value="No files in server">No files in server</label>';
                 } else { //Otherwise, run for loop that creates the dropdown,
                     console.log("dropdown reload: there exists files within server");
                     //Set up all SVG options
@@ -143,14 +156,18 @@ $(document).ready(function() {
                     for (i = 0; i < filelog.SVGLog.length; i++) {
                         if (i === 0) { //Ensure first element of dropdown is selected
                             filedropdown += '<option selected value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
+                            filedropdown2 += '<option selected value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
                         } else {
                             filedropdown += '<option value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
+                            filedropdown2 += '<option value="' + filelog.SVGLog[i] + '">' + filelog.SVGLog[i] + '</label>';
                         }
                         //Use get??
                     }
                 }
                 filedropdown += '</select>';
+                filedropdown2 += '</select>';
                 $('#svgdropdown').html(filedropdown);
+                $('#shapedropdown').html(filedropdown2);
                 //Trigger the svg view to load
                 $('#svgdropdown').trigger("load", []);
             },
@@ -165,6 +182,7 @@ $(document).ready(function() {
     $('#svgdropdown').on("load", function() {
         var detectFiles = null;
         var selected = null;
+        var selected2 = null;
         var svgtable = '<table class="svgtablecss">';
             var svgHeader = ["Title", "Description", "Component", "Summary", "Other Attributes"];
 
@@ -218,7 +236,9 @@ $(document).ready(function() {
                     //Set selected value and use ajax call to detect file appropriately
                     console.log('svgpanel: server not empty');
                     selected = $('#images').children("option:selected").val();
+                    selected2 = $('#images2').children("option:selected").val();
                     currFile = selected;
+                    currFile2 = selected2;
                     $.ajax({
                         type: "get",
                         datatype: 'json',
@@ -227,7 +247,7 @@ $(document).ready(function() {
                         },
                         url: '/loadViewSVG',
                         success: function(fileStruct) {
-                            console.log("svgpanel: successfully loaded with given file");
+                            console.log("svgpanel: successfully loaded with given file"); //Error message for console
                             //console.log(selected);
                             //console.log(fileStruct.SVG.fileName);
                             //console.log(fileStruct.SVG.titleDescObj);
@@ -289,12 +309,12 @@ $(document).ready(function() {
                                 //Check if units is empty
                                 if (fileStruct.SVG.circListObj[i].units != "") {
                                     svgtable += '<td colspan="4">Centre: x = ' + fileStruct.SVG.circListObj[i].cx + fileStruct.SVG.circListObj[i].units;
-                                    svgtable += ' y = ' + fileStruct.SVG.circListObj[i].cy + fileStruct.SVG.circListObj[i].units;
+                                    svgtable += ' cy = ' + fileStruct.SVG.circListObj[i].cy + fileStruct.SVG.circListObj[i].units;
                                     svgtable += ' radius = ' + fileStruct.SVG.circListObj[i].r + fileStruct.SVG.circListObj[i].units;
                                     svgtable += '</td>';
                                 } else {
                                     svgtable += '<td colspan="4">Centre: x = ' + fileStruct.SVG.circListObj[i].cx;
-                                    svgtable += ' y = ' + fileStruct.SVG.circListObj[i].cy;
+                                    svgtable += ' cy = ' + fileStruct.SVG.circListObj[i].cy;
                                     svgtable += ' radius = ' + fileStruct.SVG.circListObj[i].r;
                                     svgtable += '</td>';
                                 }
@@ -333,10 +353,12 @@ $(document).ready(function() {
             }
         });
     });
+        //console.log(selected);
 
     //When dropdown changes, adjust SVG view panel
     $('#svgdropdown').change(function() {
         var selected = $('#images').children("option:selected").val();
+        var selected2 = $('#images2').children("option:selected").val();
         var svgtable = '<table class="svgtablecss">';
             var svgHeader = ["Title", "Description", "Component", "Summary", "Other Attributes"];
 
@@ -351,6 +373,7 @@ $(document).ready(function() {
             url: '/loadViewSVG',
             success: function(fileStruct) {
                 currFile = selected;
+                currFile2 = selected2;
                 console.log("svgpanel: changed successfully"); //Error message for console
                 
                 //Clear SVG view
@@ -744,7 +767,7 @@ $(document).ready(function() {
                                 datatype: 'json',
                                 url: '/addNewRect',
                                 data: {
-                                    filename: currFile,
+                                    filename: currFile2,
                                     jsonstring: newObj,
                                 },
                                 success: function(valid) {
@@ -818,7 +841,7 @@ $(document).ready(function() {
                                 datatype: 'json',
                                 url: '/addNewCirc',
                                 data: {
-                                    filename: currFile,
+                                    filename: currFile2,
                                     jsonstring: newObj,
                                 },
                                 success: function(valid) {
@@ -852,7 +875,7 @@ $(document).ready(function() {
         });
 
         //Open popup
-        if (currFile != null) {
+        if (currFile2 != null) {
             $(".popup-overlay, .popup-content").addClass("active");
         }
     });
@@ -896,7 +919,7 @@ $(document).ready(function() {
                         datatype: 'json',
                         url: '/scaleAllCircs',
                         data: {
-                            filename: currFile,
+                            filename: currFile2,
                             scaleFac: tmpScale,
                         },
                         success: function(valid) {
@@ -922,7 +945,7 @@ $(document).ready(function() {
                         datatype: 'json',
                         url: '/scaleAllRects',
                         data: {
-                            filename: currFile,
+                            filename: currFile2,
                             scaleFac: tmpScale,
                         },
                         success: function(valid) {
@@ -957,7 +980,7 @@ $(document).ready(function() {
 
     //Creates all buttons for 'view/edit elements/
     $('#svgview').on("load", function() {
-        console.log("svgpanel: loaded");
+        console.log('svgpanel: loaded');
         //Event handles a view attribute press
         $('.viewAttr').on("click", function(e) {
             var indexNum = $(this).val();
@@ -982,9 +1005,11 @@ $(document).ready(function() {
                     console.log("svgpanel: attr view successfully loaded"); //Error message for console
                     var popup = 'Viewing Attributes of Selected Component';
                     if (attrStruct.attributes.length == 0) { //If there exists no attributes
+                        popup += '<br><table class="center"><tr><td>Table of Contents For Modification: <br>Rectangle x = x, Rectangle y = y, Rectangle height = height, Rectangle width = width<br>Circle x = cx, Circle y = cy, Circle radius = r<br>Data = d<br>Units = units</td></tr></table>';
                         popup += '<table class="center">';
                         popup += '<tr><td class="noFiles">No attributes</td></tr></table>' ;
                     } else { //Otherwise, display attributes
+                        popup += '<br><table class="center"><tr><td>Table of Contents For Modification: <br>Rectangle x = x, Rectangle y = y, Rectangle height = height, Rectangle width = width<br>Circle x = cx, Circle y = cy, Circle radius = r<br>Data = d<br>Units = units</td></tr></table>';
                         popup += '<table class="center">';
                         popup += '<tr><th class="popup">Name</th><th class="popup">Value</th></tr>';
     
@@ -1075,6 +1100,120 @@ $(document).ready(function() {
         $(".popup-overlay, .popup-content").removeClass("active");
         //Clear popup content
         $('#cus-popup-content').html("");
+    });
+
+
+    /********************** */
+    $('#shapedropdown').change(function() {
+        var selected = $('#images2').children("option:selected").val();
+        console.log('new shape: select changed');
+        currFile2 = selected;
+    });
+
+    //Event handles an edit svg attribute press
+    $('#viewEditSVG').on("click", function(e) {
+        //Hide panel
+        $('.popup-content, .popup-overlay').removeClass("active");
+        //Clear panel
+        $('#cus-popup-content').html("");
+        console.log('view/edit svg attributes: pressed');
+        //console.log(currFile);
+
+        //Ajax call to retrieve attribute data from server
+        $.ajax({
+            type: "get",
+            datatype: 'json',
+            data: {
+                filename: currFile,
+            },
+            url: '/loadAttributeSVG',
+            success: function(attrStruct) {
+                //console.log(attrStruct.attributes);
+                console.log("view/edit svg attribute: successfully loaded"); //Error message for console
+                var popup = 'Viewing Attributes of SVG';
+                if (attrStruct.attributes.length == 0) { //If there exists no attributes
+                    popup += '<table class="center">';
+                    popup += '<tr><td class="noFiles">No attributes</td></tr></table>' ;
+                } else { //Otherwise, display attributes
+                    popup += '<table class="center">';
+                    popup += '<tr><th class="popup">Name</th><th class="popup">Value</th></tr>';
+
+                    for (i = 0; i < attrStruct.attributes.length; i++) {
+                        popup += '<tr><td>' + attrStruct.attributes[i].name + '</td>';
+                        popup += '<td>' + attrStruct.attributes[i].value + '</td></tr>';
+                    }
+                    popup += '</table>';
+                }
+
+                popup += '<label for="editAttrName">Name</label>';
+                popup += '<input type="text" id="editAttrName"><br>';
+                popup += '<label for="editAttrValue">Value</label>';
+                popup += '<input type="text" id="editAttrValue"><br>';
+                popup += '<button id="editAttr" class="btn btn-outline-secondary btn-sm" type="submit">Edit/Add Attribute</button>';
+
+                $("#cus-popup-content").html(popup); //Change popup
+
+                //Register editAttr button click
+                $('#editAttr').on("click", function() {
+                    console.log("svgpanel: edit attr clicked");
+                    //console.log(currFile);
+                    //console.log(indexNum);
+                    var newName = $("#editAttrName").val();
+                    var newValue = $("#editAttrValue").val();
+                    //Check name + value
+                    if (newName != "" && newValue != "") {
+                        //Send ajax post ()
+                        $.ajax({
+                            type: "get",
+                            datatype: 'json',
+                            url: '/upSVGAttribute',
+                            data: {
+                                filename: currFile,
+                                name: newName,
+                                value: newValue,
+                            },
+                            success: function(data) {
+                                //console.log(data);
+                                //Print success message
+                                //Trigger the SVG viewing image to reload
+                                if (data.boolean.value == "false") {
+                                    console.log("ERROR: failed to change attribute for SVG");
+                                    alert("SVG changes invalid, changes no saved");
+                                } else {
+                                    console.log("svgpanel: succeed to change attribute for SVG");
+                                }
+                                //Update SVG panel
+                                $('#svgdropdown').trigger("load", []);
+                                //Update SVG panel
+                                $('#svgview').trigger("load", []);
+                                //Refresh the page after attribute changes
+                                location.reload(true);
+                                //Hide panel
+                                $('.popup-content, .popup-overlay').removeClass("active");
+                                //Clear panel
+                                $('#cus-popup-content').html("");
+                            },
+                            error: function(error) {
+                                //Print error message
+                            }
+                        });
+                    } else {
+                        alert("Both fields cannot be left empty");
+                        console.log('ERROR: Fields left empty');
+                    }
+                });
+
+            },
+            error: function(error) {
+                //console.log("attr view failed to load"); //Error message for debugging
+                console.log(error);
+            }
+        });
+
+        //Open popup
+        if (currFile != null) {
+            $(".popup-overlay, .popup-content").addClass("active");
+        }
     });
 
 });

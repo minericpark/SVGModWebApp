@@ -1,8 +1,11 @@
 // Put all onload AJAX calls here, and event listeners
 $(document).ready(function() {
 
+    /** Base webpage front-end functionality **/
+
     var currFile = null;
     var currFile2 = null;
+    
     //Ajax call that loads the initial SVG viewing table (calls loadTable), relies on dropdown to load
     $('#svgdropdown').on("load", function() {
         $.ajax({
@@ -1215,5 +1218,7 @@ $(document).ready(function() {
             $(".popup-overlay, .popup-content").addClass("active");
         }
     });
+
+    /** Database front-end and UI from this point **/
 
 });

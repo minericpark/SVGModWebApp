@@ -40,6 +40,8 @@ let parserLib = ffi.Library('./libsvgparse', {
   'modifySVGAttr': ['string', ['string', 'string', 'string', 'string']],
 });
 
+/** Test/base backend functionality **/
+
 // Send HTML at root, do not change
 app.get('/',function(req,res){
   res.sendFile(path.join(__dirname+'/public/index.html'));
@@ -90,7 +92,7 @@ app.get('/uploads/:name', function(req , res){
   });
 });
 
-//******************** Your code goes here ******************** 
+/** Back-end base functionality implementation **/
 
 app.listen(portNum);
 console.log('Running app at localhost: ' + portNum);
@@ -640,3 +642,5 @@ app.get('/scaleAllCircs', function(req, res) {
     });
   });
 });
+
+/** Database back-end (functionality) from this point **/

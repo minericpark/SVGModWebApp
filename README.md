@@ -2,7 +2,7 @@
 
 - Academic web application project with a client-server architecture that allows the creation, upload, modification and removal of SVG files.
 - Completed development in March 2020
-Final Grade: 110
+- Final Grade: 110
 
 ### Core Technical Concepts/Inspiration
 - Created to understand how to write a front-end utilizing HTML, CSS and javascript (jQuery)

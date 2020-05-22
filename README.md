@@ -1,4 +1,4 @@
-### Angel of Death (Used to learn how to use develop a full-stack web application with a fully functional front-end and back-end)
+### SVG Modification Web Application (Used to learn how to use develop a full-stack web application with a fully functional front-end and back-end)
 
 - Academic web application project with a client-server architecture that allows the creation, upload, modification and removal of SVG files.
 - Completed development in March 2020

@@ -1,4 +1,5 @@
 ### SVG Modification Web Application (Used to learn how to use develop a full-stack web application with a fully functional front-end and back-end)
+Edit (March 2021): In retrospect, I think I did really bad with this website LOL. I completely missed on properly implementing REST calls with its objective standards, like using a GET to modify database objects. I somehow did it still hahaha. Otherwise this project is structured pretty poorly in terms of both the front end and the back-end service. I might rewrite it and maybe get a service up.
 
 - Academic web application project with a client-server architecture that allows the creation, upload, modification and removal of SVG files.
 - Completed development in March 2020

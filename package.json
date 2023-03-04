@@ -13,7 +13,7 @@
     "express-fileupload": "^1.1.10",
     "ffi-napi": "^2.4.5",
     "http": "0.0.0",
-    "javascript-obfuscator": "^0.14.3",
+    "javascript-obfuscator": "^4.0.2",
     "nodemon": "^1.18.10"
   }
 }
